@@ -21,15 +21,15 @@
     "absolutePath": "project:/contracts/MarsBaseOffer.sol",
     "exportedSymbols": {
       "MarsBaseOffer": [
-        1097
+        1106
       ]
     },
-    "id": 1098,
+    "id": 1107,
     "license": "MIT",
     "nodeType": "SourceUnit",
     "nodes": [
       {
-        "id": 1092,
+        "id": 1101,
         "literals": [
           "solidity",
           ">=",
@@ -49,9 +49,9 @@
         "contractDependencies": [],
         "contractKind": "contract",
         "fullyImplemented": true,
-        "id": 1097,
+        "id": 1106,
         "linearizedBaseContracts": [
-          1097
+          1106
         ],
         "name": "MarsBaseOffer",
         "nameLocation": "75:13:6",
@@ -59,12 +59,12 @@
         "nodes": [
           {
             "body": {
-              "id": 1095,
+              "id": 1104,
               "nodeType": "Block",
               "src": "118:6:6",
               "statements": []
             },
-            "id": 1096,
+            "id": 1105,
             "implemented": true,
             "kind": "constructor",
             "modifiers": [],
@@ -72,25 +72,25 @@
             "nameLocation": "-1:-1:-1",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 1093,
+              "id": 1102,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "108:2:6"
             },
             "returnParameters": {
-              "id": 1094,
+              "id": 1103,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "118:0:6"
             },
-            "scope": 1097,
+            "scope": 1106,
             "src": "97:27:6",
             "stateMutability": "nonpayable",
             "virtual": false,
             "visibility": "public"
           }
         ],
-        "scope": 1098,
+        "scope": 1107,
         "src": "66:60:6",
         "usedErrors": []
       }
@@ -101,15 +101,15 @@
     "absolutePath": "project:/contracts/MarsBaseOffer.sol",
     "exportedSymbols": {
       "MarsBaseOffer": [
-        1097
+        1106
       ]
     },
-    "id": 1098,
+    "id": 1107,
     "license": "MIT",
     "nodeType": "SourceUnit",
     "nodes": [
       {
-        "id": 1092,
+        "id": 1101,
         "literals": [
           "solidity",
           ">=",
@@ -129,9 +129,9 @@
         "contractDependencies": [],
         "contractKind": "contract",
         "fullyImplemented": true,
-        "id": 1097,
+        "id": 1106,
         "linearizedBaseContracts": [
-          1097
+          1106
         ],
         "name": "MarsBaseOffer",
         "nameLocation": "75:13:6",
@@ -139,12 +139,12 @@
         "nodes": [
           {
             "body": {
-              "id": 1095,
+              "id": 1104,
               "nodeType": "Block",
               "src": "118:6:6",
               "statements": []
             },
-            "id": 1096,
+            "id": 1105,
             "implemented": true,
             "kind": "constructor",
             "modifiers": [],
@@ -152,25 +152,25 @@
             "nameLocation": "-1:-1:-1",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 1093,
+              "id": 1102,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "108:2:6"
             },
             "returnParameters": {
-              "id": 1094,
+              "id": 1103,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "118:0:6"
             },
-            "scope": 1097,
+            "scope": 1106,
             "src": "97:27:6",
             "stateMutability": "nonpayable",
             "virtual": false,
             "visibility": "public"
           }
         ],
-        "scope": 1098,
+        "scope": 1107,
         "src": "66:60:6",
         "usedErrors": []
       }
@@ -183,7 +183,7 @@
   },
   "networks": {},
   "schemaVersion": "3.4.3",
-  "updatedAt": "2021-12-05T03:38:00.586Z",
+  "updatedAt": "2021-12-05T03:42:01.049Z",
   "devdoc": {
     "kind": "dev",
     "methods": {},

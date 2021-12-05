@@ -15,6 +15,7 @@ contract MarsBaseExchange {
       uint256 amountIn;
       uint256 amountOut;
       address offerer;
+      address payoutAddress;
     }
 
     constructor() public {
@@ -22,13 +23,16 @@ contract MarsBaseExchange {
 
     mapping (uint256 => MBOffer) public offers;
 
-    function createOffer(address tokenIn, address tokenOut, uint256 amountIn, uint256 amountOut, address offerer) public payable returns (uint256) {
+    function createOffer(address tokenIn, address tokenOut, uint256 amountIn, uint256 amountOut, address payoutAddress) public payable returns (uint256) {
       MBOffer storage offer = offers[nextOfferId];
+      
       offer.tokenIn = IERC20(tokenIn);
       offer.tokenOut = IERC20(tokenOut);
       offer.amountIn = amountIn;
       offer.amountOut = amountOut;
-      offer.offerer = offerer;
+      offer.offerer = msg.sender;
+      offer.payoutAddress = payoutAddress;
+
       require(offer.tokenIn.transferFrom(msg.sender, address(this), amountIn));
       nextOfferId ++;
       return nextOfferId;
