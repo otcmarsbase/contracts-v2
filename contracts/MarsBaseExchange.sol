@@ -74,8 +74,27 @@ contract MarsBaseExchange {
       MBOffer memory offer = offers[offerId];
 
       assert(offer.active == true);
+      assert(offer.amountIn > 0);
 
       require(offer.tokenIn.transfer(offer.offerer, offer.amountIn));
+
+      offer.active = false;
+      offer.amountIn = 0;
+
+      offers[offerId] = offer;
+
+      return offerId;
+    }
+
+    function acceptOffer(uint256 offerId, uint256 amountIn, uint256 amountOut) public payable returns (uint256) {
+      MBOffer memory offer = offers[offerId];
+
+      assert(offer.active == true);
+      assert(offer.amountIn == amountIn);
+      assert(offer.amountOut == amountOut);
+
+      require(offer.tokenOut.transferFrom(msg.sender, offer.payoutAddress, offer.amountOut));
+      require(offer.tokenIn.transfer(msg.sender, offer.amountIn));
 
       offer.active = false;
       offer.amountIn = 0;
