@@ -17,6 +17,7 @@ contract MarsBaseExchange {
       uint256 amountOut;
       address offerer;
       address payoutAddress;
+      bool active;
     }
 
     mapping (uint256 => MBOffer) public offers;
@@ -64,8 +65,25 @@ contract MarsBaseExchange {
       offer.amountOut = amountOut;
       offer.offerer = offerer;
       offer.payoutAddress = payoutAddress;
+      offer.active = true;
 
       return offer;
+    }
+
+    function cancelOffer(uint256 offerId) public payable returns (uint256) {
+      MBOffer memory offer = offers[offerId];
+
+      assert(offer.active == true);
+
+      require(offer.tokenIn.transfer(offer.offerer, offer.amountIn));
+
+      offer.active = false;
+      offer.amountIn = 0;
+      offer.amountOut = 0;
+
+      offers[offerId] = offer;
+
+      return offerId;
     }
 
 }
