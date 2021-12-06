@@ -22,32 +22,6 @@ contract MarsBaseExchange {
 
     mapping (uint256 => MBOffer) public offers;
 
-    function createOffer(address tokenIn, address tokenOut, uint256 amountIn, uint256 amountOut, address offerer, address payoutAddress) public payable returns (uint256) {
-      MBOffer memory offer = initOffer(tokenIn, tokenOut, amountIn, amountOut, offerer, payoutAddress);
-
-      uint256 offerId = nextOfferId;
-      offers[offerId] = offer;
-
-      require(offer.tokenIn.transferFrom(msg.sender, address(this), amountIn));
-      
-      nextOfferId ++;
-
-      return offerId;
-    }
-
-    function createOffer(address tokenIn, address tokenOut, uint256 amountIn, uint256 amountOut, address payoutAddress) public payable returns (uint256) {
-      MBOffer memory offer = initOffer(tokenIn, tokenOut, amountIn, amountOut, msg.sender, payoutAddress);
-
-      uint256 offerId = nextOfferId;
-      offers[offerId] = offer;
-
-      require(offer.tokenIn.transferFrom(msg.sender, address(this), amountIn));
-      
-      nextOfferId ++;
-
-      return offerId;
-    }
-
     function createOffer(address tokenIn, address tokenOut, uint256 amountIn, uint256 amountOut) public payable returns (uint256) {
 
       MBOffer memory offer = initOffer(tokenIn, tokenOut, amountIn, amountOut, msg.sender, msg.sender);
