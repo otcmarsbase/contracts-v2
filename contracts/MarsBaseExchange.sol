@@ -79,6 +79,7 @@ contract MarsBaseExchange {
     function cancelOffer(uint256 offerId) public payable returns (uint256) {
       MBOffer memory offer = offers[offerId];
 
+      assert(msg.sender == offer.offerer);
       assert(offer.active == true);
       assert(offer.amountIn > 0);
 

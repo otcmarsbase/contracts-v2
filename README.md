@@ -23,6 +23,9 @@ npx truffle develop
 
 # Open a second terminal to compile and deploy the contracts
 npx truffle deploy
+
+# Run the unit tests
+npx truffle test
 ```
 
 ## Rinkeby/Ropsten testnet Development Workflow
