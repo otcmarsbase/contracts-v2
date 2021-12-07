@@ -20,6 +20,10 @@ contract MarsBaseExchange {
       bool active;
     }
 
+    event OfferCreated(uint256 offerId, MBOffer offer);
+    event OfferCancelled(uint256 offerId, MBOffer offer);
+    event offerAccepted(uint256 offerId, MBOffer offer);
+
     mapping (uint256 => MBOffer) public offers;
 
     function createOffer(address tokenIn, address tokenOut, uint256 amountIn, uint256 amountOut) public payable returns (uint256) {
@@ -31,6 +35,8 @@ contract MarsBaseExchange {
       require(offer.tokenIn.transferFrom(msg.sender, address(this), amountIn));
       
       nextOfferId ++;
+
+      emit OfferCreated(offerId, offer);
 
       return offerId;
     }
@@ -64,6 +70,8 @@ contract MarsBaseExchange {
       assert(offers[offerId].amountIn == 0);
       assert(offers[offerId].offerer == address(0));
 
+      emit OfferCancelled(offerId, offer);
+
       return offerId;
     }
 
@@ -82,6 +90,8 @@ contract MarsBaseExchange {
       assert(offers[offerId].active == false);
       assert(offers[offerId].amountIn == 0);
       assert(offers[offerId].offerer == address(0));
+
+      emit offerAccepted(offerId, offer);
 
       return offerId;
     }

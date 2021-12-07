@@ -25,7 +25,11 @@ npx truffle develop
 npx truffle deploy
 
 # Run the unit tests
-npx truffle test
+npx truffle test 
+
+# To inspect the event output, run with --show-events.
+# Adds a lot more debugging output to the console, so it's not always good to have on.
+npx truffle test --show-events
 ```
 
 ## Rinkeby/Ropsten testnet Development Workflow
