@@ -109,7 +109,12 @@ contract("MarsBaseExchange", async function (accounts) {
 
     // Ensure it's no longer active and the amount in is 0
     assert.isFalse(cancelledOffer.active);
-    assert.equal(cancelledOffer.amountIn, 0);
+    assert.equal(cancelledOffer.amountIn.toString(), "0");
+    assert.equal(cancelledOffer.amountOut.toString(), "0");
+    assert.equal(cancelledOffer.tokenIn, "0x0000000000000000000000000000000000000000");
+    assert.equal(cancelledOffer.tokenOut, "0x0000000000000000000000000000000000000000");
+    assert.equal(cancelledOffer.offerer, "0x0000000000000000000000000000000000000000");
+    assert.equal(cancelledOffer.payoutAddress, "0x0000000000000000000000000000000000000000");
 
     // FInally make sure the tokens are returned to the user
     let finalUserTestTokenBalance = await testToken.balanceOf(userAddress);
@@ -169,10 +174,14 @@ contract("MarsBaseExchange", async function (accounts) {
     // Get the offer again, this time after it's been cancelled.
     let acceptedOffer = await dex.offers(0);
 
-    // Ensure it's no longer active and the amount in0/out is 0
+    // Ensure it's no longer active and the amount in/out is 0
     assert.isFalse(acceptedOffer.active);
-    assert.equal(acceptedOffer.amountIn, 0);
-    assert.equal(acceptedOffer.amountOut, 0);
+    assert.equal(acceptedOffer.amountIn.toString(), "0");
+    assert.equal(acceptedOffer.amountOut.toString(), "0");
+    assert.equal(acceptedOffer.tokenIn, "0x0000000000000000000000000000000000000000");
+    assert.equal(acceptedOffer.tokenOut, "0x0000000000000000000000000000000000000000");
+    assert.equal(acceptedOffer.offerer, "0x0000000000000000000000000000000000000000");
+    assert.equal(acceptedOffer.payoutAddress, "0x0000000000000000000000000000000000000000");
 
     // FInally make sure the tokens are moved to their proper places
     let finalUserTestTokenBalance = await testToken.balanceOf(userAddress);

@@ -23,7 +23,6 @@ contract MarsBaseExchange {
     mapping (uint256 => MBOffer) public offers;
 
     function createOffer(address tokenIn, address tokenOut, uint256 amountIn, uint256 amountOut) public payable returns (uint256) {
-
       MBOffer memory offer = initOffer(tokenIn, tokenOut, amountIn, amountOut, msg.sender, msg.sender);
 
       uint256 offerId = nextOfferId;
@@ -59,10 +58,7 @@ contract MarsBaseExchange {
 
       require(offer.tokenIn.transfer(offer.offerer, offer.amountIn));
 
-      offer.active = false;
-      offer.amountIn = 0;
-
-      offers[offerId] = offer;
+      delete offers[offerId];
 
       return offerId;
     }
@@ -77,11 +73,7 @@ contract MarsBaseExchange {
       require(offer.tokenOut.transferFrom(msg.sender, offer.payoutAddress, offer.amountOut));
       require(offer.tokenIn.transfer(msg.sender, offer.amountIn));
 
-      offer.active = false;
-      offer.amountIn = 0;
-      offer.amountOut = 0;
-
-      offers[offerId] = offer;
+      delete offers[offerId];
 
       return offerId;
     }
