@@ -61,6 +61,8 @@ contract MarsBaseExchange {
       delete offers[offerId];
 
       assert(offers[offerId].active == false);
+      assert(offers[offerId].amountIn == 0);
+      assert(offers[offerId].offerer == address(0));
 
       return offerId;
     }
@@ -78,6 +80,8 @@ contract MarsBaseExchange {
       delete offers[offerId];
 
       assert(offers[offerId].active == false);
+      assert(offers[offerId].amountIn == 0);
+      assert(offers[offerId].offerer == address(0));
 
       return offerId;
     }
