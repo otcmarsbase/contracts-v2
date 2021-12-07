@@ -60,6 +60,8 @@ contract MarsBaseExchange {
 
       delete offers[offerId];
 
+      assert(offers[offerId].active == false);
+
       return offerId;
     }
 
@@ -74,6 +76,8 @@ contract MarsBaseExchange {
       require(offer.tokenIn.transfer(msg.sender, offer.amountIn));
 
       delete offers[offerId];
+
+      assert(offers[offerId].active == false);
 
       return offerId;
     }
