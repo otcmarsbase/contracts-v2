@@ -22,7 +22,7 @@ contract MarsBaseExchange {
 
     event OfferCreated(uint256 offerId, MBOffer offer);
     event OfferCancelled(uint256 offerId, MBOffer offer);
-    event offerAccepted(uint256 offerId, MBOffer offer);
+    event OfferAccepted(uint256 offerId, MBOffer offer);
 
     mapping (uint256 => MBOffer) public offers;
 
@@ -37,7 +37,7 @@ contract MarsBaseExchange {
       offers[offerId] = offer;
 
       require(offer.tokenIn.transferFrom(msg.sender, address(this), amountIn));
-      
+
       nextOfferId ++;
 
       emit OfferCreated(offerId, offer);
@@ -47,7 +47,7 @@ contract MarsBaseExchange {
 
     function initOffer(address tokenIn, address[] calldata tokenOut, uint256 amountIn, uint256[] calldata amountOut, address offerer, address payoutAddress) private pure returns (MBOffer memory) {
       MBOffer memory offer = MBOffer(IERC20(tokenIn), tokenOut, amountIn, amountOut, offerer, payoutAddress, true);
-      
+
       offer.tokenIn = IERC20(tokenIn);
       offer.tokenOut = tokenOut;
       offer.amountIn = amountIn;
@@ -106,7 +106,7 @@ contract MarsBaseExchange {
       assert(offers[offerId].amountIn == 0);
       assert(offers[offerId].offerer == address(0));
 
-      emit offerAccepted(offerId, offer);
+      emit OfferAccepted(offerId, offer);
 
       return offerId;
     }
