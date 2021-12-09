@@ -12,9 +12,9 @@ contract MarsBaseExchange {
 
     struct MBOffer {
       IERC20 tokenIn;
-      IERC20 tokenOut;
+      address[] tokenOut;
       uint256 amountIn;
-      uint256 amountOut;
+      uint256[] amountOut;
       address offerer;
       address payoutAddress;
       bool active;
@@ -26,7 +26,11 @@ contract MarsBaseExchange {
 
     mapping (uint256 => MBOffer) public offers;
 
-    function createOffer(address tokenIn, address tokenOut, uint256 amountIn, uint256 amountOut) public payable returns (uint256) {
+    function getOffer(uint256 offerId) public view returns (MBOffer memory) {
+      return offers[offerId];
+    }
+
+    function createOffer(address tokenIn, address[] calldata tokenOut, uint256 amountIn, uint256[] calldata amountOut) public payable returns (uint256) {
       MBOffer memory offer = initOffer(tokenIn, tokenOut, amountIn, amountOut, msg.sender, msg.sender);
 
       uint256 offerId = nextOfferId;
@@ -41,11 +45,11 @@ contract MarsBaseExchange {
       return offerId;
     }
 
-    function initOffer(address tokenIn, address tokenOut, uint256 amountIn, uint256 amountOut, address offerer, address payoutAddress) private pure returns (MBOffer memory) {
-      MBOffer memory offer;
+    function initOffer(address tokenIn, address[] calldata tokenOut, uint256 amountIn, uint256[] calldata amountOut, address offerer, address payoutAddress) private pure returns (MBOffer memory) {
+      MBOffer memory offer = MBOffer(IERC20(tokenIn), tokenOut, amountIn, amountOut, offerer, payoutAddress, true);
       
       offer.tokenIn = IERC20(tokenIn);
-      offer.tokenOut = IERC20(tokenOut);
+      offer.tokenOut = tokenOut;
       offer.amountIn = amountIn;
       offer.amountOut = amountOut;
       offer.offerer = offerer;
@@ -75,14 +79,25 @@ contract MarsBaseExchange {
       return offerId;
     }
 
-    function acceptOffer(uint256 offerId, uint256 amountIn, uint256 amountOut) public payable returns (uint256) {
+    function acceptOffer(uint256 offerId, address tokenOut, uint256 amountIn, uint256 amountOut) public payable returns (uint256) {
       MBOffer memory offer = offers[offerId];
 
       assert(offer.active == true);
       assert(offer.amountIn == amountIn);
-      assert(offer.amountOut == amountOut);
 
-      require(offer.tokenOut.transferFrom(msg.sender, offer.payoutAddress, offer.amountOut));
+      address acceptedTokenOut = address(0);
+      uint256 acceptedAmountOut = 0;
+      for (uint256 index = 0; index < offer.tokenOut.length; index++) {
+        if (offer.tokenOut[index] == tokenOut && offer.amountOut[index] == amountOut) {
+          acceptedTokenOut = offer.tokenOut[index];
+          acceptedAmountOut = offer.amountOut[index];
+        }
+      }
+
+      assert(acceptedTokenOut == tokenOut);
+      assert(acceptedAmountOut == amountOut);
+
+      require(IERC20(acceptedTokenOut).transferFrom(msg.sender, offer.payoutAddress, acceptedAmountOut));
       require(offer.tokenIn.transfer(msg.sender, offer.amountIn));
 
       delete offers[offerId];
