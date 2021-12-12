@@ -33,12 +33,10 @@ contract MarsBaseExchange {
       return offers[offerId];
     }
 
-    function price(uint256 amountIn, uint256 amountOut, uint256 chunkSize) public pure returns (uint256) {
-      // uint256 input_amount_with_fee = amountIn.mul(1);
-      // uint256 numerator = input_amount_with_fee.mul(amountOut);
-      // uint256 denominator = remainingAmountIn.add(amountIn);
-      uint256 conversionRate = amountIn / amountOut;
-      return chunkSize.mul(conversionRate);
+    function price(uint256 amountIn, uint256 offerAmountIn, uint256 offerAmountOut) public pure returns (uint256) {
+      uint256 numerator = amountIn.mul(offerAmountOut);
+      uint256 denominator = offerAmountIn;
+      return numerator / denominator;
     }
 
     function createOffer(address tokenIn, address[] calldata tokenOut, uint256 amountIn, uint256[] calldata amountOut, uint256 smallestChunkSize) public payable returns (uint256) {
@@ -142,16 +140,16 @@ contract MarsBaseExchange {
         }
       }
 
-      uint256 conversionRate = offer.amountIn / acceptedAmountOut;
-
-      uint256 partialAmountIn = amountOut.mul(conversionRate); //price(offer.amountIn, acceptedAmountOut, amountOut);
-      uint256 partialAmountOut = offer.amountRemaining / conversionRate;//price(partialAmountOut, amountOut, offer.amountIn);
+      uint256 partialAmountIn = price(amountOut, acceptedAmountOut, offer.amountIn);
+      uint256 partialAmountOut = price(partialAmountIn, offer.amountIn, acceptedAmountOut);
 
       assert(acceptedTokenOut == tokenOut);
-      // assert(partialAmountOut <= amountOut);
+
+      assert(partialAmountOut >= 0);
+      assert(partialAmountOut <= acceptedAmountOut);
 
       assert(partialAmountIn >= offer.smallestChunkSize);
-      // assert(partialAmountOut <= offer.amountIn);
+      assert(partialAmountIn <= offer.amountIn);
 
       require(IERC20(acceptedTokenOut).transferFrom(msg.sender, offer.payoutAddress, partialAmountOut));
       require(offer.tokenIn.transfer(msg.sender, partialAmountIn));

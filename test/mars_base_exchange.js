@@ -53,7 +53,7 @@ contract("MarsBaseExchange", async function (accounts) {
     let offer = await dex.getOffer(0);
 
     assert.isTrue(offer.active);
-    console.log(offer);
+
     assert.equal(amountIn.toString(), offer.amountIn.toString());
     assert.equal(amountOut[0].toString(), offer.amountOut[0].toString());
     assert.equal(amountOut[1].toString(), offer.amountOut[1].toString());
@@ -73,40 +73,35 @@ contract("MarsBaseExchange", async function (accounts) {
     return;
   });
 
-  it("should calculate a fixed amount of tokens for a partial order", async function () {
+  it("should calculate a price where amountIn is stronger", async function () {
     // Define Constants
     const amountIn = 5 * 10 ** 10;
     const amountOut = 1 * 10 ** 10;
-    const chunkSize = 0.1 * 10 ** 10;
-    const expectedTokensOut = amountIn / amountOut * chunkSize;
+    const buyAmount = 0.1 * 10 ** 10;
+    const expectedAmount = (buyAmount * amountOut) / (amountIn);
     
     // Get Contract Instances
     let dex = await MarsBaseExchange.new();
 
-    let price = await dex.price(amountIn, amountOut, chunkSize);
+    let price = await dex.price(buyAmount, amountIn, amountOut);
 
-    console.log(price.toString());
-    assert.equal(price.toString(), expectedTokensOut.toString());
+    assert.equal(price.toString(), expectedAmount.toString());
   });
 
-  it("should calculate a fixed amount of tokens for a full order", async function () {
+  it("should calculate a price where amountIn is weaker", async function () {
     // Define Constants
-    const amountIn = 5 * 10 ** 10;
-    const amountOut = 1 * 10 ** 10;
-    const chunkSize = 1 * 10 ** 10;
-    const expectedTokensOut = amountIn / amountOut * chunkSize;
+    const amountIn = 1 * 10 ** 10;
+    const amountOut = 5 * 10 ** 10;
+    const buyAmount = 0.1 * 10 ** 10;
+    const expectedAmount = (buyAmount * amountOut) / amountIn;
     
     // Get Contract Instances
     let dex = await MarsBaseExchange.new();
 
-    let price = await dex.price(amountIn, amountOut, chunkSize);
+    let price = await dex.price(buyAmount, amountIn, amountOut);
 
-    console.log(price.toString());
-    assert.equal(price.toString(), expectedTokensOut.toString());
+    assert.equal(price.toString(), expectedAmount.toString());
   });
-
-
-
 
   it("should cancel an order", async function () {
     // Define Constants
@@ -302,8 +297,6 @@ contract("MarsBaseExchange", async function (accounts) {
     // Get the offer again, this time after it's been cancelled.
     let acceptedOffer = await dex.getOffer(0);
 
-    console.log(acceptedOffer);
-
     const conversionnRate = amountIn / amountOut[0];
 
     // Ensure it's no longer active and the amount in/out is 0
@@ -382,8 +375,6 @@ contract("MarsBaseExchange", async function (accounts) {
 
     // Get the offer again, this time after it's been cancelled.
     let acceptedOffer = await dex.getOffer(0);
-
-    console.log(acceptedOffer);
 
     const conversionnRate = amountIn / amountOut[0];
 
