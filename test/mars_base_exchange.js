@@ -1,4 +1,4 @@
-const MarsBaseExchange = artifacts.require("MarsBaseExchange");
+const MarsBaseExchange = artifacts.require("MockMarsBaseExchange");
 const USDTCoin = artifacts.require("USDTCoin");
 const TestToken = artifacts.require("TestToken");
 const EPICCoin = artifacts.require("EPICCoin");
@@ -15,6 +15,7 @@ contract("MarsBaseExchange", async function (accounts) {
     const amountIn = 50 * 10 ** 10;
     const amountOut = [10 * 10 ** 10, 20 * 10 ** 10];
     const smallestChunkSize = 1 * 10 ** 10;
+    const deadline = 0;
     
     // Get the user's address
     const userAddress = accounts[0];
@@ -43,7 +44,7 @@ contract("MarsBaseExchange", async function (accounts) {
     await epicCoin.approve(dex.address, approvalAmount);
 
     // Create Offer
-    await dex.createOffer(testToken.address, tokensIn, amountIn, amountOut, smallestChunkSize);
+    await dex.createOffer(testToken.address, tokensIn, amountIn, amountOut, smallestChunkSize, deadline);
 
     // Get the updated balances, user should be less, dex should have the tokens deposited
     let finalUserTestTokenBalance = await testToken.balanceOf(userAddress);
@@ -69,6 +70,133 @@ contract("MarsBaseExchange", async function (accounts) {
 
     assert.equal(finalUserTestTokenBalance.toString(), (initialUserTestTokenBalance - amountIn).toLocaleString('fullwide', {useGrouping:false}));
     assert.equal(finalDexTestTokenBalance.toString(), amountIn.toString());
+
+    return;
+  });
+
+  it("is ownable and owned initially by contract deployer", async function () {
+    // Get the user's address
+    const userAddress = accounts[0];
+
+    // Get Contract Instances
+    let dex = await MarsBaseExchange.new();
+
+    let owner = await dex.owner();
+
+    assert.equal(owner,userAddress);
+  });
+
+  it("has offer deadlines", async function () {
+    // Define Constants
+    const approvalAmount = 100000 * 10 ** 10;
+    const amountIn = 50 * 10 ** 10;
+    const amountOut = [10 * 10 ** 10];
+    const smallestChunkSize = 1 * 10 ** 10;
+    const deadline = Date.now() + 10000;
+
+    // Get the user's address
+    const userAddress = accounts[0];
+
+    // Get contract instances
+    let dex = await MarsBaseExchange.new();
+    let testToken = await TestToken.new();
+    let usdt = await USDTCoin.new();
+
+    // Make a list of tokens we are willing to accept
+    let tokensIn = [usdt.address];
+
+    // Approve the contract to move our tokens
+    await testToken.approve(dex.address, approvalAmount);
+    await usdt.approve(dex.address, approvalAmount);
+
+    // Create Offer
+    await dex.createOffer(testToken.address, tokensIn, amountIn, amountOut, smallestChunkSize, deadline);
+
+    // Get the offer and ensure it's all set correctly
+    let offer = await dex.getOffer(0);
+
+    assert.isTrue(offer.active);
+    assert.equal(deadline, offer.deadline);
+
+    return;
+  });
+
+  it("can cancel all expired orders", async function () {
+    // Define Constants
+    const approvalAmount = 100000 * 10 ** 10;
+    const amountIn = 50 * 10 ** 10;
+    const amountOut = [10 * 10 ** 10];
+    const smallestChunkSize = 1 * 10 ** 10;
+    const deadline = Date.now() + 10;
+    const mockedExpireTime = deadline + 10;
+
+    // Get the user's address
+    const userAddress = accounts[0];
+
+    // Get contract instances
+    let dex = await MarsBaseExchange.new();
+    let testToken = await TestToken.new();
+    let usdt = await USDTCoin.new();
+
+    // Make a list of tokens we are willing to accept
+    let tokensIn = [usdt.address];
+
+    // Approve the contract to move our tokens
+    await testToken.approve(dex.address, approvalAmount);
+    await usdt.approve(dex.address, approvalAmount);
+
+    // Create Offer
+    await dex.createOffer(testToken.address, tokensIn, amountIn, amountOut, smallestChunkSize, deadline);
+
+    // Get the offer and ensure it's all set correctly
+    let offer = await dex.getOffer(0);
+
+    assert.isTrue(offer.active);
+    assert.equal(deadline, offer.deadline);
+
+    await dex._mock_setBlockTimeStamp(mockedExpireTime);
+
+    await dex.setCurrentTime();
+
+    let cancelledOffer = await dex.getOffer(0);
+
+    assert.isFalse(cancelledOffer.active);
+    assert.equal(cancelledOffer.deadline, 0);
+
+    return;
+  });
+
+  it("can have no offer deadlines", async function () {
+    // Define Constants
+    const approvalAmount = 100000 * 10 ** 10;
+    const amountIn = 50 * 10 ** 10;
+    const amountOut = [10 * 10 ** 10];
+    const smallestChunkSize = 1 * 10 ** 10;
+    const deadline = 0;
+
+    // Get the user's address
+    const userAddress = accounts[0];
+
+    // Get contract instances
+    let dex = await MarsBaseExchange.new();
+    let testToken = await TestToken.new();
+    let usdt = await USDTCoin.new();
+
+    // Make a list of tokens we are willing to accept
+    let tokensIn = [usdt.address];
+
+    // Approve the contract to move our tokens
+    await testToken.approve(dex.address, approvalAmount);
+    await usdt.approve(dex.address, approvalAmount);
+
+    // Create Offer
+    await dex.createOffer(testToken.address, tokensIn, amountIn, amountOut, smallestChunkSize, deadline);
+
+    // Get the offer and ensure it's all set correctly
+    let offer = await dex.getOffer(0);
+
+    assert.isTrue(offer.active);
+    assert.equal(deadline, offer.deadline);
 
     return;
   });
@@ -109,6 +237,7 @@ contract("MarsBaseExchange", async function (accounts) {
     const amountIn = 50 * 10 ** 10;
     const amountOut = [10 * 10 ** 10];
     const smallestChunkSize = 1 * 10 ** 10;
+    const deadline = 0;
 
     // Get the user's address
     const userAddress = accounts[0];
@@ -132,7 +261,7 @@ contract("MarsBaseExchange", async function (accounts) {
     assert.equal(initialUserTestTokenBalance.toString(), testTokenTotalSupply.toString());
 
     // Create the offer
-    await dex.createOffer(testToken.address, tokensOut, amountIn, amountOut, smallestChunkSize);
+    await dex.createOffer(testToken.address, tokensOut, amountIn, amountOut, smallestChunkSize, deadline);
 
     // Get balance and validate that the tokens have been moved to the dex
     let createdUserTestTokenBalance = await testToken.balanceOf(userAddress);
@@ -171,6 +300,7 @@ contract("MarsBaseExchange", async function (accounts) {
     const amountIn = 50 * 10 ** 10;
     const amountOut = [10 * 10 ** 10, 20 * 10 ** 10];
     const smallestChunkSize = 1 * 10 ** 10;
+    const deadline = 0;
 
     // Get the user's address
     const userAddress = accounts[0];
@@ -201,7 +331,7 @@ contract("MarsBaseExchange", async function (accounts) {
     assert.equal(initialUserUSDTBalance.toString(), usdtTotalSupply.toString());
 
     // Create the offer
-    await dex.createOffer(testToken.address, tokensOut, amountIn, amountOut, smallestChunkSize);
+    await dex.createOffer(testToken.address, tokensOut, amountIn, amountOut, smallestChunkSize, deadline);
 
     // Get balance and validate that the tokens have been moved to the dex
     let createdUserTestTokenBalance = await testToken.balanceOf(userAddress);
@@ -229,6 +359,7 @@ contract("MarsBaseExchange", async function (accounts) {
     assert.equal(acceptedOffer.tokenOut.length, 0);
     assert.equal(acceptedOffer.offerer, "0x0000000000000000000000000000000000000000");
     assert.equal(acceptedOffer.payoutAddress, "0x0000000000000000000000000000000000000000");
+    assert.equal(acceptedOffer.deadline, deadline);
 
     // FInally make sure the tokens are moved to their proper places
     let finalUserTestTokenBalance = await testToken.balanceOf(userAddress);
@@ -247,6 +378,7 @@ contract("MarsBaseExchange", async function (accounts) {
     const amountIn = 50 * 10 ** 10;
     const amountOut = [10 * 10 ** 10, 20 * 10 ** 10];
     const smallestChunkSize = 1 * 10 ** 10;
+    const deadline = 0;
 
     // Get the user's address
     const userAddress = accounts[0];
@@ -277,7 +409,7 @@ contract("MarsBaseExchange", async function (accounts) {
     assert.equal(initialUserUSDTBalance.toString(), usdtTotalSupply.toString());
 
     // Create the offer
-    await dex.createOffer(testToken.address, tokensOut, amountIn, amountOut, smallestChunkSize);
+    await dex.createOffer(testToken.address, tokensOut, amountIn, amountOut, smallestChunkSize, deadline);
 
     // Get balance and validate that the tokens have been moved to the dex
     let createdUserTestTokenBalance = await testToken.balanceOf(userAddress);
@@ -308,6 +440,7 @@ contract("MarsBaseExchange", async function (accounts) {
     assert.equal(acceptedOffer.tokenOut.length, 2);
     assert.equal(acceptedOffer.offerer, userAddress);
     assert.equal(acceptedOffer.payoutAddress, userAddress);
+    assert.equal(acceptedOffer.deadline, 0);
 
     // FInally make sure the tokens are moved to their proper places
     let finalUserTestTokenBalance = await testToken.balanceOf(userAddress);
@@ -326,6 +459,7 @@ contract("MarsBaseExchange", async function (accounts) {
     const amountIn = 50 * 10 ** 10;
     const amountOut = [10 * 10 ** 10, 20 * 10 ** 10];
     const smallestChunkSize = 1 * 10 ** 10;
+    const deadline = 0;
 
     // Get the user's address
     const userAddress = accounts[0];
@@ -356,7 +490,7 @@ contract("MarsBaseExchange", async function (accounts) {
     assert.equal(initialUserUSDTBalance.toString(), usdtTotalSupply.toString());
 
     // Create the offer
-    await dex.createOffer(testToken.address, tokensOut, amountIn, amountOut, smallestChunkSize);
+    await dex.createOffer(testToken.address, tokensOut, amountIn, amountOut, smallestChunkSize, deadline);
 
     // Get balance and validate that the tokens have been moved to the dex
     let createdUserTestTokenBalance = await testToken.balanceOf(userAddress);
@@ -387,6 +521,7 @@ contract("MarsBaseExchange", async function (accounts) {
     assert.equal(acceptedOffer.tokenOut.length, 0);
     assert.equal(acceptedOffer.offerer, "0x0000000000000000000000000000000000000000");
     assert.equal(acceptedOffer.payoutAddress, "0x0000000000000000000000000000000000000000");
+    assert.equal(acceptedOffer.deadline, deadline);
 
     // FInally make sure the tokens are moved to their proper places
     let finalUserTestTokenBalance = await testToken.balanceOf(userAddress);
@@ -399,3 +534,9 @@ contract("MarsBaseExchange", async function (accounts) {
     
   });
 });
+
+
+// Sleep Function
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}

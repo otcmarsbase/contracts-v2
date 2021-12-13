@@ -3,8 +3,9 @@ pragma solidity >=0.4.22 <0.9.0;
 
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract MarsBaseExchange {
+contract MarsBaseExchange is Ownable {
 
     using SafeMath for uint256;
 
@@ -17,6 +18,7 @@ contract MarsBaseExchange {
       uint256[] amountOut;
       uint256 smallestChunkSize;
       uint256 amountRemaining;
+      uint256 deadline;
       address offerer;
       address payoutAddress;
       bool active;
@@ -29,6 +31,22 @@ contract MarsBaseExchange {
 
     mapping (uint256 => MBOffer) public offers;
 
+    function getTime() virtual internal view returns (uint256) {
+        // current block timestamp as seconds since unix epoch
+        // ref: https://solidity.readthedocs.io/en/v0.5.7/units-and-global-variables.html#block-and-transaction-properties
+        return block.timestamp;
+    }
+
+    function setCurrentTime() public onlyOwner {
+      for (uint256 index = 0; index < nextOfferId; index++) {
+        if (getTime() >= offers[index].deadline && offers[index].deadline != 0) {
+          cancelOffer(index);
+
+          assert(offers[index].active == false);
+        }
+      }
+    }
+
     function getOffer(uint256 offerId) public view returns (MBOffer memory) {
       return offers[offerId];
     }
@@ -39,10 +57,11 @@ contract MarsBaseExchange {
       return numerator / denominator;
     }
 
-    function createOffer(address tokenIn, address[] calldata tokenOut, uint256 amountIn, uint256[] calldata amountOut, uint256 smallestChunkSize) public payable returns (uint256) {
+    function createOffer(address tokenIn, address[] calldata tokenOut, uint256 amountIn, uint256[] calldata amountOut, uint256 smallestChunkSize, uint256 deadline) public payable returns (uint256) {
       assert(amountIn >= smallestChunkSize);
+      assert(getTime() < deadline || deadline == 0);
       
-      MBOffer memory offer = initOffer(tokenIn, tokenOut, amountIn, amountOut, smallestChunkSize, msg.sender, msg.sender);
+      MBOffer memory offer = initOffer(tokenIn, tokenOut, amountIn, amountOut, smallestChunkSize, msg.sender, msg.sender, deadline);
 
       uint256 offerId = nextOfferId;
       offers[offerId] = offer;
@@ -56,7 +75,7 @@ contract MarsBaseExchange {
       return offerId;
     }
 
-    function initOffer(address tokenIn, address[] calldata tokenOut, uint256 amountIn, uint256[] calldata amountOut, uint256 smallestChunkSize, address offerer, address payoutAddress) private pure returns (MBOffer memory) {
+    function initOffer(address tokenIn, address[] calldata tokenOut, uint256 amountIn, uint256[] calldata amountOut, uint256 smallestChunkSize, address offerer, address payoutAddress, uint256 deadline) private pure returns (MBOffer memory) {
       MBOffer memory offer;
 
       offer.tokenIn = IERC20(tokenIn);
@@ -69,6 +88,8 @@ contract MarsBaseExchange {
       
       offer.offerer = offerer;
       offer.payoutAddress = payoutAddress;
+
+      offer.deadline = deadline;
       offer.active = true;
 
       return offer;
@@ -81,7 +102,7 @@ contract MarsBaseExchange {
       assert(offer.active == true);
       assert(offer.amountIn > 0);
 
-      require(offer.tokenIn.transfer(offer.offerer, offer.amountIn));
+      require(offer.tokenIn.transfer(offer.offerer, offer.amountRemaining));
 
       delete offers[offerId];
 
@@ -99,6 +120,7 @@ contract MarsBaseExchange {
 
       assert(offer.active == true);
       assert(offer.amountIn == amountIn);
+      assert(getTime() < offer.deadline || offer.deadline == 0);
 
       address acceptedTokenOut = address(0);
       uint256 acceptedAmountOut = 0;
@@ -130,6 +152,7 @@ contract MarsBaseExchange {
       MBOffer memory offer = offers[offerId];
 
       assert(offer.active == true);
+      assert(getTime() < offer.deadline || offer.deadline == 0);
 
       address acceptedTokenOut = address(0);
       uint256 acceptedAmountOut = 0;
