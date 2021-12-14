@@ -169,10 +169,9 @@ contract MarsBaseExchange is Ownable {
       assert(acceptedTokenOut == tokenOut);
 
       assert(partialAmountOut >= 0);
-      assert(partialAmountOut <= acceptedAmountOut);
 
       assert(partialAmountIn >= offer.smallestChunkSize);
-      assert(partialAmountIn <= offer.amountIn);
+      assert(partialAmountIn <= offer.amountRemaining);
 
       require(IERC20(acceptedTokenOut).transferFrom(msg.sender, offer.payoutAddress, partialAmountOut));
       require(offer.tokenIn.transfer(msg.sender, partialAmountIn));
