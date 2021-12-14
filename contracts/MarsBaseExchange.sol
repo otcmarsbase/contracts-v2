@@ -58,6 +58,11 @@ contract MarsBaseExchange is Ownable {
     }
 
     function createOffer(address tokenIn, address[] calldata tokenOut, uint256 amountIn, uint256[] calldata amountOut, uint256 smallestChunkSize, uint256 deadline) public payable returns (uint256) {
+      assert(tokenIn != address(0));
+      for (uint256 index = 0; index < tokenOut.length; index++) {
+        assert(tokenOut[index] != address(0));
+      }
+
       assert(amountIn >= smallestChunkSize);
       assert(getTime() < deadline || deadline == 0);
       
@@ -118,6 +123,7 @@ contract MarsBaseExchange is Ownable {
     function acceptOffer(uint256 offerId, address tokenOut, uint256 amountIn, uint256 amountOut) public payable returns (uint256) {
       MBOffer memory offer = offers[offerId];
 
+      assert(tokenOut != address(0));
       assert(offer.active == true);
       assert(offer.amountIn == amountIn);
       assert(getTime() < offer.deadline || offer.deadline == 0);
@@ -151,6 +157,7 @@ contract MarsBaseExchange is Ownable {
     function acceptOfferPart(uint256 offerId, address tokenOut, uint256 amountOut) public payable returns (uint256) {
       MBOffer memory offer = offers[offerId];
 
+      assert(tokenOut != address(0));
       assert(offer.active == true);
       assert(getTime() < offer.deadline || offer.deadline == 0);
 

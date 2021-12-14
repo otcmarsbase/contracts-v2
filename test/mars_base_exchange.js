@@ -2,6 +2,7 @@ const MarsBaseExchange = artifacts.require("MockMarsBaseExchange");
 const USDTCoin = artifacts.require("USDTCoin");
 const TestToken = artifacts.require("TestToken");
 const EPICCoin = artifacts.require("EPICCoin");
+const assert = require('assert/strict');
 
 /*
  * uncomment accounts to access the test accounts made available by the
@@ -53,7 +54,7 @@ contract("MarsBaseExchange", async function (accounts) {
     // Get the offer and ensure it's all set correctly
     let offer = await dex.getOffer(0);
 
-    assert.isTrue(offer.active);
+    assert.equal(offer.active, true);
 
     assert.equal(amountIn.toString(), offer.amountIn.toString());
     assert.equal(amountOut[0].toString(), offer.amountOut[0].toString());
@@ -115,8 +116,8 @@ contract("MarsBaseExchange", async function (accounts) {
     // Get the offer and ensure it's all set correctly
     let offer = await dex.getOffer(0);
 
-    assert.isTrue(offer.active);
-    assert.equal(deadline, offer.deadline);
+    assert.equal(offer.active, true);
+    assert.equal(deadline.toString(), offer.deadline);
 
     return;
   });
@@ -151,8 +152,8 @@ contract("MarsBaseExchange", async function (accounts) {
     // Get the offer and ensure it's all set correctly
     let offer = await dex.getOffer(0);
 
-    assert.isTrue(offer.active);
-    assert.equal(deadline, offer.deadline);
+    assert.equal(offer.active, true);
+    assert.equal(deadline.toString(), offer.deadline);
 
     await dex._mock_setBlockTimeStamp(mockedExpireTime);
 
@@ -160,8 +161,8 @@ contract("MarsBaseExchange", async function (accounts) {
 
     let cancelledOffer = await dex.getOffer(0);
 
-    assert.isFalse(cancelledOffer.active);
-    assert.equal(cancelledOffer.deadline, 0);
+    assert.equal(cancelledOffer.active, false);
+    assert.equal(cancelledOffer.deadline, '0');
 
     return;
   });
@@ -195,8 +196,8 @@ contract("MarsBaseExchange", async function (accounts) {
     // Get the offer and ensure it's all set correctly
     let offer = await dex.getOffer(0);
 
-    assert.isTrue(offer.active);
-    assert.equal(deadline, offer.deadline);
+    assert.equal(offer.active, true);
+    assert.equal(deadline.toString(), offer.deadline);
 
     return;
   });
@@ -269,7 +270,7 @@ contract("MarsBaseExchange", async function (accounts) {
 
     // Ensure the offer is active
     let offer = await dex.getOffer(0);
-    assert.isTrue(offer.active);
+    assert.equal(offer.active, true);
 
     // Cancel the offer, thus returning everything to its initial state
     await dex.cancelOffer(0);
@@ -278,7 +279,7 @@ contract("MarsBaseExchange", async function (accounts) {
     let cancelledOffer = await dex.getOffer(0);
 
     // Ensure it's no longer active and the amount in is 0
-    assert.isFalse(cancelledOffer.active);
+    assert.equal(cancelledOffer.active, false);
     assert.equal(cancelledOffer.amountIn.toString(), "0");
     assert.equal(cancelledOffer.amountOut.length, 0);
     assert.equal(cancelledOffer.tokenIn, "0x0000000000000000000000000000000000000000");
@@ -343,7 +344,7 @@ contract("MarsBaseExchange", async function (accounts) {
 
     // Ensure the offer is active
     let offer = await dex.getOffer(0);
-    assert.isTrue(offer.active);
+    assert.equal(offer.active, true);
 
     // Cancel the offer, thus returning everything to its initial state
     await dex.acceptOffer(0, tokensOut[1], amountIn, amountOut[1]);
@@ -352,14 +353,14 @@ contract("MarsBaseExchange", async function (accounts) {
     let acceptedOffer = await dex.getOffer(0);
 
     // Ensure it's no longer active and the amount in/out is 0
-    assert.isFalse(acceptedOffer.active);
+    assert.equal(acceptedOffer.active, false);
     assert.equal(acceptedOffer.amountIn.toString(), "0");
     assert.equal(acceptedOffer.amountOut.length, 0);
     assert.equal(acceptedOffer.tokenIn, "0x0000000000000000000000000000000000000000");
     assert.equal(acceptedOffer.tokenOut.length, 0);
     assert.equal(acceptedOffer.offerer, "0x0000000000000000000000000000000000000000");
     assert.equal(acceptedOffer.payoutAddress, "0x0000000000000000000000000000000000000000");
-    assert.equal(acceptedOffer.deadline, deadline);
+    assert.equal(acceptedOffer.deadline, deadline.toString());
 
     // FInally make sure the tokens are moved to their proper places
     let finalUserTestTokenBalance = await testToken.balanceOf(userAddress);
@@ -367,6 +368,98 @@ contract("MarsBaseExchange", async function (accounts) {
 
     let finalUserUSDTBalance = await usdt.balanceOf(userAddress);
     assert.equal(finalUserUSDTBalance.toString(), initialUserUSDTBalance.toString());
+
+    return;
+    
+  });
+
+  it("should reject order completion with a token with zero address", async function () {
+    // Define Constants
+    const approvalAmount = 100000 * 10 ** 10;
+    const amountIn = 50 * 10 ** 10;
+    const amountOut = [10 * 10 ** 10, 20 * 10 ** 10];
+    const smallestChunkSize = 1 * 10 ** 10;
+    const deadline = 0;
+    
+    // Get Contract Instances
+    let dex = await MarsBaseExchange.new();
+    let zeroToken = "0x0000000000000000000000000000000000000000";
+    let epicCoin = await EPICCoin.new();
+
+    // Make a list of tokens we are willing to accept
+    let tokensOut = [zeroToken, epicCoin.address];
+
+    // Approve token transfers
+    await epicCoin.approve(dex.address, approvalAmount);
+
+    // Try and create the offer - should fail
+    assert.rejects(dex.createOffer(zeroToken, tokensOut, amountIn, amountOut, smallestChunkSize, deadline));
+
+    // Ensure the offer is not active
+    let offer = await dex.getOffer(0);
+    assert.equal(offer.active, false);
+
+    // Cancel the offer, thus returning everything to its initial state
+    assert.rejects(dex.acceptOffer(0, tokensOut[1], amountIn, amountOut[1]));
+
+    // Get the offer again, it should still be inactive
+    let acceptedOffer = await dex.getOffer(0);
+
+    // Ensure it's inactive
+    assert.equal(acceptedOffer.active, false);
+    assert.equal(acceptedOffer.amountIn.toString(), "0");
+    assert.equal(acceptedOffer.amountOut.length, 0);
+    assert.equal(acceptedOffer.tokenIn, "0x0000000000000000000000000000000000000000");
+    assert.equal(acceptedOffer.tokenOut.length, 0);
+    assert.equal(acceptedOffer.offerer, "0x0000000000000000000000000000000000000000");
+    assert.equal(acceptedOffer.payoutAddress, "0x0000000000000000000000000000000000000000");
+    assert.equal(acceptedOffer.deadline, '0');
+
+    return;
+    
+  });
+
+  it("should reject partial order completion with a token with zero address", async function () {
+    // Define Constants
+    const approvalAmount = 100000 * 10 ** 10;
+    const amountIn = 50 * 10 ** 10;
+    const amountOut = [10 * 10 ** 10, 20 * 10 ** 10];
+    const smallestChunkSize = 1 * 10 ** 10;
+    const deadline = 0;
+    
+    // Get Contract Instances
+    let dex = await MarsBaseExchange.new();
+    let zeroToken = "0x0000000000000000000000000000000000000000";
+    let epicCoin = await EPICCoin.new();
+
+    // Make a list of tokens we are willing to accept
+    let tokensOut = [zeroToken, epicCoin.address];
+
+    // Approve token transfers
+    await epicCoin.approve(dex.address, approvalAmount);
+
+    // Try and create the offer - should fail
+    assert.rejects(dex.createOffer(zeroToken, tokensOut, amountIn, amountOut, smallestChunkSize, deadline));
+
+    // Ensure the offer is not active
+    let offer = await dex.getOffer(0);
+    assert.equal(offer.active, false);
+
+    // Cancel the offer, thus returning everything to its initial state
+    assert.rejects(dex.acceptOfferPart(0, tokensOut[1], smallestChunkSize));
+
+    // Get the offer again, it should still be inactive
+    let acceptedOffer = await dex.getOffer(0);
+
+    // Ensure it's inactive
+    assert.equal(acceptedOffer.active, false);
+    assert.equal(acceptedOffer.amountIn.toString(), "0");
+    assert.equal(acceptedOffer.amountOut.length, 0);
+    assert.equal(acceptedOffer.tokenIn, "0x0000000000000000000000000000000000000000");
+    assert.equal(acceptedOffer.tokenOut.length, 0);
+    assert.equal(acceptedOffer.offerer, "0x0000000000000000000000000000000000000000");
+    assert.equal(acceptedOffer.payoutAddress, "0x0000000000000000000000000000000000000000");
+    assert.equal(acceptedOffer.deadline, '0');
 
     return;
     
@@ -421,7 +514,7 @@ contract("MarsBaseExchange", async function (accounts) {
 
     // Ensure the offer is active
     let offer = await dex.getOffer(0);
-    assert.isTrue(offer.active);
+    assert.equal(offer.active, true);
 
     // Cancel the offer, thus returning everything to its initial state
     await dex.acceptOfferPart(0, tokensOut[0], smallestChunkSize);
@@ -432,15 +525,15 @@ contract("MarsBaseExchange", async function (accounts) {
     const conversionnRate = amountIn / amountOut[0];
 
     // Ensure it's no longer active and the amount in/out is 0
-    assert.isTrue(acceptedOffer.active);
-    assert.equal(acceptedOffer.amountIn.toString(), amountIn);
-    assert.equal(acceptedOffer.amountRemaining.toString(), amountIn - (smallestChunkSize * conversionnRate));
+    assert.equal(acceptedOffer.active, true);
+    assert.equal(acceptedOffer.amountIn.toString(), amountIn.toString());
+    assert.equal(acceptedOffer.amountRemaining.toString(), (amountIn - (smallestChunkSize * conversionnRate)).toString());
     assert.equal(acceptedOffer.amountOut.length, 2);
     assert.equal(acceptedOffer.tokenIn, testToken.address);
     assert.equal(acceptedOffer.tokenOut.length, 2);
     assert.equal(acceptedOffer.offerer, userAddress);
     assert.equal(acceptedOffer.payoutAddress, userAddress);
-    assert.equal(acceptedOffer.deadline, 0);
+    assert.equal(acceptedOffer.deadline, '0');
 
     // FInally make sure the tokens are moved to their proper places
     let finalUserTestTokenBalance = await testToken.balanceOf(userAddress);
@@ -502,7 +595,7 @@ contract("MarsBaseExchange", async function (accounts) {
 
     // Ensure the offer is active
     let offer = await dex.getOffer(0);
-    assert.isTrue(offer.active);
+    assert.equal(offer.active, true);
 
     // Cancel the offer, thus returning everything to its initial state
     await dex.acceptOfferPart(0, tokensOut[0], amountOut[0]);
@@ -513,7 +606,7 @@ contract("MarsBaseExchange", async function (accounts) {
     const conversionnRate = amountIn / amountOut[0];
 
     // Ensure it's no longer active and the amount in/out is 0
-    assert.isFalse(acceptedOffer.active);
+    assert.equal(acceptedOffer.active, false);
     assert.equal(acceptedOffer.amountIn.toString(), "0");
     assert.equal(acceptedOffer.amountRemaining.toString(), "0");
     assert.equal(acceptedOffer.amountOut.length, 0);
@@ -521,7 +614,7 @@ contract("MarsBaseExchange", async function (accounts) {
     assert.equal(acceptedOffer.tokenOut.length, 0);
     assert.equal(acceptedOffer.offerer, "0x0000000000000000000000000000000000000000");
     assert.equal(acceptedOffer.payoutAddress, "0x0000000000000000000000000000000000000000");
-    assert.equal(acceptedOffer.deadline, deadline);
+    assert.equal(acceptedOffer.deadline, deadline.toString());
 
     // FInally make sure the tokens are moved to their proper places
     let finalUserTestTokenBalance = await testToken.balanceOf(userAddress);
