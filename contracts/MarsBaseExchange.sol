@@ -11,7 +11,17 @@ contract MarsBaseExchange is Ownable {
 
     uint256 nextOfferId;
 
+    enum OfferType {
+      FullPurchase,
+      LimitedTime,
+      ChunkedPurchase,
+      MinimumChunkedPurchase,
+      LimitedTimeChunkedPurchase,
+      LimitedTimeMinimumChunkedPurchase
+    }
+
     struct MBOffer {
+      OfferType offerType;
       IERC20 tokenIn;
       address[] tokenOut;
       uint256 amountIn;
@@ -65,8 +75,20 @@ contract MarsBaseExchange is Ownable {
 
       assert(amountIn >= smallestChunkSize);
       assert(getTime() < deadline || deadline == 0);
+
+      OfferType offerType;
+
+      if (smallestChunkSize > 0 && deadline > 0 && smallestChunkSize != amountIn) {
+        offerType = OfferType.LimitedTimeChunkedPurchase;
+      } else if (smallestChunkSize > 0 && smallestChunkSize != amountIn) {
+        offerType = OfferType.ChunkedPurchase;
+      } else if (deadline > 0) {
+        offerType = OfferType.LimitedTime;
+      } else {
+        offerType = OfferType.FullPurchase;
+      }
       
-      MBOffer memory offer = initOffer(tokenIn, tokenOut, amountIn, amountOut, smallestChunkSize, msg.sender, msg.sender, deadline);
+      MBOffer memory offer = initOffer(tokenIn, tokenOut, amountIn, amountOut, smallestChunkSize, msg.sender, msg.sender, deadline, offerType);
 
       uint256 offerId = nextOfferId;
       offers[offerId] = offer;
@@ -80,8 +102,10 @@ contract MarsBaseExchange is Ownable {
       return offerId;
     }
 
-    function initOffer(address tokenIn, address[] calldata tokenOut, uint256 amountIn, uint256[] calldata amountOut, uint256 smallestChunkSize, address offerer, address payoutAddress, uint256 deadline) private pure returns (MBOffer memory) {
+    function initOffer(address tokenIn, address[] calldata tokenOut, uint256 amountIn, uint256[] calldata amountOut, uint256 smallestChunkSize, address offerer, address payoutAddress, uint256 deadline, OfferType offerType) private pure returns (MBOffer memory) {
       MBOffer memory offer;
+
+      offer.offerType = offerType;
 
       offer.tokenIn = IERC20(tokenIn);
       offer.tokenOut = tokenOut;
@@ -141,7 +165,7 @@ contract MarsBaseExchange is Ownable {
       assert(acceptedAmountOut == amountOut);
 
       require(IERC20(acceptedTokenOut).transferFrom(msg.sender, offer.payoutAddress, acceptedAmountOut));
-      require(offer.tokenIn.transfer(msg.sender, offer.amountIn));
+      require(offer.tokenIn.transfer(msg.sender, offer.amountRemaining));
 
       delete offers[offerId];
 
@@ -160,6 +184,10 @@ contract MarsBaseExchange is Ownable {
       assert(tokenOut != address(0));
       assert(offer.active == true);
       assert(getTime() < offer.deadline || offer.deadline == 0);
+      assert(offer.offerType == OfferType.ChunkedPurchase || 
+        offer.offerType == OfferType.LimitedTimeChunkedPurchase || 
+        offer.offerType == OfferType.LimitedTimeMinimumChunkedPurchase || 
+        offer.offerType == OfferType.MinimumChunkedPurchase);
 
       address acceptedTokenOut = address(0);
       uint256 acceptedAmountOut = 0;

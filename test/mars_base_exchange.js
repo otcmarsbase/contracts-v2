@@ -111,11 +111,12 @@ contract("MarsBaseExchange", async function (accounts) {
     await usdt.approve(dex.address, approvalAmount);
 
     // Create Offer
-    await dex.createOffer(testToken.address, tokensIn, amountIn, amountOut, smallestChunkSize, deadline);
+    await dex.createOffer(testToken.address, tokensIn, amountIn, amountOut, amountIn, deadline);
 
     // Get the offer and ensure it's all set correctly
     let offer = await dex.getOffer(0);
 
+    assert.equal(offer.offerType, '1');
     assert.equal(offer.active, true);
     assert.equal(deadline.toString(), offer.deadline);
 
@@ -152,6 +153,7 @@ contract("MarsBaseExchange", async function (accounts) {
     // Get the offer and ensure it's all set correctly
     let offer = await dex.getOffer(0);
 
+    assert.equal(offer.offerType, '4');
     assert.equal(offer.active, true);
     assert.equal(deadline.toString(), offer.deadline);
 
@@ -196,6 +198,7 @@ contract("MarsBaseExchange", async function (accounts) {
     // Get the offer and ensure it's all set correctly
     let offer = await dex.getOffer(0);
 
+    assert.equal(offer.offerType, '2');
     assert.equal(offer.active, true);
     assert.equal(deadline.toString(), offer.deadline);
 
@@ -272,6 +275,10 @@ contract("MarsBaseExchange", async function (accounts) {
     let offer = await dex.getOffer(0);
     assert.equal(offer.active, true);
 
+    // Ensure the offerType has been correctly calculated
+    // 2 is a chunked purchase
+    assert.equal(offer.offerType, '2');
+
     // Cancel the offer, thus returning everything to its initial state
     await dex.cancelOffer(0);
 
@@ -332,7 +339,7 @@ contract("MarsBaseExchange", async function (accounts) {
     assert.equal(initialUserUSDTBalance.toString(), usdtTotalSupply.toString());
 
     // Create the offer
-    await dex.createOffer(testToken.address, tokensOut, amountIn, amountOut, smallestChunkSize, deadline);
+    await dex.createOffer(testToken.address, tokensOut, amountIn, amountOut, amountIn, deadline);
 
     // Get balance and validate that the tokens have been moved to the dex
     let createdUserTestTokenBalance = await testToken.balanceOf(userAddress);
@@ -345,6 +352,10 @@ contract("MarsBaseExchange", async function (accounts) {
     // Ensure the offer is active
     let offer = await dex.getOffer(0);
     assert.equal(offer.active, true);
+
+    // Ensure the offerType has been correctly calculated
+    // 0 is Full Purchase
+    assert.equal(offer.offerType, '0');
 
     // Cancel the offer, thus returning everything to its initial state
     await dex.acceptOffer(0, tokensOut[1], amountIn, amountOut[1]);
@@ -516,6 +527,10 @@ contract("MarsBaseExchange", async function (accounts) {
     let offer = await dex.getOffer(0);
     assert.equal(offer.active, true);
 
+    // Ensure the offerType has been correctly calculated
+    // 0 is Full Purchase
+    assert.equal(offer.offerType, '2');
+
     // Cancel the offer, thus returning everything to its initial state
     await dex.acceptOfferPart(0, tokensOut[0], smallestChunkSize);
 
@@ -597,6 +612,10 @@ contract("MarsBaseExchange", async function (accounts) {
     let offer = await dex.getOffer(0);
     assert.equal(offer.active, true);
 
+    // Ensure the offerType has been correctly calculated
+    // 0 is Full Purchase
+    assert.equal(offer.offerType, '2');
+
     // Cancel the offer, thus returning everything to its initial state
     await dex.acceptOfferPart(0, tokensOut[0], amountOut[0]);
 
@@ -627,9 +646,3 @@ contract("MarsBaseExchange", async function (accounts) {
     
   });
 });
-
-
-// Sleep Function
-function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
