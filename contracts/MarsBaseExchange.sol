@@ -346,10 +346,10 @@ contract MarsBaseExchange is Ownable {
 
         offers[offerId] = offer;
 
-        assert(offers[offerId].minimumOrderAmountsBob.length == chunkAlicedex + 1);
-        assert(offers[offerId].minimumOrderAmountsAlice.length == chunkAlicedex + 1);
-        assert(offers[offerId].minimumOrderAddresses.length == chunkAlicedex + 1);
-        assert(offers[offerId].minimumOrderTokens.length == chunkAlicedex + 1);
+        assert(offer.minimumOrderAmountsBob.length == chunkAlicedex + 1);
+        assert(offer.minimumOrderAmountsAlice.length == chunkAlicedex + 1);
+        assert(offer.minimumOrderAddresses.length == chunkAlicedex + 1);
+        assert(offer.minimumOrderTokens.length == chunkAlicedex + 1);
       }
 
       if (offers[offerId].amountRemaining == 0) {
