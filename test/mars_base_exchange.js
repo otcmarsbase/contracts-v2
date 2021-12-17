@@ -15,6 +15,8 @@ contract("MarsBaseExchange", async function (accounts) {
     const approvalAmount = 100000 * 10 ** 10;
     const amountAlice = 50 * 10 ** 10;
     const amountBob = [10 * 10 ** 10, 20 * 10 ** 10];
+    const feeAlice = 10;
+    const feeBob = 20;
     const smallestChunkSize = 1 * 10 ** 10;
     const deadline = 0;
     
@@ -28,7 +30,7 @@ contract("MarsBaseExchange", async function (accounts) {
     let epicCoin = await EPICCoin.new();
 
     // Make a list of tokens we are willing to accept
-    let tokensAlice = [usdt.address, epicCoin.address];
+    let tokensBob = [usdt.address, epicCoin.address];
 
     // Get Balances of TestToken for both the user and dex contract
     let initialUserTestTokenBalance = await testToken.balanceOf(userAddress);
@@ -45,7 +47,7 @@ contract("MarsBaseExchange", async function (accounts) {
     await epicCoin.approve(dex.address, approvalAmount);
 
     // Create Offer
-    await dex.createOffer(testToken.address, tokensAlice, amountAlice, amountBob, smallestChunkSize, deadline);
+    await dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, [feeAlice, feeBob], [smallestChunkSize, deadline]);
 
     // Get the updated balances, user should be less, dex should have the tokens deposited
     let finalUserTestTokenBalance = await testToken.balanceOf(userAddress);
@@ -92,6 +94,8 @@ contract("MarsBaseExchange", async function (accounts) {
     const approvalAmount = 100000 * 10 ** 10;
     const amountAlice = 50 * 10 ** 10;
     const amountBob = [10 * 10 ** 10];
+    const feeAlice = 10;
+    const feeBob = 20;
     const smallestChunkSize = 1 * 10 ** 10;
     const deadline = Date.now() + 10000;
 
@@ -104,19 +108,19 @@ contract("MarsBaseExchange", async function (accounts) {
     let usdt = await USDTCoin.new();
 
     // Make a list of tokens we are willing to accept
-    let tokensAlice = [usdt.address];
+    let tokensBob = [usdt.address];
 
     // Approve the contract to move our tokens
     await testToken.approve(dex.address, approvalAmount);
     await usdt.approve(dex.address, approvalAmount);
 
     // Create Offer
-    await dex.createOffer(testToken.address, tokensAlice, amountAlice, amountBob, amountAlice, deadline);
+    await dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, [feeAlice, feeBob], [smallestChunkSize, deadline]);
 
     // Get the offer and ensure it's all set correctly
     let offer = await dex.getOffer(0);
 
-    assert.equal(offer.offerType, '1');
+    assert.equal(offer.offerType, '5');
     assert.equal(offer.active, true);
     assert.equal(deadline.toString(), offer.deadline);
 
@@ -128,6 +132,8 @@ contract("MarsBaseExchange", async function (accounts) {
     const approvalAmount = 100000 * 10 ** 10;
     const amountAlice = 50 * 10 ** 10;
     const amountBob = [10 * 10 ** 10];
+    const feeAlice = 10;
+    const feeBob = 20;
     const smallestChunkSize = 1 * 10 ** 10;
     const deadline = Date.now() + 10;
     const mockedExpireTime = deadline + 10;
@@ -141,14 +147,14 @@ contract("MarsBaseExchange", async function (accounts) {
     let usdt = await USDTCoin.new();
 
     // Make a list of tokens we are willing to accept
-    let tokensAlice = [usdt.address];
+    let tokensBob = [usdt.address];
 
     // Approve the contract to move our tokens
     await testToken.approve(dex.address, approvalAmount);
     await usdt.approve(dex.address, approvalAmount);
 
     // Create Offer
-    await dex.createOffer(testToken.address, tokensAlice, amountAlice, amountBob, smallestChunkSize, deadline);
+    await dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, [feeAlice, feeBob], [smallestChunkSize, deadline]);
 
     // Get the offer and ensure it's all set correctly
     let offer = await dex.getOffer(0);
@@ -174,6 +180,8 @@ contract("MarsBaseExchange", async function (accounts) {
     const approvalAmount = 100000 * 10 ** 10;
     const amountAlice = 50 * 10 ** 10;
     const amountBob = [10 * 10 ** 10];
+    const feeAlice = 10;
+    const feeBob = 20;
     const smallestChunkSize = 1 * 10 ** 10;
     const deadline = 0;
 
@@ -186,15 +194,14 @@ contract("MarsBaseExchange", async function (accounts) {
     let usdt = await USDTCoin.new();
 
     // Make a list of tokens we are willing to accept
-    let tokensAlice = [usdt.address];
+    let tokensBob = [usdt.address];
 
     // Approve the contract to move our tokens
     await testToken.approve(dex.address, approvalAmount);
     await usdt.approve(dex.address, approvalAmount);
 
     // Create Offer
-    await dex.createOffer(testToken.address, tokensAlice, amountAlice, amountBob, smallestChunkSize, deadline);
-
+    await dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, [feeAlice, feeBob], [smallestChunkSize, deadline]);
     // Get the offer and ensure it's all set correctly
     let offer = await dex.getOffer(0);
 
@@ -209,6 +216,8 @@ contract("MarsBaseExchange", async function (accounts) {
     // Define Constants
     const amountAlice = 5 * 10 ** 10;
     const amountBob = 1 * 10 ** 10;
+    const feeAlice = 10;
+    const feeBob = 20;
     const buyAmount = 0.1 * 10 ** 10;
     const expectedAmount = (buyAmount * amountBob) / (amountAlice);
     
@@ -224,6 +233,8 @@ contract("MarsBaseExchange", async function (accounts) {
     // Define Constants
     const amountAlice = 1 * 10 ** 10;
     const amountBob = 5 * 10 ** 10;
+    const feeAlice = 10;
+    const feeBob = 20;
     const buyAmount = 0.1 * 10 ** 10;
     const expectedAmount = (buyAmount * amountBob) / amountAlice;
     
@@ -240,6 +251,8 @@ contract("MarsBaseExchange", async function (accounts) {
     const approvalAmount = 100000 * 10 ** 10;
     const amountAlice = 50 * 10 ** 10;
     const amountBob = [10 * 10 ** 10];
+    const feeAlice = 10;
+    const feeBob = 20;
     const smallestChunkSize = 1 * 10 ** 10;
     const deadline = 0;
 
@@ -265,8 +278,7 @@ contract("MarsBaseExchange", async function (accounts) {
     assert.equal(initialUserTestTokenBalance.toString(), testTokenTotalSupply.toString());
 
     // Create the offer
-    await dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, smallestChunkSize, deadline);
-
+    await dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, [feeAlice, feeBob], [smallestChunkSize, deadline]);
     // Get balance and validate that the tokens have been moved to the dex
     let createdUserTestTokenBalance = await testToken.balanceOf(userAddress);
     assert.equal(createdUserTestTokenBalance.toString(), (initialUserTestTokenBalance - amountAlice).toLocaleString('fullwide', {useGrouping:false}));
@@ -307,7 +319,9 @@ contract("MarsBaseExchange", async function (accounts) {
     const approvalAmount = 100000 * 10 ** 10;
     const amountAlice = 50 * 10 ** 10;
     const amountBob = [10 * 10 ** 10, 20 * 10 ** 10];
-    const smallestChunkSize = 1 * 10 ** 10;
+    const feeAlice = 10;
+    const feeBob = 20;
+    const smallestChunkSize = 0;
     const deadline = 0;
 
     // Get the user's address
@@ -339,8 +353,7 @@ contract("MarsBaseExchange", async function (accounts) {
     assert.equal(initialUserUSDTBalance.toString(), usdtTotalSupply.toString());
 
     // Create the offer
-    await dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, amountAlice, deadline);
-
+    await dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, [feeAlice, feeBob], [smallestChunkSize, deadline]);
     // Get balance and validate that the tokens have been moved to the dex
     let createdUserTestTokenBalance = await testToken.balanceOf(userAddress);
     assert.equal(createdUserTestTokenBalance.toString(), (initialUserTestTokenBalance - amountAlice).toLocaleString('fullwide', {useGrouping:false}));
@@ -389,8 +402,11 @@ contract("MarsBaseExchange", async function (accounts) {
     const approvalAmount = 100000 * 10 ** 10;
     const amountAlice = 50 * 10 ** 10;
     const amountBob = [10 * 10 ** 10, 20 * 10 ** 10];
+    const feeAlice = 10;
+    const feeBob = 20;
     const smallestChunkSize = 1 * 10 ** 10;
     const deadline = 0;
+    const minimumSale = 0;
     
     // Get Contract Alicestances
     let dex = await MarsBaseExchange.new();
@@ -404,7 +420,7 @@ contract("MarsBaseExchange", async function (accounts) {
     await epicCoin.approve(dex.address, approvalAmount);
 
     // Try and create the offer - should fail
-    assert.rejects(dex.createOffer(zeroToken, tokensBob, amountAlice, amountBob, smallestChunkSize, deadline));
+    assert.rejects(dex.createOffer(zeroToken, tokensBob, amountAlice, amountBob, [feeAlice, feeBob], [smallestChunkSize, deadline, minimumSale]));
 
     // Ensure the offer is not active
     let offer = await dex.getOffer(0);
@@ -435,8 +451,11 @@ contract("MarsBaseExchange", async function (accounts) {
     const approvalAmount = 100000 * 10 ** 10;
     const amountAlice = 50 * 10 ** 10;
     const amountBob = [10 * 10 ** 10, 20 * 10 ** 10];
+    const feeAlice = 10;
+    const feeBob = 20;
     const smallestChunkSize = 1 * 10 ** 10;
     const deadline = 0;
+    const minimumSale = 0;
     
     // Get Contract Alicestances
     let dex = await MarsBaseExchange.new();
@@ -450,7 +469,7 @@ contract("MarsBaseExchange", async function (accounts) {
     await epicCoin.approve(dex.address, approvalAmount);
 
     // Try and create the offer - should fail
-    assert.rejects(dex.createOffer(zeroToken, tokensBob, amountAlice, amountBob, smallestChunkSize, deadline));
+    assert.rejects(dex.createOffer(zeroToken, tokensBob, amountAlice, amountBob, [feeAlice, feeBob], [smallestChunkSize, deadline, minimumSale]));
 
     // Ensure the offer is not active
     let offer = await dex.getOffer(0);
@@ -481,6 +500,8 @@ contract("MarsBaseExchange", async function (accounts) {
     const approvalAmount = 100000 * 10 ** 10;
     const amountAlice = 50 * 10 ** 10;
     const amountBob = [10 * 10 ** 10, 20 * 10 ** 10];
+    const feeAlice = 10;
+    const feeBob = 20;
     const smallestChunkSize = 1 * 10 ** 10;
     const deadline = 0;
 
@@ -513,7 +534,7 @@ contract("MarsBaseExchange", async function (accounts) {
     assert.equal(initialUserUSDTBalance.toString(), usdtTotalSupply.toString());
 
     // Create the offer
-    await dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, smallestChunkSize, deadline);
+    await dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, [feeAlice, feeBob], [smallestChunkSize, deadline]);
 
     // Get balance and validate that the tokens have been moved to the dex
     let createdUserTestTokenBalance = await testToken.balanceOf(userAddress);
@@ -566,6 +587,8 @@ contract("MarsBaseExchange", async function (accounts) {
     const approvalAmount = 100000 * 10 ** 10;
     const amountAlice = 50 * 10 ** 10;
     const amountBob = [10 * 10 ** 10, 20 * 10 ** 10];
+    const feeAlice = 10;
+    const feeBob = 20;
     const smallestChunkSize = 1 * 10 ** 10;
     const deadline = 0;
 
@@ -598,8 +621,7 @@ contract("MarsBaseExchange", async function (accounts) {
     assert.equal(initialUserUSDTBalance.toString(), usdtTotalSupply.toString());
 
     // Create the offer
-    await dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, smallestChunkSize, deadline);
-
+    await dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, [feeAlice, feeBob], [smallestChunkSize, deadline]);
     // Get balance and validate that the tokens have been moved to the dex
     let createdUserTestTokenBalance = await testToken.balanceOf(userAddress);
     assert.equal(createdUserTestTokenBalance.toString(), (initialUserTestTokenBalance - amountAlice).toLocaleString('fullwide', {useGrouping:false}));
@@ -651,6 +673,8 @@ contract("MarsBaseExchange", async function (accounts) {
     const approvalAmount = 100000 * 10 ** 10;
     const amountAlice = 50 * 10 ** 10;
     const amountBob = [10 * 10 ** 10, 20 * 10 ** 10];
+    const feeAlice = 10;
+    const feeBob = 20;
     const smallestChunkSize = 1 * 10 ** 10;
     const minimumSale = 2 * 10 ** 10;
     const deadline = 0;
@@ -684,8 +708,7 @@ contract("MarsBaseExchange", async function (accounts) {
     assert.equal(initialUserUSDTBalance.toString(), usdtTotalSupply.toString());
 
     // Create the offer
-    await dex.createOfferWithMinimum(testToken.address, tokensBob, amountAlice, amountBob, smallestChunkSize, deadline, minimumSale);
-
+    await dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, [feeAlice, feeBob], [smallestChunkSize, deadline, minimumSale]);
     // Get balance and validate that the tokens have been moved to the dex
     let createdUserTestTokenBalance = await testToken.balanceOf(userAddress);
     assert.equal(createdUserTestTokenBalance.toString(), (initialUserTestTokenBalance - amountAlice).toLocaleString('fullwide', {useGrouping:false}));
@@ -741,6 +764,8 @@ contract("MarsBaseExchange", async function (accounts) {
     const approvalAmount = 100000 * 10 ** 10;
     const amountAlice = 50 * 10 ** 10;
     const amountBob = [10 * 10 ** 10, 20 * 10 ** 10];
+    const feeAlice = 10;
+    const feeBob = 20;
     const smallestChunkSize = 1 * 10 ** 10;
     const minimumSale = 2 * 10 ** 10;
     const deadline = 0;
@@ -774,7 +799,7 @@ contract("MarsBaseExchange", async function (accounts) {
     assert.equal(initialUserUSDTBalance.toString(), usdtTotalSupply.toString());
 
     // Create the offer
-    await dex.createOfferWithMinimum(testToken.address, tokensBob, amountAlice, amountBob, smallestChunkSize, deadline, minimumSale);
+    await dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, [feeAlice, feeBob], [smallestChunkSize, deadline, minimumSale]);
 
     // Get balance and validate that the tokens have been moved to the dex
     let createdUserTestTokenBalance = await testToken.balanceOf(userAddress);

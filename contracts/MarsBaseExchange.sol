@@ -11,6 +11,8 @@ contract MarsBaseExchange is Ownable {
 
     uint256 nextOfferId;
 
+    uint256 minimumFee = 10;
+
     enum OfferType {
       FullPurchase,
       LimitedTime,
@@ -27,6 +29,8 @@ contract MarsBaseExchange is Ownable {
       address[] tokenBob;
       uint256 amountAlice;
       uint256[] amountBob;
+      uint256 feeAlice;
+      uint256 feeBob;
       uint256 smallestChunkSize;
       uint256 amountRemaining;
       uint256 minimumSize;
@@ -63,6 +67,12 @@ contract MarsBaseExchange is Ownable {
       }
     }
 
+    function setMinimumFee(uint256 _minimumFee) public onlyOwner {
+      assert(_minimumFee > 0);
+
+      minimumFee = _minimumFee;
+    }
+
     function getOffer(uint256 offerId) public view returns (MBOffer memory) {
       return offers[offerId];
     }
@@ -73,28 +83,21 @@ contract MarsBaseExchange is Ownable {
       return numerator / denominator;
     }
 
-    function createOffer(address tokenAlice, address[] calldata tokenBob, uint256 amountAlice, uint256[] calldata amountBob, uint256 smallestChunkSize, uint256 deadline) public payable returns (uint256) {
+    function createOffer(address tokenAlice, address[] calldata tokenBob, uint256 amountAlice, uint256[] calldata amountBob, uint256[] calldata fees, uint256[] calldata offerParameters) public payable returns (uint256) {
+      uint256 feeAlice = fees[0];
+      uint256 feeBob = fees[1];
+      
       assert(tokenAlice != address(0));
       for (uint256 index = 0; index < tokenBob.length; index++) {
         assert(tokenBob[index] != address(0));
       }
 
-      assert(amountAlice >= smallestChunkSize);
-      assert(getTime() < deadline || deadline == 0);
+      assert(amountAlice >= offerParameters[0]);
+      assert(getTime() < offerParameters[1] || offerParameters[1] == 0);
 
-      OfferType offerType;
-
-      if (smallestChunkSize > 0 && deadline > 0 && smallestChunkSize != amountAlice) {
-        offerType = OfferType.LimitedTimeChunkedPurchase;
-      } else if (smallestChunkSize > 0 && smallestChunkSize != amountAlice) {
-        offerType = OfferType.ChunkedPurchase;
-      } else if (deadline > 0) {
-        offerType = OfferType.LimitedTime;
-      } else {
-        offerType = OfferType.FullPurchase;
-      }
+      assert(feeAlice + feeBob >= minimumFee);
       
-      MBOffer memory offer = initOffer(tokenAlice, tokenBob, amountAlice, amountBob, smallestChunkSize, msg.sender, msg.sender, deadline, offerType, 0);
+      MBOffer memory offer = initOffer(tokenAlice, tokenBob, amountAlice, amountBob, fees, offerParameters);
 
       uint256 offerId = nextOfferId;
       offers[offerId] = offer;
@@ -108,66 +111,63 @@ contract MarsBaseExchange is Ownable {
       return offerId;
     }
 
-    function createOfferWithMinimum(address tokenAlice, address[] calldata tokenBob, uint256 amountAlice, uint256[] calldata amountBob, uint256 smallestChunkSize, uint256 deadline, uint256 minimumSize) public payable returns (uint256) {
-      assert(minimumSize > 0);
-      
-      assert(tokenAlice != address(0));
-      for (uint256 index = 0; index < tokenBob.length; index++) {
-        assert(tokenBob[index] != address(0));
-      }
-
-      assert(amountAlice >= smallestChunkSize);
-      assert(getTime() < deadline || deadline == 0);
-
+    function initOffer(address tokenAlice, address[] calldata tokenBob, uint256 amountAlice, uint256[] calldata amountBob, uint256[] calldata fees, uint256[] calldata offerParameters) private view returns (MBOffer memory) {
       OfferType offerType;
 
-      if (smallestChunkSize > 0 && deadline > 0 && smallestChunkSize != amountAlice) {
-        offerType = OfferType.LimitedTimeMinimumChunkedPurchase;
-      } else if (smallestChunkSize > 0 && smallestChunkSize != amountAlice) {
-        offerType = OfferType.MinimumChunkedPurchase;
-      } else if (deadline > 0) {
-        offerType = OfferType.LimitedTimeMinimumPurchase;
-      } else {
-        offerType = OfferType.MinimumChunkedPurchase;
+      if (offerParameters.length == 2) {
+        if (offerParameters[1] > 0 && offerParameters[1] > 0 && offerParameters[1] != amountAlice) {
+          offerType = OfferType.LimitedTimeChunkedPurchase;
+        } else if (offerParameters[0] > 0 && offerParameters[0] != amountAlice) {
+          offerType = OfferType.ChunkedPurchase;
+        } else if (offerParameters[1] > 0) {
+          offerType = OfferType.LimitedTime;
+        } else {
+          offerType = OfferType.FullPurchase;
+        }
+      } else if (offerParameters.length == 3) {
+        if (offerParameters[0] > 0 && offerParameters[1] > 0 && offerParameters[0] != amountAlice) {
+          offerType = OfferType.LimitedTimeMinimumChunkedPurchase;
+        } else if (offerParameters[0] > 0 && offerParameters[0] != amountAlice) {
+          offerType = OfferType.MinimumChunkedPurchase;
+        } else if (offerParameters[1] > 0) {
+          offerType = OfferType.LimitedTimeMinimumPurchase;
+        } else {
+          offerType = OfferType.MinimumChunkedPurchase;
+        }
       }
+
       
-      MBOffer memory offer = initOffer(tokenAlice, tokenBob, amountAlice, amountBob, smallestChunkSize, msg.sender, msg.sender, deadline, offerType, minimumSize);
-
-      uint256 offerId = nextOfferId;
-      offers[offerId] = offer;
-
-      require(offer.tokenAlice.transferFrom(msg.sender, address(this), amountAlice));
-
-      nextOfferId ++;
-
-      emit OfferCreated(offerId, offer);
-
-      return offerId;
-    }
-
-    function initOffer(address tokenAlice, address[] calldata tokenBob, uint256 amountAlice, uint256[] calldata amountBob, uint256 smallestChunkSize, address offerer, address payoutAddress, uint256 deadline, OfferType offerType, uint256 minimumSize) private pure returns (MBOffer memory) {
       MBOffer memory offer;
 
       offer.offerType = offerType;
 
       offer.tokenAlice = IERC20(tokenAlice);
       offer.tokenBob = tokenBob;
+
       offer.amountAlice = amountAlice;
       offer.amountBob = amountBob;
 
+      offer.feeAlice = fees[0];
+      offer.feeBob = fees[1];
+
       offer.amountRemaining = amountAlice;
-      offer.smallestChunkSize = smallestChunkSize;
-      offer.minimumSize = minimumSize;
+      offer.smallestChunkSize = offerParameters[0];
+
+      if (offerParameters.length == 3) {
+        offer.minimumSize = offerParameters[2];
+      } else {
+        offer.minimumSize = 0;
+      }
 
       offer.minimumOrderTokens = new address[](0);
       offer.minimumOrderAddresses = new address[](0);
       offer.minimumOrderAmountsAlice = new uint256[](0);
       offer.minimumOrderAmountsBob = new uint256[](0);
       
-      offer.offerer = offerer;
-      offer.payoutAddress = payoutAddress;
+      offer.offerer = msg.sender;
+      offer.payoutAddress = msg.sender;
 
-      offer.deadline = deadline;
+      offer.deadline = offerParameters[1];
       offer.active = true;
 
       return offer;
