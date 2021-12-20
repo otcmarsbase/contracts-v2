@@ -323,6 +323,8 @@ contract("MarsBaseExchange", async function (accounts) {
     const feeBob = 20;
     const smallestChunkSize = 0;
     const deadline = 0;
+    const amountAfterFeeAlice = amountAlice * (1000 - feeAlice) / 1000;
+    const amountAfterFeeBob = amountBob[1] * (1000 - feeBob) / 1000;
 
     // Get the user's address
     const userAddress = accounts[0];
@@ -345,12 +347,12 @@ contract("MarsBaseExchange", async function (accounts) {
     let initialUserTestTokenBalance = await testToken.balanceOf(userAddress);
     const testTokenTotalSupply = await testToken.totalSupply();
 
-    let initialUserUSDTBalance = await usdt.balanceOf(userAddress);
-    const usdtTotalSupply = await usdt.totalSupply();
+    let initialUserEpicCoinBalance = await epicCoin.balanceOf(userAddress);
+    const epicCoinTotalSupply = await epicCoin.totalSupply();
 
     // Check that it's all assigned to us
     assert.equal(initialUserTestTokenBalance.toString(), testTokenTotalSupply.toString());
-    assert.equal(initialUserUSDTBalance.toString(), usdtTotalSupply.toString());
+    assert.equal(initialUserEpicCoinBalance.toString(), epicCoinTotalSupply.toString());
 
     // Create the offer
     await dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, [feeAlice, feeBob], [smallestChunkSize, deadline]);
@@ -360,7 +362,7 @@ contract("MarsBaseExchange", async function (accounts) {
 
     // Get USDT balance and ensure it's unchanged
     let createdUserUSDTBalance = await usdt.balanceOf(userAddress);
-    assert.equal(createdUserUSDTBalance.toString(), initialUserUSDTBalance.toString());
+  assert.equal(createdUserUSDTBalance.toString(), initialUserEpicCoinBalance.toString());
 
     // Ensure the offer is active
     let offer = await dex.getOffer(0);
@@ -371,7 +373,7 @@ contract("MarsBaseExchange", async function (accounts) {
     assert.equal(offer.offerType, '0');
 
     // Cancel the offer, thus returning everything to its initial state
-    await dex.acceptOffer(0, tokensBob[1], amountAlice, amountBob[1]);
+    await dex.acceptOffer(0, tokensBob[1], amountBob[1]);
 
     // Get the offer again, this time after it's been cancelled.
     let acceptedOffer = await dex.getOffer(0);
@@ -388,10 +390,13 @@ contract("MarsBaseExchange", async function (accounts) {
 
     // FAliceally make sure the tokens are moved to their proper places
     let finalUserTestTokenBalance = await testToken.balanceOf(userAddress);
-    assert.equal(finalUserTestTokenBalance.toString(), initialUserTestTokenBalance.toString());
+    assert.equal(finalUserTestTokenBalance.toString(), (initialUserTestTokenBalance - (amountAlice - amountAfterFeeAlice)).toLocaleString('fullwide', {useGrouping:false}));
 
-    let finalUserUSDTBalance = await usdt.balanceOf(userAddress);
-    assert.equal(finalUserUSDTBalance.toString(), initialUserUSDTBalance.toString());
+    let finalDexEpicCoinBalance = await epicCoin.balanceOf(dex.address);
+    assert.equal(finalDexEpicCoinBalance.toString(), (amountBob[1] - amountAfterFeeBob).toLocaleString('fullwide', {useGrouping:false}));
+
+    let finalUserEpicCoinBalance = await epicCoin.balanceOf(userAddress);
+    assert.equal(finalUserEpicCoinBalance.toString(), (initialUserEpicCoinBalance - (amountBob[1] - amountAfterFeeBob)).toLocaleString('fullwide', {useGrouping:false}));
 
     return;
     
@@ -504,6 +509,9 @@ contract("MarsBaseExchange", async function (accounts) {
     const feeBob = 20;
     const smallestChunkSize = 1 * 10 ** 10;
     const deadline = 0;
+    const conversionnRate = amountAlice / amountBob[0];
+    const amountAfterFeeAlice = smallestChunkSize * (1000 - feeAlice) / 1000;
+    const amountAfterFeeBob = smallestChunkSize * (1000 - feeBob) / 1000;
 
     // Get the user's address
     const userAddress = accounts[0];
@@ -558,8 +566,6 @@ contract("MarsBaseExchange", async function (accounts) {
     // Get the offer again, this time after it's been cancelled.
     let acceptedOffer = await dex.getOffer(0);
 
-    const conversionnRate = amountAlice / amountBob[0];
-
     // Ensure it's no longer active and the amount in/out is 0
     assert.equal(acceptedOffer.active, true);
     assert.equal(acceptedOffer.amountAlice.toString(), amountAlice.toString());
@@ -571,12 +577,12 @@ contract("MarsBaseExchange", async function (accounts) {
     assert.equal(acceptedOffer.payoutAddress, userAddress);
     assert.equal(acceptedOffer.deadline, '0');
 
-    // FAliceally make sure the tokens are moved to their proper places
+    // Finally make sure the tokens are moved to their proper places
     let finalUserTestTokenBalance = await testToken.balanceOf(userAddress);
-    assert.equal(finalUserTestTokenBalance.toString(), (initialUserTestTokenBalance - amountAlice + (smallestChunkSize * conversionnRate)).toLocaleString('fullwide', {useGrouping:false}));
+    assert.equal(finalUserTestTokenBalance.toString(), (initialUserTestTokenBalance - amountAlice + (amountAfterFeeAlice * conversionnRate) + 10000000).toLocaleString('fullwide', {useGrouping:false}));
 
     let finalUserUSDTBalance = await usdt.balanceOf(userAddress);
-    assert.equal(finalUserUSDTBalance.toString(), initialUserUSDTBalance.toString());
+    assert.equal(finalUserUSDTBalance.toString(), (initialUserUSDTBalance - (smallestChunkSize - amountAfterFeeBob) + 10000000).toLocaleString('fullwide', {useGrouping:false}));
 
     return;
     
@@ -591,6 +597,9 @@ contract("MarsBaseExchange", async function (accounts) {
     const feeBob = 20;
     const smallestChunkSize = 1 * 10 ** 10;
     const deadline = 0;
+    const conversionnRate = amountAlice / amountBob[0];
+    const amountAfterFeeAlice = amountAlice * (1000 - feeAlice) / 1000;
+    const amountAfterFeeBob = amountBob[0] * (1000 - feeBob) / 1000;
 
     // Get the user's address
     const userAddress = accounts[0];
@@ -644,8 +653,6 @@ contract("MarsBaseExchange", async function (accounts) {
     // Get the offer again, this time after it's been cancelled.
     let acceptedOffer = await dex.getOffer(0);
 
-    const conversionnRate = amountAlice / amountBob[0];
-
     // Ensure it's no longer active and the amount in/out is 0
     assert.equal(acceptedOffer.active, false);
     assert.equal(acceptedOffer.amountAlice.toString(), "0");
@@ -657,12 +664,12 @@ contract("MarsBaseExchange", async function (accounts) {
     assert.equal(acceptedOffer.payoutAddress, "0x0000000000000000000000000000000000000000");
     assert.equal(acceptedOffer.deadline, deadline.toString());
 
-    // FAliceally make sure the tokens are moved to their proper places
+    // Finally make sure the tokens are moved to their proper places
     let finalUserTestTokenBalance = await testToken.balanceOf(userAddress);
-    assert.equal(finalUserTestTokenBalance.toString(), (initialUserTestTokenBalance.toString()));
+    assert.equal(finalUserTestTokenBalance.toString(), (initialUserTestTokenBalance - amountAlice + (amountAfterFeeAlice)).toLocaleString('fullwide', {useGrouping:false}));
 
     let finalUserUSDTBalance = await usdt.balanceOf(userAddress);
-    assert.equal(finalUserUSDTBalance.toString(), initialUserUSDTBalance.toString());
+    assert.equal(finalUserUSDTBalance.toString(), (initialUserUSDTBalance - (amountBob[0] - amountAfterFeeBob)).toLocaleString('fullwide', {useGrouping:false}));
 
     return;
     
@@ -678,6 +685,8 @@ contract("MarsBaseExchange", async function (accounts) {
     const smallestChunkSize = 1 * 10 ** 10;
     const minimumSale = 2 * 10 ** 10;
     const deadline = 0;
+    const amountAfterFeeAlice = smallestChunkSize * (1000 - feeAlice) / 1000;
+    const amountAfterFeeBob = amountBob[0] * (1000 - feeBob) / 1000;
 
     // Get the user's address
     const userAddress = accounts[0];
@@ -748,18 +757,18 @@ contract("MarsBaseExchange", async function (accounts) {
     assert.equal(acceptedOffer.minimumOrderAmountsAlice[0], (smallestChunkSize * conversionnRate).toString());
     assert.equal(acceptedOffer.minimumOrderTokens[0], tokensBob[0]);
 
-    // Finally make sure the tokens are moved to their proper places
+    // FAliceally make sure the tokens are moved to their proper places
     let finalUserTestTokenBalance = await testToken.balanceOf(userAddress);
-    assert.equal(finalUserTestTokenBalance.toString(), (initialUserTestTokenBalance - amountAlice).toLocaleString('fullwide', {useGrouping:false}));
+    assert.equal(finalUserTestTokenBalance.toString(), (initialUserTestTokenBalance - (amountAlice)).toLocaleString('fullwide', {useGrouping:false}));
 
     let finalUserUSDTBalance = await usdt.balanceOf(userAddress);
-    assert.equal(finalUserUSDTBalance.toString(), (initialUserUSDTBalance - smallestChunkSize).toLocaleString('fullwide', {useGrouping:false}));
+    assert.equal(finalUserUSDTBalance.toString(), (initialUserUSDTBalance - (smallestChunkSize)).toLocaleString('fullwide', {useGrouping:false}));
 
     return;
     
   });
 
-  it("should send tokens if the order minimum is not reached", async function () {
+  it("should send tokens if the order minimum is reached", async function () {
     // Define Constants
     const approvalAmount = 100000 * 10 ** 10;
     const amountAlice = 50 * 10 ** 10;
@@ -769,6 +778,9 @@ contract("MarsBaseExchange", async function (accounts) {
     const smallestChunkSize = 1 * 10 ** 10;
     const minimumSale = 2 * 10 ** 10;
     const deadline = 0;
+    const conversionnRate = amountAlice / amountBob[0];
+    const amountAfterFeeAlice = minimumSale * (1000 - feeAlice) / 1000;
+    const amountAfterFeeBob = minimumSale * (1000 - feeBob) / 1000;
 
     // Get the user's address
     const userAddress = accounts[0];
@@ -823,8 +835,6 @@ contract("MarsBaseExchange", async function (accounts) {
     // Get the offer again, this time after it's been cancelled.
     let acceptedOffer = await dex.getOffer(0);
 
-    const conversionnRate = amountAlice / amountBob[0];
-
     // Ensure everything adds up
     assert.equal(acceptedOffer.active, true);
     assert.equal(acceptedOffer.amountAlice.toString(), amountAlice.toString());
@@ -844,10 +854,10 @@ contract("MarsBaseExchange", async function (accounts) {
     let finalUserTestTokenBalance = await testToken.balanceOf(userAddress);
 
     // We add 10000000 to the output because of a JS numbers issue
-    assert.equal(finalUserTestTokenBalance.toString(), (initialUserTestTokenBalance - amountAlice + (minimumSale * conversionnRate) + 10000000).toLocaleString('fullwide', {useGrouping:false}));
+    assert.equal(finalUserTestTokenBalance.toString(), (initialUserTestTokenBalance - amountAlice + (amountAfterFeeAlice * conversionnRate)).toLocaleString('fullwide', {useGrouping:false}));
 
     let finalUserUSDTBalance = await usdt.balanceOf(userAddress);
-    assert.equal(finalUserUSDTBalance.toString(), (initialUserUSDTBalance).toLocaleString('fullwide', {useGrouping:false}));
+    assert.equal(finalUserUSDTBalance.toString(), (initialUserUSDTBalance - minimumSale + amountAfterFeeBob + 10000000).toLocaleString('fullwide', {useGrouping:false}));
 
     return;
     

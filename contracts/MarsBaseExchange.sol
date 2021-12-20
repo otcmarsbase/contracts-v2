@@ -193,12 +193,11 @@ contract MarsBaseExchange is Ownable {
       return offerId;
     }
 
-    function acceptOffer(uint256 offerId, address tokenBob, uint256 amountAlice, uint256 amountBob) public payable returns (uint256) {
+    function acceptOffer(uint256 offerId, address tokenBob, uint256 amountBob) public payable returns (uint256) {
       MBOffer storage offer = offers[offerId];
 
       assert(tokenBob != address(0));
       assert(offer.active == true);
-      assert(offer.amountAlice == amountAlice);
       assert(getTime() < offer.deadline || offer.deadline == 0);
 
       address acceptedTokenBob = address(0);
@@ -213,9 +212,15 @@ contract MarsBaseExchange is Ownable {
       assert(acceptedTokenBob == tokenBob);
       assert(acceptedAmountBob == amountBob);
 
-      require(IERC20(acceptedTokenBob).transferFrom(msg.sender, offer.payoutAddress, acceptedAmountBob));
-      require(offer.tokenAlice.transfer(msg.sender, offer.amountRemaining));
+      uint256 amountAfterFeeAlice = offer.amountRemaining.mul(1000-offer.feeAlice) / 1000;
+      uint256 amountAfterFeeBob = acceptedAmountBob.mul(1000-offer.feeBob) / 1000;
+      uint256 amountFeeDex = acceptedAmountBob - amountAfterFeeBob;
+      assert(amountFeeDex > 0);
 
+      require(IERC20(acceptedTokenBob).transferFrom(msg.sender, offer.payoutAddress, amountAfterFeeBob));
+      require(offer.tokenAlice.transfer(msg.sender, amountAfterFeeAlice));
+      require(IERC20(acceptedTokenBob).transferFrom(msg.sender, address(this), amountFeeDex));
+      
       delete offers[offerId];
 
       assert(offers[offerId].active == false);
@@ -250,15 +255,21 @@ contract MarsBaseExchange is Ownable {
       uint256 partialAmountAlice = price(amountBob, acceptedAmountBob, offer.amountAlice);
       uint256 partialAmountBob = price(partialAmountAlice, offer.amountAlice, acceptedAmountBob);
 
+      uint256 amountAfterFeeAlice = partialAmountAlice.mul(1000-offer.feeAlice) / 1000;
+      uint256 amountAfterFeeBob = partialAmountBob.mul(1000-offer.feeBob) / 1000;
+      uint256 amountFeeDex = partialAmountBob - amountAfterFeeBob;
+
       assert(acceptedTokenBob == tokenBob);
 
-      assert(partialAmountBob >= 0);
+      assert(amountAfterFeeBob >= 0);
+      assert(amountFeeDex > 0);
 
-      assert(partialAmountAlice >= offer.smallestChunkSize);
-      assert(partialAmountAlice <= offer.amountRemaining);
+      assert(amountAfterFeeAlice >= offer.smallestChunkSize);
+      assert(amountAfterFeeAlice <= offer.amountRemaining);
 
-      require(IERC20(acceptedTokenBob).transferFrom(msg.sender, offer.payoutAddress, partialAmountBob));
-      require(offer.tokenAlice.transfer(msg.sender, partialAmountAlice));
+      require(IERC20(acceptedTokenBob).transferFrom(msg.sender, offer.payoutAddress, amountAfterFeeBob));
+      require(IERC20(acceptedTokenBob).transferFrom(msg.sender, address(this), amountFeeDex));
+      require(offer.tokenAlice.transfer(msg.sender, amountAfterFeeAlice));
 
       offers[offerId].amountRemaining -= partialAmountAlice;
 
@@ -300,6 +311,9 @@ contract MarsBaseExchange is Ownable {
       uint256 partialAmountAlice = price(amountBob, acceptedAmountBob, offer.amountAlice);
       uint256 partialAmountBob = price(partialAmountAlice, offer.amountAlice, acceptedAmountBob);
 
+      uint256 amountAfterFeeAlice = partialAmountAlice.mul(1000-offer.feeAlice) / 1000;
+      uint256 amountAfterFeeBob = partialAmountBob.mul(1000-offer.feeBob) / 1000;
+
       assert(acceptedTokenBob == tokenBob);
 
       assert(partialAmountBob >= 0);
@@ -312,23 +326,23 @@ contract MarsBaseExchange is Ownable {
       uint256 tokensSold = offer.amountAlice - offer.amountRemaining;
 
       if (tokensSold >= offer.minimumSize) {
-        require(IERC20(acceptedTokenBob).transferFrom(msg.sender, offer.payoutAddress, partialAmountBob));
-        require(offer.tokenAlice.transfer(msg.sender, partialAmountAlice));
-
+        require(IERC20(acceptedTokenBob).transferFrom(msg.sender, offer.payoutAddress, amountAfterFeeBob));
+        require(offer.tokenAlice.transfer(msg.sender, amountAfterFeeAlice));
+        require(IERC20(acceptedTokenBob).transferFrom(msg.sender, address(this), partialAmountBob - amountAfterFeeBob));
+        
+        uint256 acceptedAmountAfterFeeAlice;
+        uint256 acceptedAmountAfterFeeBob;
         for (uint256 index = 0; index < offer.minimumOrderAddresses.length; index++) {
-          require(IERC20(offer.minimumOrderTokens[index]).transferFrom(address(this), offer.payoutAddress, partialAmountBob));
-          require(offer.tokenAlice.transfer(offer.minimumOrderAddresses[index], offer.minimumOrderAmountsBob[index]));
+          acceptedAmountAfterFeeAlice = offer.minimumOrderAmountsAlice[index].mul(1000-offer.feeAlice) / 1000;
+          acceptedAmountAfterFeeBob = offer.minimumOrderAmountsBob[index].mul(1000-offer.feeBob) / 1000;
+          require(IERC20(offer.minimumOrderTokens[index]).transferFrom(address(this), offer.payoutAddress, acceptedAmountAfterFeeAlice));
+          require(offer.tokenAlice.transfer(offer.minimumOrderAddresses[index], acceptedAmountAfterFeeBob));
         }
 
         delete offers[offerId].minimumOrderAddresses;
         delete offers[offerId].minimumOrderAmountsBob;
         delete offers[offerId].minimumOrderAmountsAlice;
         delete offers[offerId].minimumOrderTokens;
-
-        assert(offers[offerId].minimumOrderAmountsBob.length == 0);
-        assert(offers[offerId].minimumOrderAmountsAlice.length == 0);
-        assert(offers[offerId].minimumOrderAddresses.length == 0);
-        assert(offers[offerId].minimumOrderTokens.length == 0);
 
       } else {
         require(IERC20(acceptedTokenBob).transferFrom(msg.sender, address(this), partialAmountBob));
