@@ -200,7 +200,22 @@ contract MarsBaseExchange is Ownable {
       assert(offer.active == true);
       assert(offer.amountAlice > 0);
 
-      require(offer.tokenAlice.transfer(offer.offerer, offer.amountRemaining));
+      if (offer.offerType == OfferType.MinimumChunkedPurchase || 
+        offer.offerType == OfferType.LimitedTimeMinimumPurchase || 
+        offer.offerType == OfferType.LimitedTimeMinimumChunkedPurchase) 
+      {
+        for (uint256 index = 0; index < offer.minimumOrderAddresses.length; index++) {
+          assert(offer.minimumOrderTokens[index] != address(0));
+          assert(offer.minimumOrderAddresses[index] != address(0));
+          assert(offer.minimumOrderAmountsBob[index] != 0);
+          
+          require(IERC20(offer.minimumOrderTokens[index]).transfer(offer.minimumOrderAddresses[index], offer.minimumOrderAmountsBob[index]));
+        }
+
+        require(offer.tokenAlice.transfer(offer.offerer, offer.amountAlice));
+      } else {
+        require(offer.tokenAlice.transfer(offer.offerer, offer.amountRemaining));
+      }
 
       delete offers[offerId];
 
@@ -373,12 +388,10 @@ contract MarsBaseExchange is Ownable {
           chunkAlicedex -= 1;
         }
 
-        offer.minimumOrderAddresses.push(msg.sender);
-        offer.minimumOrderAmountsBob.push(partialAmountBob);
-        offer.minimumOrderAmountsAlice.push(partialAmountAlice);
-        offer.minimumOrderTokens.push(acceptedTokenBob);
-
-        offers[offerId] = offer;
+        offers[offerId].minimumOrderAddresses.push(msg.sender);
+        offers[offerId].minimumOrderAmountsBob.push(partialAmountBob);
+        offers[offerId].minimumOrderAmountsAlice.push(partialAmountAlice);
+        offers[offerId].minimumOrderTokens.push(acceptedTokenBob);
 
         assert(offer.minimumOrderAmountsBob.length == chunkAlicedex + 1);
         assert(offer.minimumOrderAmountsAlice.length == chunkAlicedex + 1);
