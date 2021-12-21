@@ -12,6 +12,8 @@ contract MarsBaseExchange is Ownable {
     uint256 nextOfferId;
 
     uint256 minimumFee = 10;
+    bool offerPriceCanChange = true;
+    bool offerCanBeCancelled = true;
 
     enum OfferType {
       FullPurchase,
@@ -71,6 +73,22 @@ contract MarsBaseExchange is Ownable {
       assert(_minimumFee > 0);
 
       minimumFee = _minimumFee;
+    }
+
+    function setPriceChangeAllowed(bool _offerPriceCanChange) public onlyOwner {
+      offerPriceCanChange = _offerPriceCanChange;
+    }
+
+    function setOrderCancelAllowed(bool _offerCanBeCancelled) public onlyOwner {
+      offerCanBeCancelled = _offerCanBeCancelled;
+    }
+
+    function getPriceChangeAllowed() public view returns (bool) {
+      return offerPriceCanChange;
+    }
+
+    function getOrderCancelAllowed() public view returns (bool) {
+      return offerCanBeCancelled;
     }
 
     function getOffer(uint256 offerId) public view returns (MBOffer memory) {
@@ -174,6 +192,8 @@ contract MarsBaseExchange is Ownable {
     }
 
     function cancelOffer(uint256 offerId) public payable returns (uint256) {
+      assert(offerCanBeCancelled == true);
+
       MBOffer storage offer = offers[offerId];
 
       assert(msg.sender == offer.offerer);

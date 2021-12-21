@@ -245,6 +245,36 @@ contract("MarsBaseExchange", async function (accounts) {
 
     assert.equal(price.toString(), expectedAmount.toString());
   });
+  
+  it("should allow owner to set if orders can be cancelled", async function () {
+    // Get Contract Instances
+    let dex = await MarsBaseExchange.new();
+
+    let cancelAllowed = await dex.getOrderCancelAllowed();
+
+    assert.equal(cancelAllowed, true);
+
+    await dex.setOrderCancelAllowed(false);
+
+    cancelAllowed = await dex.getOrderCancelAllowed();
+
+    assert.equal(cancelAllowed, false);
+  });
+
+  it("should allow owner to set if order prices can be changed", async function () {
+    // Get Contract Instances
+    let dex = await MarsBaseExchange.new();
+
+    let changeAllowed = await dex.getPriceChangeAllowed();
+
+    assert.equal(changeAllowed, true);
+
+    await dex.setPriceChangeAllowed(false);
+
+    changeAllowed = await dex.getPriceChangeAllowed();
+
+    assert.equal(changeAllowed, false);
+  });
 
   it("should cancel an order", async function () {
     // Define Constants
@@ -314,6 +344,62 @@ contract("MarsBaseExchange", async function (accounts) {
     
   });
 
+  it("should not cancel an order if its disabled", async function () {
+    // Define Constants
+    const approvalAmount = 100000 * 10 ** 10;
+    const amountAlice = 50 * 10 ** 10;
+    const amountBob = [10 * 10 ** 10];
+    const feeAlice = 10;
+    const feeBob = 20;
+    const smallestChunkSize = 1 * 10 ** 10;
+    const deadline = 0;
+
+    // Get the user's address
+    const userAddress = accounts[0];
+    
+    // Get Contract Alicestances
+    let dex = await MarsBaseExchange.new();
+    let testToken = await TestToken.new();
+    let usdt = await USDTCoin.new();
+
+    let tokensBob = [usdt.address];
+
+    // Approve token transfers
+    await testToken.approve(dex.address, approvalAmount);
+    await usdt.approve(dex.address, approvalAmount);
+
+    // Get users balance and total supply of TestToken
+    let initialUserTestTokenBalance = await testToken.balanceOf(userAddress);
+    const testTokenTotalSupply = await testToken.totalSupply();
+    
+    // Check that it's all assigned to us
+    assert.equal(initialUserTestTokenBalance.toString(), testTokenTotalSupply.toString());
+
+    // Disable order cancellation
+    await dex.setOrderCancelAllowed(false);
+    cancelAllowed = await dex.getOrderCancelAllowed();
+    assert.equal(cancelAllowed, false);
+
+    // Create the offer
+    await dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, [feeAlice, feeBob], [smallestChunkSize, deadline]);
+    // Get balance and validate that the tokens have been moved to the dex
+    let createdUserTestTokenBalance = await testToken.balanceOf(userAddress);
+    assert.equal(createdUserTestTokenBalance.toString(), (initialUserTestTokenBalance - amountAlice).toLocaleString('fullwide', {useGrouping:false}));
+
+    // Ensure the offer is active
+    let offer = await dex.getOffer(0);
+    assert.equal(offer.active, true);
+
+    // Ensure the offerType has been correctly calculated
+    // 2 is a chunked purchase
+    assert.equal(offer.offerType, '2');
+
+    // Cancel the offer, thus returning everything to its initial state
+    assert.rejects(dex.cancelOffer(0));
+    return;
+    
+  });
+
   it("should complete an order", async function () {
     // Define Constants
     const approvalAmount = 100000 * 10 ** 10;
@@ -362,7 +448,7 @@ contract("MarsBaseExchange", async function (accounts) {
 
     // Get USDT balance and ensure it's unchanged
     let createdUserUSDTBalance = await usdt.balanceOf(userAddress);
-  assert.equal(createdUserUSDTBalance.toString(), initialUserEpicCoinBalance.toString());
+    assert.equal(createdUserUSDTBalance.toString(), initialUserEpicCoinBalance.toString());
 
     // Ensure the offer is active
     let offer = await dex.getOffer(0);
