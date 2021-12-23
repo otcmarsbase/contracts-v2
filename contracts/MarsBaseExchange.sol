@@ -26,6 +26,7 @@ contract MarsBaseExchange is Ownable {
     }
 
     struct MBOffer {
+      uint256 offerId;
       OfferType offerType;
       IERC20 tokenAlice;
       address[] tokenBob;
@@ -96,6 +97,18 @@ contract MarsBaseExchange is Ownable {
       return offers[offerId];
     }
 
+    function getAllOffers() public view returns (MBOffer[] memory) {
+      MBOffer[] memory openOffers = new MBOffer[](nextOfferId);
+
+      for (uint256 index = 0; index < nextOfferId; index++) {
+        if (offers[index].active == true) {
+          openOffers[index] = offers[index];
+        }
+      }
+
+      return openOffers;
+    }
+
     function price(uint256 amountAlice, uint256 offerAmountAlice, uint256 offerAmountBob) public pure returns (uint256) {
       uint256 numerator = amountAlice.mul(offerAmountBob);
       uint256 denominator = offerAmountAlice;
@@ -157,6 +170,8 @@ contract MarsBaseExchange is Ownable {
 
       
       MBOffer memory offer;
+
+      offer.offerId = nextOfferId;
 
       offer.offerType = offerType;
 
