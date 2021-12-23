@@ -47,6 +47,7 @@ contract MarsBaseExchange is Ownable {
     }
 
     event OfferCreated(uint256 offerId, MBOffer offer);
+    event OfferModified(uint256 offerId, MBOffer offer);
     event OfferCancelled(uint256 offerId, MBOffer offer);
     event OfferAccepted(uint256 offerId, MBOffer offer);
     event OfferPartiallyAccepted(uint256 offerId, MBOffer offer);
@@ -228,6 +229,59 @@ contract MarsBaseExchange is Ownable {
       return offerId;
     }
 
+    function changeOfferPrice(uint256 offerId, address[] calldata tokenBob, uint256[] calldata amountBob) public payable returns (uint256) {
+      assert(getPriceChangeAllowed() == true);
+      assert(tokenBob.length == amountBob.length);
+
+      for (uint256 index = 0; index < tokenBob.length; index++) {
+        assert(tokenBob[index] != address(0));
+        assert(amountBob[index] > 0);
+      }
+
+      assert(offerId <= nextOfferId);
+
+      MBOffer storage offer = offers[offerId];
+
+      assert(offer.offerer == msg.sender);
+
+      offer.tokenBob = tokenBob;
+      offer.amountBob = amountBob;
+
+      offers[offerId] = offer;
+
+      emit OfferModified(offerId, offer);
+
+      return offerId;
+
+    }
+
+    function changeOfferPricePart(uint256 offerId, address[] calldata tokenBob, uint256[] calldata amountBob, uint256 smallestChunkSize) public payable returns (uint256) {
+      assert(getPriceChangeAllowed() == true);
+      assert(tokenBob.length == amountBob.length);
+
+      for (uint256 index = 0; index < tokenBob.length; index++) {
+        assert(tokenBob[index] != address(0));
+        assert(amountBob[index] > 0);
+      }
+
+      assert(offerId <= nextOfferId);
+
+      MBOffer storage offer = offers[offerId];
+
+      assert(offer.offerer == msg.sender);
+      assert(smallestChunkSize <= offer.amountAlice);
+
+      offer.tokenBob = tokenBob;
+      offer.amountBob = amountBob;
+      offer.smallestChunkSize = smallestChunkSize;
+
+      offers[offerId] = offer;
+
+      emit OfferModified(offerId, offer);
+
+      return offerId;
+    }
+
     function acceptOffer(uint256 offerId, address tokenBob, uint256 amountBob) public payable returns (uint256) {
       MBOffer storage offer = offers[offerId];
 
@@ -293,8 +347,6 @@ contract MarsBaseExchange is Ownable {
       uint256 amountAfterFeeAlice = partialAmountAlice.mul(1000-offer.feeAlice) / 1000;
       uint256 amountAfterFeeBob = partialAmountBob.mul(1000-offer.feeBob) / 1000;
       uint256 amountFeeDex = partialAmountBob - amountAfterFeeBob;
-
-      assert(acceptedTokenBob == tokenBob);
 
       assert(amountAfterFeeBob >= 0);
       assert(amountFeeDex > 0);
