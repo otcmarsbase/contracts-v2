@@ -12,8 +12,6 @@ contract MarsBaseExchange is Ownable {
     uint256 nextOfferId;
 
     uint256 minimumFee = 10;
-    bool offerPriceCanChange = true;
-    bool offerCanBeCancelled = true;
 
     enum OfferType {
       FullPurchase,
@@ -44,6 +42,7 @@ contract MarsBaseExchange is Ownable {
       uint256 deadline;
       address offerer;
       address payoutAddress;
+      bool[] capabilities;
       bool active;
     }
 
@@ -77,22 +76,6 @@ contract MarsBaseExchange is Ownable {
       minimumFee = _minimumFee;
     }
 
-    function setPriceChangeAllowed(bool _offerPriceCanChange) public onlyOwner {
-      offerPriceCanChange = _offerPriceCanChange;
-    }
-
-    function setOrderCancelAllowed(bool _offerCanBeCancelled) public onlyOwner {
-      offerCanBeCancelled = _offerCanBeCancelled;
-    }
-
-    function getPriceChangeAllowed() public view returns (bool) {
-      return offerPriceCanChange;
-    }
-
-    function getOrderCancelAllowed() public view returns (bool) {
-      return offerCanBeCancelled;
-    }
-
     function getOffer(uint256 offerId) public view returns (MBOffer memory) {
       return offers[offerId];
     }
@@ -124,12 +107,10 @@ contract MarsBaseExchange is Ownable {
         assert(tokenBob[index] != address(0));
       }
 
-      assert(amountAlice >= offerParameters[0]);
-      assert(getTime() < offerParameters[1] || offerParameters[1] == 0);
-
       assert(feeAlice + feeBob >= minimumFee);
       
-      MBOffer memory offer = initOffer(tokenAlice, tokenBob, amountAlice, amountBob, fees, offerParameters);
+      MBOffer memory offer = initOffer(tokenAlice, tokenBob, amountAlice, amountBob, fees);
+      offer = setOfferProperties(offer, offerParameters);
 
       uint256 offerId = nextOfferId;
       offers[offerId] = offer;
@@ -143,10 +124,41 @@ contract MarsBaseExchange is Ownable {
       return offerId;
     }
 
-    function initOffer(address tokenAlice, address[] calldata tokenBob, uint256 amountAlice, uint256[] calldata amountBob, uint256[] calldata fees, uint256[] calldata offerParameters) private view returns (MBOffer memory) {
+    function setOfferProperties (MBOffer memory offer, uint256[] calldata offerParameters) private view returns (MBOffer memory) {
+
+      // MBOffer storage offer = offers[offerId];
+
+      assert(offer.amountAlice >= offerParameters[0]);
+      assert(getTime() < offerParameters[1] || offerParameters[1] == 0);
+
+      offer.offerType = getOfferType(offer.amountAlice, offerParameters);
+
+      offer.smallestChunkSize = offerParameters[0];
+
+      if (offerParameters[2] == 1) {
+        offer.capabilities[0] = true;
+      }
+
+      if (offerParameters[3] == 1) {
+        offer.capabilities[1] = true;
+      }
+
+      if (offerParameters.length == 5) {
+        offer.minimumSize = offerParameters[4];
+      } else {
+        offer.minimumSize = 0;
+      }
+
+      offer.deadline = offerParameters[1];
+
+      // offers[offerId] = offer;
+      return offer;
+    }
+
+    function getOfferType (uint256 amountAlice, uint256[] calldata offerParameters) private pure returns (OfferType) {
       OfferType offerType;
 
-      if (offerParameters.length == 2) {
+      if (offerParameters.length == 4) {
         if (offerParameters[1] > 0 && offerParameters[1] > 0 && offerParameters[1] != amountAlice) {
           offerType = OfferType.LimitedTimeChunkedPurchase;
         } else if (offerParameters[0] > 0 && offerParameters[0] != amountAlice) {
@@ -156,7 +168,7 @@ contract MarsBaseExchange is Ownable {
         } else {
           offerType = OfferType.FullPurchase;
         }
-      } else if (offerParameters.length == 3) {
+      } else if (offerParameters.length == 5) {
         if (offerParameters[0] > 0 && offerParameters[1] > 0 && offerParameters[0] != amountAlice) {
           offerType = OfferType.LimitedTimeMinimumChunkedPurchase;
         } else if (offerParameters[0] > 0 && offerParameters[0] != amountAlice) {
@@ -168,12 +180,14 @@ contract MarsBaseExchange is Ownable {
         }
       }
 
+      return offerType;
+    }
+
+    function initOffer(address tokenAlice, address[] calldata tokenBob, uint256 amountAlice, uint256[] calldata amountBob, uint256[] calldata fees) private view returns (MBOffer memory) {
       
       MBOffer memory offer;
 
       offer.offerId = nextOfferId;
-
-      offer.offerType = offerType;
 
       offer.tokenAlice = IERC20(tokenAlice);
       offer.tokenBob = tokenBob;
@@ -185,13 +199,6 @@ contract MarsBaseExchange is Ownable {
       offer.feeBob = fees[1];
 
       offer.amountRemaining = amountAlice;
-      offer.smallestChunkSize = offerParameters[0];
-
-      if (offerParameters.length == 3) {
-        offer.minimumSize = offerParameters[2];
-      } else {
-        offer.minimumSize = 0;
-      }
 
       offer.minimumOrderTokens = new address[](0);
       offer.minimumOrderAddresses = new address[](0);
@@ -200,18 +207,17 @@ contract MarsBaseExchange is Ownable {
       
       offer.offerer = msg.sender;
       offer.payoutAddress = msg.sender;
+      offer.capabilities = new bool[](2);
 
-      offer.deadline = offerParameters[1];
       offer.active = true;
 
       return offer;
     }
 
     function cancelOffer(uint256 offerId) public payable returns (uint256) {
-      assert(offerCanBeCancelled == true);
-
       MBOffer storage offer = offers[offerId];
 
+      assert(offer.capabilities[1] == true);
       assert(msg.sender == offer.offerer);
       assert(offer.active == true);
       assert(offer.amountAlice > 0);
@@ -245,7 +251,6 @@ contract MarsBaseExchange is Ownable {
     }
 
     function changeOfferPrice(uint256 offerId, address[] calldata tokenBob, uint256[] calldata amountBob) public payable returns (uint256) {
-      assert(getPriceChangeAllowed() == true);
       assert(tokenBob.length == amountBob.length);
 
       for (uint256 index = 0; index < tokenBob.length; index++) {
@@ -256,6 +261,7 @@ contract MarsBaseExchange is Ownable {
       assert(offerId <= nextOfferId);
 
       MBOffer storage offer = offers[offerId];
+      assert(offer.capabilities[0] == true);
 
       assert(offer.offerer == msg.sender);
 
@@ -271,7 +277,6 @@ contract MarsBaseExchange is Ownable {
     }
 
     function changeOfferPricePart(uint256 offerId, address[] calldata tokenBob, uint256[] calldata amountBob, uint256 smallestChunkSize) public payable returns (uint256) {
-      assert(getPriceChangeAllowed() == true);
       assert(tokenBob.length == amountBob.length);
 
       for (uint256 index = 0; index < tokenBob.length; index++) {
@@ -282,6 +287,8 @@ contract MarsBaseExchange is Ownable {
       assert(offerId <= nextOfferId);
 
       MBOffer storage offer = offers[offerId];
+
+      assert(offer.capabilities[0] == true);
 
       assert(offer.offerer == msg.sender);
       assert(smallestChunkSize <= offer.amountAlice);
