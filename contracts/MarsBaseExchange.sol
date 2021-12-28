@@ -46,11 +46,11 @@ contract MarsBaseExchange is Ownable {
       address[] minimumOrderTokens;
     }
 
-    event OfferCreated(uint256 offerId, MBOffer offer);
-    event OfferModified(uint256 offerId, MBOffer offer);
-    event OfferCancelled(uint256 offerId, MBOffer offer);
-    event OfferAccepted(uint256 offerId, MBOffer offer);
-    event OfferPartiallyAccepted(uint256 offerId, MBOffer offer);
+    event OfferCreated(uint256 offerId, address sender, uint256 blockTimestamp);
+    event OfferModified(uint256 offerId, address sender, uint256 blockTimestamp);
+    event OfferCancelled(uint256 offerId, address sender, uint256 blockTimestamp);
+    event OfferAccepted(uint256 offerId, address sender, uint256 blockTimestamp);
+    event OfferPartiallyAccepted(uint256 offerId, address sender, uint256 blockTimestamp);
 
     mapping (uint256 => MBOffer) public offers;
 
@@ -119,7 +119,7 @@ contract MarsBaseExchange is Ownable {
 
       nextOfferId ++;
 
-      emit OfferCreated(offerId, offer);
+      emit OfferCreated(offerId, msg.sender, block.timestamp);
 
       return offerId;
     }
@@ -243,7 +243,7 @@ contract MarsBaseExchange is Ownable {
 
       delete offers[offerId];
 
-      emit OfferCancelled(offerId, offer);
+      emit OfferCancelled(offerId, msg.sender, block.timestamp);
 
       return offerId;
     }
@@ -275,7 +275,7 @@ contract MarsBaseExchange is Ownable {
 
       delete offers[offerId];
 
-      emit OfferCancelled(offerId, offer);
+      emit OfferCancelled(offerId, msg.sender, block.timestamp);
 
       return offerId;
     }
@@ -300,7 +300,7 @@ contract MarsBaseExchange is Ownable {
 
       offers[offerId] = offer;
 
-      emit OfferModified(offerId, offer);
+      emit OfferModified(offerId, msg.sender, block.timestamp);
 
       return offerId;
 
@@ -329,7 +329,7 @@ contract MarsBaseExchange is Ownable {
 
       offers[offerId] = offer;
 
-      emit OfferModified(offerId, offer);
+      emit OfferModified(offerId, msg.sender, block.timestamp);
 
       return offerId;
     }
@@ -364,7 +364,7 @@ contract MarsBaseExchange is Ownable {
       
       delete offers[offerId];
 
-      emit OfferAccepted(offerId, offer);
+      emit OfferAccepted(offerId, msg.sender, block.timestamp);
 
       return offerId;
     }
@@ -411,9 +411,9 @@ contract MarsBaseExchange is Ownable {
       if (offers[offerId].amountRemaining == 0) {
         delete offers[offerId];
 
-        emit OfferAccepted(offerId, offer);
+        emit OfferAccepted(offerId, msg.sender, block.timestamp);
       } else {
-        emit OfferPartiallyAccepted(offerId, offers[offerId]);
+        emit OfferPartiallyAccepted(offerId, msg.sender, block.timestamp);
       }
 
       return offerId;
@@ -497,9 +497,9 @@ contract MarsBaseExchange is Ownable {
       if (offers[offerId].amountRemaining == 0) {
         delete offers[offerId];
 
-        emit OfferAccepted(offerId, offer);
+        emit OfferAccepted(offerId, msg.sender, block.timestamp);
       } else {
-        emit OfferPartiallyAccepted(offerId, offers[offerId]);
+        emit OfferPartiallyAccepted(offerId, msg.sender, block.timestamp);
       }
 
       return offerId;
