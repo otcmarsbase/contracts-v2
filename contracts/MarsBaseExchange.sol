@@ -215,12 +215,12 @@ contract MarsBaseExchange is Ownable {
     }
 
     function cancelExpiredOffer(uint256 offerId) private returns (uint256) {
-      MBOffer storage offer = offers[offerId];
+      MBOffer memory offer = offers[offerId];
 
       if (offer.capabilities[1] == false) {
         return offerId;
       }
-      // require(msg.sender == offer.offerer);
+
       require(offer.active == true);
       require(offer.amountAlice > 0);
 
@@ -249,7 +249,7 @@ contract MarsBaseExchange is Ownable {
     }
 
     function cancelOffer(uint256 offerId) public returns (uint256) {
-      MBOffer storage offer = offers[offerId];
+      MBOffer memory offer = offers[offerId];
 
       require(offer.capabilities[1] == true);
       require(msg.sender == offer.offerer);
