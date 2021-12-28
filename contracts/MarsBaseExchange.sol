@@ -65,13 +65,13 @@ contract MarsBaseExchange is Ownable {
         if (getTime() >= offers[index].deadline && offers[index].deadline != 0) {
           cancelExpiredOffer(index);
 
-          assert(offers[index].active == false);
+          require(offers[index].active == false);
         }
       }
     }
 
     function setMinimumFee(uint256 _minimumFee) public onlyOwner {
-      assert(_minimumFee > 0);
+      require(_minimumFee > 0);
 
       minimumFee = _minimumFee;
     }
@@ -102,12 +102,12 @@ contract MarsBaseExchange is Ownable {
       uint256 feeAlice = fees[0];
       uint256 feeBob = fees[1];
       
-      assert(tokenAlice != address(0));
+      require(tokenAlice != address(0));
       for (uint256 index = 0; index < tokenBob.length; index++) {
-        assert(tokenBob[index] != address(0));
+        require(tokenBob[index] != address(0));
       }
 
-      assert(feeAlice + feeBob >= minimumFee);
+      require(feeAlice + feeBob >= minimumFee);
       
       MBOffer memory offer = initOffer(tokenAlice, tokenBob, amountAlice, amountBob, fees);
       offer = setOfferProperties(offer, offerParameters);
@@ -128,8 +128,8 @@ contract MarsBaseExchange is Ownable {
 
       // MBOffer storage offer = offers[offerId];
 
-      assert(offer.amountAlice >= offerParameters[0]);
-      assert(getTime() < offerParameters[1] || offerParameters[1] == 0);
+      require(offer.amountAlice >= offerParameters[0]);
+      require(getTime() < offerParameters[1] || offerParameters[1] == 0);
 
       offer.offerType = getOfferType(offer.amountAlice, offerParameters);
 
@@ -220,18 +220,18 @@ contract MarsBaseExchange is Ownable {
       if (offer.capabilities[1] == false) {
         return offerId;
       }
-      // assert(msg.sender == offer.offerer);
-      assert(offer.active == true);
-      assert(offer.amountAlice > 0);
+      // require(msg.sender == offer.offerer);
+      require(offer.active == true);
+      require(offer.amountAlice > 0);
 
       if (offer.offerType == OfferType.MinimumChunkedPurchase || 
         offer.offerType == OfferType.LimitedTimeMinimumPurchase || 
         offer.offerType == OfferType.LimitedTimeMinimumChunkedPurchase) 
       {
         for (uint256 index = 0; index < offer.minimumOrderAddresses.length; index++) {
-          assert(offer.minimumOrderTokens[index] != address(0));
-          assert(offer.minimumOrderAddresses[index] != address(0));
-          assert(offer.minimumOrderAmountsBob[index] != 0);
+          require(offer.minimumOrderTokens[index] != address(0));
+          require(offer.minimumOrderAddresses[index] != address(0));
+          require(offer.minimumOrderAmountsBob[index] != 0);
           
           require(IERC20(offer.minimumOrderTokens[index]).transfer(offer.minimumOrderAddresses[index], offer.minimumOrderAmountsBob[index]));
         }
@@ -242,10 +242,6 @@ contract MarsBaseExchange is Ownable {
       }
 
       delete offers[offerId];
-
-      assert(offers[offerId].active == false);
-      assert(offers[offerId].amountAlice == 0);
-      assert(offers[offerId].offerer == address(0));
 
       emit OfferCancelled(offerId, offer);
 
@@ -255,19 +251,19 @@ contract MarsBaseExchange is Ownable {
     function cancelOffer(uint256 offerId) public returns (uint256) {
       MBOffer storage offer = offers[offerId];
 
-      assert(offer.capabilities[1] == true);
-      assert(msg.sender == offer.offerer);
-      assert(offer.active == true);
-      assert(offer.amountAlice > 0);
+      require(offer.capabilities[1] == true);
+      require(msg.sender == offer.offerer);
+      require(offer.active == true);
+      require(offer.amountAlice > 0);
 
       if (offer.offerType == OfferType.MinimumChunkedPurchase || 
         offer.offerType == OfferType.LimitedTimeMinimumPurchase || 
         offer.offerType == OfferType.LimitedTimeMinimumChunkedPurchase) 
       {
         for (uint256 index = 0; index < offer.minimumOrderAddresses.length; index++) {
-          assert(offer.minimumOrderTokens[index] != address(0));
-          assert(offer.minimumOrderAddresses[index] != address(0));
-          assert(offer.minimumOrderAmountsBob[index] != 0);
+          require(offer.minimumOrderTokens[index] != address(0));
+          require(offer.minimumOrderAddresses[index] != address(0));
+          require(offer.minimumOrderAmountsBob[index] != 0);
           
           require(IERC20(offer.minimumOrderTokens[index]).transfer(offer.minimumOrderAddresses[index], offer.minimumOrderAmountsBob[index]));
         }
@@ -279,29 +275,25 @@ contract MarsBaseExchange is Ownable {
 
       delete offers[offerId];
 
-      assert(offers[offerId].active == false);
-      assert(offers[offerId].amountAlice == 0);
-      assert(offers[offerId].offerer == address(0));
-
       emit OfferCancelled(offerId, offer);
 
       return offerId;
     }
 
     function changeOfferPrice(uint256 offerId, address[] calldata tokenBob, uint256[] calldata amountBob) public returns (uint256) {
-      assert(tokenBob.length == amountBob.length);
+      require(tokenBob.length == amountBob.length);
 
       for (uint256 index = 0; index < tokenBob.length; index++) {
-        assert(tokenBob[index] != address(0));
-        assert(amountBob[index] > 0);
+        require(tokenBob[index] != address(0));
+        require(amountBob[index] > 0);
       }
 
-      assert(offerId <= nextOfferId);
+      require(offerId <= nextOfferId);
 
       MBOffer storage offer = offers[offerId];
-      assert(offer.capabilities[0] == true);
+      require(offer.capabilities[0] == true);
 
-      assert(offer.offerer == msg.sender);
+      require(offer.offerer == msg.sender);
 
       offer.tokenBob = tokenBob;
       offer.amountBob = amountBob;
@@ -315,21 +307,21 @@ contract MarsBaseExchange is Ownable {
     }
 
     function changeOfferPricePart(uint256 offerId, address[] calldata tokenBob, uint256[] calldata amountBob, uint256 smallestChunkSize) public returns (uint256) {
-      assert(tokenBob.length == amountBob.length);
+      require(tokenBob.length == amountBob.length);
 
       for (uint256 index = 0; index < tokenBob.length; index++) {
-        assert(tokenBob[index] != address(0));
-        assert(amountBob[index] > 0);
+        require(tokenBob[index] != address(0));
+        require(amountBob[index] > 0);
       }
 
-      assert(offerId <= nextOfferId);
+      require(offerId <= nextOfferId);
 
       MBOffer storage offer = offers[offerId];
 
-      assert(offer.capabilities[0] == true);
+      require(offer.capabilities[0] == true);
 
-      assert(offer.offerer == msg.sender);
-      assert(smallestChunkSize <= offer.amountAlice);
+      require(offer.offerer == msg.sender);
+      require(smallestChunkSize <= offer.amountAlice);
 
       offer.tokenBob = tokenBob;
       offer.amountBob = amountBob;
@@ -345,9 +337,9 @@ contract MarsBaseExchange is Ownable {
     function acceptOffer(uint256 offerId, address tokenBob, uint256 amountBob) public returns (uint256) {
       MBOffer storage offer = offers[offerId];
 
-      assert(tokenBob != address(0));
-      assert(offer.active == true);
-      assert(getTime() < offer.deadline || offer.deadline == 0);
+      require(tokenBob != address(0));
+      require(offer.active == true);
+      require(getTime() < offer.deadline || offer.deadline == 0);
 
       address acceptedTokenBob = address(0);
       uint256 acceptedAmountBob = 0;
@@ -358,23 +350,19 @@ contract MarsBaseExchange is Ownable {
         }
       }
 
-      assert(acceptedTokenBob == tokenBob);
-      assert(acceptedAmountBob == amountBob);
+      require(acceptedTokenBob == tokenBob);
+      require(acceptedAmountBob == amountBob);
 
       uint256 amountAfterFeeAlice = offer.amountRemaining * (1000-offer.feeAlice) / 1000;
       uint256 amountAfterFeeBob = acceptedAmountBob * (1000-offer.feeBob) / 1000;
       uint256 amountFeeDex = acceptedAmountBob - amountAfterFeeBob;
-      assert(amountFeeDex > 0);
+      require(amountFeeDex > 0);
 
       require(IERC20(acceptedTokenBob).transferFrom(msg.sender, offer.payoutAddress, amountAfterFeeBob));
       require(offer.tokenAlice.transfer(msg.sender, amountAfterFeeAlice));
       require(IERC20(acceptedTokenBob).transferFrom(msg.sender, address(this), amountFeeDex));
       
       delete offers[offerId];
-
-      assert(offers[offerId].active == false);
-      assert(offers[offerId].amountAlice == 0);
-      assert(offers[offerId].offerer == address(0));
 
       emit OfferAccepted(offerId, offer);
 
@@ -384,10 +372,10 @@ contract MarsBaseExchange is Ownable {
     function acceptOfferPart(uint256 offerId, address tokenBob, uint256 amountBob) public returns (uint256) {
       MBOffer storage offer = offers[offerId];
 
-      assert(tokenBob != address(0));
-      assert(offer.active == true);
-      assert(getTime() < offer.deadline || offer.deadline == 0);
-      assert(offer.offerType == OfferType.ChunkedPurchase || 
+      require(tokenBob != address(0));
+      require(offer.active == true);
+      require(getTime() < offer.deadline || offer.deadline == 0);
+      require(offer.offerType == OfferType.ChunkedPurchase || 
         offer.offerType == OfferType.LimitedTimeChunkedPurchase || 
         offer.offerType == OfferType.LimitedTimeMinimumChunkedPurchase || 
         offer.offerType == OfferType.MinimumChunkedPurchase);
@@ -408,11 +396,11 @@ contract MarsBaseExchange is Ownable {
       uint256 amountAfterFeeBob = partialAmountBob.mul(1000-offer.feeBob) / 1000;
       uint256 amountFeeDex = partialAmountBob - amountAfterFeeBob;
 
-      assert(amountAfterFeeBob >= 0);
-      assert(amountFeeDex > 0);
+      require(amountAfterFeeBob >= 0);
+      require(amountFeeDex > 0);
 
-      assert(amountAfterFeeAlice >= offer.smallestChunkSize);
-      assert(amountAfterFeeAlice <= offer.amountRemaining);
+      require(amountAfterFeeAlice >= offer.smallestChunkSize);
+      require(amountAfterFeeAlice <= offer.amountRemaining);
 
       require(IERC20(acceptedTokenBob).transferFrom(msg.sender, offer.payoutAddress, amountAfterFeeBob));
       require(IERC20(acceptedTokenBob).transferFrom(msg.sender, address(this), amountFeeDex));
@@ -422,11 +410,6 @@ contract MarsBaseExchange is Ownable {
 
       if (offers[offerId].amountRemaining == 0) {
         delete offers[offerId];
-
-        assert(offers[offerId].active == false);
-        assert(offers[offerId].amountAlice == 0);
-        assert(offers[offerId].amountRemaining == 0);
-        assert(offers[offerId].offerer == address(0));
 
         emit OfferAccepted(offerId, offer);
       } else {
@@ -439,10 +422,10 @@ contract MarsBaseExchange is Ownable {
     function acceptOfferPartWithMinimum(uint256 offerId, address tokenBob, uint256 amountBob) public returns (uint256) {
       MBOffer storage offer = offers[offerId];
 
-      assert(tokenBob != address(0));
-      assert(offer.active == true);
-      assert(getTime() < offer.deadline || offer.deadline == 0);
-      assert(offer.offerType == OfferType.MinimumChunkedPurchase || 
+      require(tokenBob != address(0));
+      require(offer.active == true);
+      require(getTime() < offer.deadline || offer.deadline == 0);
+      require(offer.offerType == OfferType.MinimumChunkedPurchase || 
         offer.offerType == OfferType.LimitedTimeMinimumPurchase || 
         offer.offerType == OfferType.LimitedTimeMinimumChunkedPurchase);
 
@@ -461,12 +444,12 @@ contract MarsBaseExchange is Ownable {
       uint256 amountAfterFeeAlice = partialAmountAlice.mul(1000-offer.feeAlice) / 1000;
       uint256 amountAfterFeeBob = partialAmountBob.mul(1000-offer.feeBob) / 1000;
 
-      assert(acceptedTokenBob == tokenBob);
+      require(acceptedTokenBob == tokenBob);
 
-      assert(partialAmountBob >= 0);
+      require(partialAmountBob >= 0);
 
-      assert(partialAmountAlice >= offer.smallestChunkSize);
-      assert(partialAmountAlice <= offer.amountRemaining);
+      require(partialAmountAlice >= offer.smallestChunkSize);
+      require(partialAmountAlice <= offer.amountRemaining);
       
       offers[offerId].amountRemaining -= partialAmountBob;
 
@@ -505,19 +488,14 @@ contract MarsBaseExchange is Ownable {
         offers[offerId].minimumOrderAmountsAlice.push(partialAmountAlice);
         offers[offerId].minimumOrderTokens.push(acceptedTokenBob);
 
-        assert(offer.minimumOrderAmountsBob.length == chunkAlicedex + 1);
-        assert(offer.minimumOrderAmountsAlice.length == chunkAlicedex + 1);
-        assert(offer.minimumOrderAddresses.length == chunkAlicedex + 1);
-        assert(offer.minimumOrderTokens.length == chunkAlicedex + 1);
+        require(offer.minimumOrderAmountsBob.length == chunkAlicedex + 1);
+        require(offer.minimumOrderAmountsAlice.length == chunkAlicedex + 1);
+        require(offer.minimumOrderAddresses.length == chunkAlicedex + 1);
+        require(offer.minimumOrderTokens.length == chunkAlicedex + 1);
       }
 
       if (offers[offerId].amountRemaining == 0) {
         delete offers[offerId];
-
-        assert(offers[offerId].active == false);
-        assert(offers[offerId].amountAlice == 0);
-        assert(offers[offerId].amountRemaining == 0);
-        assert(offers[offerId].offerer == address(0));
 
         emit OfferAccepted(offerId, offer);
       } else {
