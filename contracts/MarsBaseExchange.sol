@@ -25,25 +25,25 @@ contract MarsBaseExchange is Ownable {
 
     struct MBOffer {
       uint256 offerId;
+      bool active;
       OfferType offerType;
       IERC20 tokenAlice;
-      address[] tokenBob;
       uint256 amountAlice;
-      uint256[] amountBob;
       uint256 feeAlice;
       uint256 feeBob;
       uint256 smallestChunkSize;
-      uint256 amountRemaining;
       uint256 minimumSize;
+      uint256 deadline;
+      address offerer;
+      address payoutAddress;
+      uint256 amountRemaining;
+      address[] tokenBob;
+      uint256[] amountBob;
+      bool[] capabilities;
       uint256[] minimumOrderAmountsAlice;
       uint256[] minimumOrderAmountsBob;
       address[] minimumOrderAddresses;
       address[] minimumOrderTokens;
-      uint256 deadline;
-      address offerer;
-      address payoutAddress;
-      bool[] capabilities;
-      bool active;
     }
 
     event OfferCreated(uint256 offerId, MBOffer offer);
