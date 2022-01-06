@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >=0.4.22 <0.9.0;
+pragma solidity >=0.8.0 <0.9.0;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
@@ -77,10 +77,27 @@ contract MarsBaseExchange is Ownable {
 
     function getAllOffers() public view returns (MBOffer[] memory) {
       MBOffer[] memory openOffers = new MBOffer[](nextOfferId);
+      uint256 counter = 0;
 
       for (uint256 index = 0; index < nextOfferId; index++) {
         if (offers[index].active == true) {
-          openOffers[index] = offers[index];
+          openOffers[counter] = offers[index];
+          counter++;
+        }
+      }
+
+      return openOffers;
+    }
+
+
+    function getOpenOffersForAddress(address offerer) public view returns (MBOffer[] memory) {
+      MBOffer[] memory openOffers = new MBOffer[](nextOfferId);
+      uint256 counter = 0;
+
+      for (uint256 index = 0; index < nextOfferId; index++) {
+        if (offers[index].active == true && offers[index].offerer == offerer) {
+          openOffers[counter] = offers[index];
+          counter++;
         }
       }
 
