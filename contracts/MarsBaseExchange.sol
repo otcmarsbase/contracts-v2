@@ -115,12 +115,12 @@ contract MarsBaseExchange is Ownable {
       uint256 feeAlice = fees[0];
       uint256 feeBob = fees[1];
       
-      require(tokenAlice != address(0));
+      require(tokenAlice != address(0), "T0");
       for (uint256 index = 0; index < tokenBob.length; index++) {
-        require(tokenBob[index] != address(0));
+        require(tokenBob[index] != address(0), "T0");
       }
 
-      require(feeAlice + feeBob >= minimumFee);
+      require(feeAlice + feeBob >= minimumFee, "M0");
       
       MBOffer memory offer = initOffer(tokenAlice, tokenBob, amountAlice, amountBob, fees);
       offer = setOfferProperties(offer, offerParameters);
@@ -128,7 +128,7 @@ contract MarsBaseExchange is Ownable {
       uint256 offerId = nextOfferId;
       offers[offerId] = offer;
 
-      require(IERC20(offer.tokenAlice).transferFrom(msg.sender, address(this), amountAlice));
+      require(IERC20(offer.tokenAlice).transferFrom(msg.sender, address(this), amountAlice), "T1a");
 
       nextOfferId ++;
 
@@ -138,8 +138,8 @@ contract MarsBaseExchange is Ownable {
     }
 
     function setOfferProperties (MBOffer memory offer, uint256[] calldata offerParameters) private view returns (MBOffer memory) {
-      require(offer.amountAlice >= offerParameters[0]);
-      require(getTime() < offerParameters[1] || offerParameters[1] == 0);
+      require(offer.amountAlice >= offerParameters[0], "M1");
+      require(getTime() < offerParameters[1] || offerParameters[1] == 0, "M2");
 
       offer.offerType = getOfferType(offer.amountAlice, offerParameters);
 
@@ -230,24 +230,24 @@ contract MarsBaseExchange is Ownable {
         return offerId;
       }
 
-      require(offer.active == true);
-      require(offer.amountAlice > 0);
+      require(offer.active == true, "S0");
+      require(offer.amountAlice > 0, "M3");
 
       if (offer.offerType == OfferType.MinimumChunkedPurchase || 
         offer.offerType == OfferType.LimitedTimeMinimumPurchase || 
         offer.offerType == OfferType.LimitedTimeMinimumChunkedPurchase) 
       {
         for (uint256 index = 0; index < offer.minimumOrderAddresses.length; index++) {
-          require(offer.minimumOrderTokens[index] != address(0));
-          require(offer.minimumOrderAddresses[index] != address(0));
-          require(offer.minimumOrderAmountsBob[index] != 0);
+          require(offer.minimumOrderTokens[index] != address(0), "T0");
+          require(offer.minimumOrderAddresses[index] != address(0), "T0");
+          require(offer.minimumOrderAmountsBob[index] != 0, "M4");
           
-          require(IERC20(offer.minimumOrderTokens[index]).transfer(offer.minimumOrderAddresses[index], offer.minimumOrderAmountsBob[index]));
+          require(IERC20(offer.minimumOrderTokens[index]).transfer(offer.minimumOrderAddresses[index], offer.minimumOrderAmountsBob[index]), "T2b");
         }
 
-        require(IERC20(offer.tokenAlice).transfer(offer.offerer, offer.amountAlice));
+        require(IERC20(offer.tokenAlice).transfer(offer.offerer, offer.amountAlice), "T1b");
       } else {
-        require(IERC20(offer.tokenAlice).transfer(offer.offerer, offer.amountRemaining));
+        require(IERC20(offer.tokenAlice).transfer(offer.offerer, offer.amountRemaining), "T1b");
       }
 
       delete offers[offerId];
@@ -260,26 +260,26 @@ contract MarsBaseExchange is Ownable {
     function cancelOffer(uint256 offerId) public returns (uint256) {
       MBOffer memory offer = offers[offerId];
 
-      require(offer.capabilities[1] == true);
-      require(msg.sender == offer.offerer);
-      require(offer.active == true);
-      require(offer.amountAlice > 0);
+      require(offer.capabilities[1] == true, "S1");
+      require(msg.sender == offer.offerer, "S2");
+      require(offer.active == true, "S0");
+      require(offer.amountAlice > 0, "M3");
 
       if (offer.offerType == OfferType.MinimumChunkedPurchase || 
         offer.offerType == OfferType.LimitedTimeMinimumPurchase || 
         offer.offerType == OfferType.LimitedTimeMinimumChunkedPurchase) 
       {
         for (uint256 index = 0; index < offer.minimumOrderAddresses.length; index++) {
-          require(offer.minimumOrderTokens[index] != address(0));
-          require(offer.minimumOrderAddresses[index] != address(0));
-          require(offer.minimumOrderAmountsBob[index] != 0);
+          require(offer.minimumOrderTokens[index] != address(0), "T0");
+          require(offer.minimumOrderAddresses[index] != address(0), "T0");
+          require(offer.minimumOrderAmountsBob[index] != 0, "M4");
           
-          require(IERC20(offer.minimumOrderTokens[index]).transfer(offer.minimumOrderAddresses[index], offer.minimumOrderAmountsBob[index]));
+          require(IERC20(offer.minimumOrderTokens[index]).transfer(offer.minimumOrderAddresses[index], offer.minimumOrderAmountsBob[index]), "T2b");
         }
 
-        require(IERC20(offer.tokenAlice).transfer(offer.offerer, offer.amountAlice));
+        require(IERC20(offer.tokenAlice).transfer(offer.offerer, offer.amountAlice), "T1b");
       } else {
-        require(IERC20(offer.tokenAlice).transfer(offer.offerer, offer.amountRemaining));
+        require(IERC20(offer.tokenAlice).transfer(offer.offerer, offer.amountRemaining), "T1b");
       }
 
       delete offers[offerId];
@@ -290,19 +290,19 @@ contract MarsBaseExchange is Ownable {
     }
 
     function changeOfferPrice(uint256 offerId, address[] calldata tokenBob, uint256[] calldata amountBob) public returns (uint256) {
-      require(tokenBob.length == amountBob.length);
+      require(tokenBob.length == amountBob.length, "M5");
 
       for (uint256 index = 0; index < tokenBob.length; index++) {
-        require(tokenBob[index] != address(0));
-        require(amountBob[index] > 0,"Change offer Price has a zero amount for bob!");
+        require(tokenBob[index] != address(0), "T0");
+        require(amountBob[index] > 0, "M6");
       }
 
-      require(offerId <= nextOfferId);
+      require(offerId <= nextOfferId, "S3");
 
       MBOffer memory offer = offers[offerId];
-      require(offer.capabilities[0] == true);
+      require(offer.capabilities[0] == true, "S4");
 
-      require(offer.offerer == msg.sender);
+      require(offer.offerer == msg.sender, "S2");
 
       offer.tokenBob = tokenBob;
       offer.amountBob = amountBob;
@@ -316,21 +316,21 @@ contract MarsBaseExchange is Ownable {
     }
 
     function changeOfferPricePart(uint256 offerId, address[] calldata tokenBob, uint256[] calldata amountBob, uint256 smallestChunkSize) public returns (uint256) {
-      require(tokenBob.length == amountBob.length);
+      require(tokenBob.length == amountBob.length, "M5");
 
       for (uint256 index = 0; index < tokenBob.length; index++) {
-        require(tokenBob[index] != address(0));
-        require(amountBob[index] > 0);
+        require(tokenBob[index] != address(0), "T0");
+        require(amountBob[index] > 0, "M6");
       }
 
-      require(offerId <= nextOfferId);
+      require(offerId <= nextOfferId, "S3");
 
       MBOffer memory offer = offers[offerId];
 
-      require(offer.capabilities[0] == true);
+      require(offer.capabilities[0] == true, "S4");
 
-      require(offer.offerer == msg.sender);
-      require(smallestChunkSize <= offer.amountAlice);
+      require(offer.offerer == msg.sender, "S2");
+      require(smallestChunkSize <= offer.amountAlice, "M1");
 
       offer.tokenBob = tokenBob;
       offer.amountBob = amountBob;
@@ -346,9 +346,9 @@ contract MarsBaseExchange is Ownable {
     function acceptOffer(uint256 offerId, address tokenBob, uint256 amountBob) public returns (uint256) {
       MBOffer memory offer = offers[offerId];
 
-      require(tokenBob != address(0));
-      require(offer.active == true);
-      require(getTime() < offer.deadline || offer.deadline == 0);
+      require(tokenBob != address(0), "T0");
+      require(offer.active == true, "S0");
+      require(getTime() < offer.deadline || offer.deadline == 0, "M2");
 
       address acceptedTokenBob = address(0);
       uint256 acceptedAmountBob = 0;
@@ -359,17 +359,17 @@ contract MarsBaseExchange is Ownable {
         }
       }
 
-      require(acceptedTokenBob == tokenBob);
-      require(acceptedAmountBob == amountBob);
+      require(acceptedTokenBob == tokenBob, "T3");
+      require(acceptedAmountBob == amountBob, "T4");
 
       uint256 amountAfterFeeAlice = offer.amountRemaining * (1000-offer.feeAlice) / 1000;
       uint256 amountAfterFeeBob = acceptedAmountBob * (1000-offer.feeBob) / 1000;
       uint256 amountFeeDex = acceptedAmountBob - amountAfterFeeBob;
-      require(amountFeeDex > 0);
+      require(amountFeeDex > 0, "M7");
 
-      require(IERC20(acceptedTokenBob).transferFrom(msg.sender, offer.payoutAddress, amountAfterFeeBob));
-      require(IERC20(offer.tokenAlice).transfer(msg.sender, amountAfterFeeAlice));
-      require(IERC20(acceptedTokenBob).transferFrom(msg.sender, address(this), amountFeeDex));
+      require(IERC20(acceptedTokenBob).transferFrom(msg.sender, offer.payoutAddress, amountAfterFeeBob), "T2a");
+      require(IERC20(offer.tokenAlice).transfer(msg.sender, amountAfterFeeAlice), "T1b");
+      require(IERC20(acceptedTokenBob).transferFrom(msg.sender, address(this), amountFeeDex), "T5");
       
       delete offers[offerId];
 
@@ -381,13 +381,13 @@ contract MarsBaseExchange is Ownable {
     function acceptOfferPart(uint256 offerId, address tokenBob, uint256 amountBob) public returns (uint256) {
       MBOffer memory offer = offers[offerId];
 
-      require(tokenBob != address(0));
-      require(offer.active == true);
-      require(getTime() < offer.deadline || offer.deadline == 0);
+      require(tokenBob != address(0), "T0");
+      require(offer.active == true, "S0");
+      require(getTime() < offer.deadline || offer.deadline == 0, "M2");
       require(offer.offerType == OfferType.ChunkedPurchase || 
         offer.offerType == OfferType.LimitedTimeChunkedPurchase || 
         offer.offerType == OfferType.LimitedTimeMinimumChunkedPurchase || 
-        offer.offerType == OfferType.MinimumChunkedPurchase);
+        offer.offerType == OfferType.MinimumChunkedPurchase, "S5");
 
       address acceptedTokenBob = address(0);
       uint256 acceptedAmountBob = 0;
@@ -405,15 +405,15 @@ contract MarsBaseExchange is Ownable {
       uint256 amountAfterFeeBob = partialAmountBob * (1000-offer.feeBob) / 1000;
       uint256 amountFeeDex = partialAmountBob - amountAfterFeeBob;
 
-      require(amountAfterFeeBob >= 0);
-      require(amountFeeDex > 0);
+      require(amountAfterFeeBob >= 0, "M8");
+      require(amountFeeDex > 0, "M7");
 
-      require(amountAfterFeeAlice >= offer.smallestChunkSize);
-      require(amountAfterFeeAlice <= offer.amountRemaining);
+      require(amountAfterFeeAlice >= offer.smallestChunkSize, "M1");
+      require(amountAfterFeeAlice <= offer.amountRemaining, "M10");
 
-      require(IERC20(acceptedTokenBob).transferFrom(msg.sender, offer.payoutAddress, amountAfterFeeBob));
-      require(IERC20(acceptedTokenBob).transferFrom(msg.sender, address(this), amountFeeDex));
-      require(IERC20(offer.tokenAlice).transfer(msg.sender, amountAfterFeeAlice));
+      require(IERC20(acceptedTokenBob).transferFrom(msg.sender, offer.payoutAddress, amountAfterFeeBob), "T2a");
+      require(IERC20(acceptedTokenBob).transferFrom(msg.sender, address(this), amountFeeDex), "T5");
+      require(IERC20(offer.tokenAlice).transfer(msg.sender, amountAfterFeeAlice), "T1b");
 
       offers[offerId].amountRemaining -= partialAmountAlice;
 
@@ -431,12 +431,12 @@ contract MarsBaseExchange is Ownable {
     function acceptOfferPartWithMinimum(uint256 offerId, address tokenBob, uint256 amountBob) public returns (uint256) {
       MBOffer memory offer = offers[offerId];
 
-      require(tokenBob != address(0));
-      require(offer.active == true);
-      require(getTime() < offer.deadline || offer.deadline == 0);
+      require(tokenBob != address(0), "T0");
+      require(offer.active == true, "S0");
+      require(getTime() < offer.deadline || offer.deadline == 0, "M2");
       require(offer.offerType == OfferType.MinimumChunkedPurchase || 
         offer.offerType == OfferType.LimitedTimeMinimumPurchase || 
-        offer.offerType == OfferType.LimitedTimeMinimumChunkedPurchase);
+        offer.offerType == OfferType.LimitedTimeMinimumChunkedPurchase, "S5");
 
       address acceptedTokenBob = address(0);
       uint256 acceptedAmountBob = 0;
@@ -453,29 +453,29 @@ contract MarsBaseExchange is Ownable {
       uint256 amountAfterFeeAlice = partialAmountAlice * (1000-offer.feeAlice) / 1000;
       uint256 amountAfterFeeBob = partialAmountBob * (1000-offer.feeBob) / 1000;
 
-      require(acceptedTokenBob == tokenBob);
+      require(acceptedTokenBob == tokenBob, "T3");
 
-      require(partialAmountBob >= 0);
+      require(partialAmountBob >= 0, "M6");
 
-      require(partialAmountAlice >= offer.smallestChunkSize);
-      require(partialAmountAlice <= offer.amountRemaining);
+      require(partialAmountAlice >= offer.smallestChunkSize, "M1");
+      require(partialAmountAlice <= offer.amountRemaining, "M10");
       
       offers[offerId].amountRemaining -= partialAmountBob;
 
       uint256 tokensSold = offer.amountAlice - offers[offerId].amountRemaining;
 
       if (tokensSold >= offer.minimumSize) {
-        require(IERC20(acceptedTokenBob).transferFrom(msg.sender, offer.payoutAddress, amountAfterFeeBob));
-        require(IERC20(offer.tokenAlice).transfer(msg.sender, amountAfterFeeAlice));
-        require(IERC20(acceptedTokenBob).transferFrom(msg.sender, address(this), partialAmountBob - amountAfterFeeBob));
+        require(IERC20(acceptedTokenBob).transferFrom(msg.sender, offer.payoutAddress, amountAfterFeeBob), "T2a");
+        require(IERC20(offer.tokenAlice).transfer(msg.sender, amountAfterFeeAlice), "T5");
+        require(IERC20(acceptedTokenBob).transferFrom(msg.sender, address(this), partialAmountBob - amountAfterFeeBob), "T1a");
         
         uint256 acceptedAmountAfterFeeAlice;
         uint256 acceptedAmountAfterFeeBob;
         for (uint256 index = 0; index < offer.minimumOrderAddresses.length; index++) {
           acceptedAmountAfterFeeAlice = offer.minimumOrderAmountsAlice[index] * (1000-offer.feeAlice) / 1000;
           acceptedAmountAfterFeeBob = offer.minimumOrderAmountsBob[index] * (1000-offer.feeBob) / 1000;
-          require(IERC20(offer.minimumOrderTokens[index]).transfer(offer.payoutAddress, acceptedAmountAfterFeeAlice));
-          require(IERC20(offer.tokenAlice).transfer(offer.minimumOrderAddresses[index], acceptedAmountAfterFeeBob));
+          require(IERC20(offer.minimumOrderTokens[index]).transfer(offer.payoutAddress, acceptedAmountAfterFeeAlice), "T2b");
+          require(IERC20(offer.tokenAlice).transfer(offer.minimumOrderAddresses[index], acceptedAmountAfterFeeBob), "T1b");
         }
 
         delete offers[offerId].minimumOrderAddresses;
@@ -484,7 +484,7 @@ contract MarsBaseExchange is Ownable {
         delete offers[offerId].minimumOrderTokens;
 
       } else {
-        require(IERC20(acceptedTokenBob).transferFrom(msg.sender, address(this), partialAmountBob));
+        require(IERC20(acceptedTokenBob).transferFrom(msg.sender, address(this), partialAmountBob), "T2a");
 
         uint256 chunkAlicedex = offer.minimumOrderAddresses.length;
 
