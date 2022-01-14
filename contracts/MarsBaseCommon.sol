@@ -22,6 +22,11 @@ contract MarsBaseCommon {
     LimitedTimeMinimumChunkedPurchase
   }
 
+  enum ContractType {
+    Offers,
+    MinimumOffers
+  }
+
   struct MBOffer {
     bool active;
     OfferType offerType;
@@ -49,6 +54,14 @@ contract MarsBaseCommon {
     return block.timestamp;
   }
 
+  function contractType(OfferType offerType) public pure returns (ContractType) {
+    if (offerType == OfferType.FullPurchase || offerType == OfferType.ChunkedPurchase || offerType == OfferType.LimitedTime || offerType == OfferType.LimitedTimeChunkedPurchase) {
+      return ContractType.Offers;
+    } else {
+      return ContractType.MinimumOffers;
+    }
+  }
+
 
   function price(uint256 amountAlice, uint256 offerAmountAlice, uint256 offerAmountBob) public pure returns (uint256) {
     uint256 numerator = amountAlice * offerAmountBob;
@@ -58,51 +71,51 @@ contract MarsBaseCommon {
   }
 
   function setOfferProperties (MBOffer memory offer, uint256[] calldata offerParameters) public view returns (MBOffer memory) {
-    require(offer.amountAlice >= offerParameters[0], "M1");
-    require(getTime() < offerParameters[1] || offerParameters[1] == 0, "M2");
+    require(offer.amountAlice >= offerParameters[2], "M1");
+    require(getTime() < offerParameters[3] || offerParameters[3] == 0, "M2");
 
     offer.offerType = getOfferType(offer.amountAlice, offerParameters);
 
     offer.smallestChunkSize = offerParameters[0];
 
-    if (offerParameters[2] == 1) {
+    if (offerParameters[4] == 1) {
       offer.capabilities[0] = true;
     }
 
-    if (offerParameters[3] == 1) {
+    if (offerParameters[5] == 1) {
       offer.capabilities[1] = true;
     }
 
-    if (offerParameters.length == 5) {
-      offer.minimumSize = offerParameters[4];
+    if (offerParameters.length == 7) {
+      offer.minimumSize = offerParameters[6];
     } else {
       offer.minimumSize = 0;
     }
 
-    offer.deadline = offerParameters[1];
+    offer.deadline = offerParameters[3];
 
     return offer;
   }
 
-  function getOfferType (uint256 amountAlice, uint256[] calldata offerParameters) private pure returns (OfferType) {
+  function getOfferType (uint256 amountAlice, uint256[] calldata offerParameters) public pure returns (OfferType) {
     OfferType offerType;
 
-    if (offerParameters.length == 4) {
-      if (offerParameters[1] > 0 && offerParameters[1] > 0 && offerParameters[1] != amountAlice) {
+    if (offerParameters.length == 6) {
+      if (offerParameters[3] > 0 && offerParameters[3] > 0 && offerParameters[3] != amountAlice) {
         offerType = OfferType.LimitedTimeChunkedPurchase;
-      } else if (offerParameters[0] > 0 && offerParameters[0] != amountAlice) {
+      } else if (offerParameters[2] > 0 && offerParameters[2] != amountAlice) {
         offerType = OfferType.ChunkedPurchase;
-      } else if (offerParameters[1] > 0) {
+      } else if (offerParameters[3] > 0) {
         offerType = OfferType.LimitedTime;
       } else {
         offerType = OfferType.FullPurchase;
       }
-    } else if (offerParameters.length == 5) {
-      if (offerParameters[0] > 0 && offerParameters[1] > 0 && offerParameters[0] != amountAlice) {
+    } else if (offerParameters.length == 7) {
+      if (offerParameters[2] > 0 && offerParameters[3] > 0 && offerParameters[2] != amountAlice) {
         offerType = OfferType.LimitedTimeMinimumChunkedPurchase;
-      } else if (offerParameters[0] > 0 && offerParameters[0] != amountAlice) {
+      } else if (offerParameters[2] > 0 && offerParameters[2] != amountAlice) {
         offerType = OfferType.MinimumChunkedPurchase;
-      } else if (offerParameters[1] > 0) {
+      } else if (offerParameters[3] > 0) {
         offerType = OfferType.LimitedTimeMinimumPurchase;
       } else {
         offerType = OfferType.MinimumChunkedPurchase;
@@ -112,7 +125,7 @@ contract MarsBaseCommon {
     return offerType;
   }
 
-  function initOffer(uint256 nextOfferId, address tokenAlice, address[] calldata tokenBob, uint256 amountAlice, uint256[] calldata amountBob, uint256[] calldata fees) public view returns (MBOffer memory) {
+  function initOffer(uint256 nextOfferId, address tokenAlice, address[] calldata tokenBob, uint256 amountAlice, uint256[] calldata amountBob, uint256[] calldata offerParameters) public pure returns (MBOffer memory) {
     
     MBOffer memory offer;
 
@@ -124,8 +137,8 @@ contract MarsBaseCommon {
     offer.amountAlice = amountAlice;
     offer.amountBob = amountBob;
 
-    offer.feeAlice = fees[0];
-    offer.feeBob = fees[1];
+    offer.feeAlice = offerParameters[0];
+    offer.feeBob = offerParameters[1];
 
     offer.amountRemaining = amountAlice;
 
@@ -133,9 +146,7 @@ contract MarsBaseCommon {
     offer.minimumOrderAddresses = new address[](0);
     offer.minimumOrderAmountsAlice = new uint256[](0);
     offer.minimumOrderAmountsBob = new uint256[](0);
-    
-    offer.offerer = msg.sender;
-    offer.payoutAddress = msg.sender;
+
     offer.capabilities = new bool[](2);
 
     offer.active = true;

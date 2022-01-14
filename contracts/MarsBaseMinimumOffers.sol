@@ -8,12 +8,11 @@ import "./MarsBase.sol";
 
 contract MarsBaseMinimumOffers is MarsBaseCommon, MarsBase {
 
-  function acceptOfferPartWithMinimum(uint256 offerId, address tokenBob, uint256 amountBob) public returns (uint256) {
+  function acceptOfferPartWithMinimum(uint256 offerId, address tokenBob, uint256 amountBob, address sender) public returns (uint256) {
     MBOffer memory offer = offers[offerId];
 
     require(tokenBob != address(0), "T0");
     require(offer.active == true, "S0");
-    require(getTime() < offer.deadline || offer.deadline == 0, "M2");
     require(offer.offerType == OfferType.MinimumChunkedPurchase || 
       offer.offerType == OfferType.LimitedTimeMinimumPurchase || 
       offer.offerType == OfferType.LimitedTimeMinimumChunkedPurchase, "S5");
@@ -45,26 +44,17 @@ contract MarsBaseMinimumOffers is MarsBaseCommon, MarsBase {
     uint256 tokensSold = offer.amountAlice - offers[offerId].amountRemaining;
 
     if (tokensSold >= offer.minimumSize) {
-      require(IERC20(acceptedTokenBob).transferFrom(msg.sender, offer.payoutAddress, amountAfterFeeBob), "T2a");
-      require(IERC20(offer.tokenAlice).transfer(msg.sender, amountAfterFeeAlice), "T5");
-      require(IERC20(acceptedTokenBob).transferFrom(msg.sender, address(this), partialAmountBob - amountAfterFeeBob), "T1a");
+      require(IERC20(acceptedTokenBob).transferFrom(sender, offer.payoutAddress, amountAfterFeeBob), "T2a");
+      require(IERC20(offer.tokenAlice).transfer(sender, amountAfterFeeAlice), "T5");
+      require(IERC20(acceptedTokenBob).transferFrom(sender, address(this), partialAmountBob - amountAfterFeeBob), "T1a");
       
-      uint256 acceptedAmountAfterFeeAlice;
-      uint256 acceptedAmountAfterFeeBob;
       for (uint256 index = 0; index < offer.minimumOrderAddresses.length; index++) {
-        acceptedAmountAfterFeeAlice = offer.minimumOrderAmountsAlice[index] * (1000-offer.feeAlice) / 1000;
-        acceptedAmountAfterFeeBob = offer.minimumOrderAmountsBob[index] * (1000-offer.feeBob) / 1000;
-        require(IERC20(offer.minimumOrderTokens[index]).transfer(offer.payoutAddress, acceptedAmountAfterFeeAlice), "T2b");
-        require(IERC20(offer.tokenAlice).transfer(offer.minimumOrderAddresses[index], acceptedAmountAfterFeeBob), "T1b");
+        require(IERC20(offer.minimumOrderTokens[index]).transfer(offer.payoutAddress, offer.minimumOrderAmountsAlice[index] * (1000-offer.feeAlice) / 1000), "T2b");
+        require(IERC20(offer.tokenAlice).transfer(offer.minimumOrderAddresses[index], offer.minimumOrderAmountsBob[index] * (1000-offer.feeBob) / 1000), "T1b");
       }
 
-      delete offers[offerId].minimumOrderAddresses;
-      delete offers[offerId].minimumOrderAmountsBob;
-      delete offers[offerId].minimumOrderAmountsAlice;
-      delete offers[offerId].minimumOrderTokens;
-
     } else {
-      require(IERC20(acceptedTokenBob).transferFrom(msg.sender, address(this), partialAmountBob), "T2a");
+      require(IERC20(acceptedTokenBob).transferFrom(sender, address(this), partialAmountBob), "T2a");
 
       uint256 chunkAlicedex = offer.minimumOrderAddresses.length;
 
@@ -72,7 +62,7 @@ contract MarsBaseMinimumOffers is MarsBaseCommon, MarsBase {
         chunkAlicedex -= 1;
       }
 
-      offers[offerId].minimumOrderAddresses.push(msg.sender);
+      offers[offerId].minimumOrderAddresses.push(sender);
       offers[offerId].minimumOrderAmountsBob.push(partialAmountBob);
       offers[offerId].minimumOrderAmountsAlice.push(partialAmountAlice);
       offers[offerId].minimumOrderTokens.push(acceptedTokenBob);
@@ -85,6 +75,33 @@ contract MarsBaseMinimumOffers is MarsBaseCommon, MarsBase {
     } else {
       emit OfferPartiallyAccepted(offerId, msg.sender, block.timestamp);
     }
+
+    return offerId;
+  }
+
+  function cancelOffer(uint256 offerId, address sender) public returns (uint256) {
+    MBOffer memory offer = offers[offerId];
+
+    require(offer.capabilities[1] == true, "S1");
+    require(sender == offer.offerer, "S2");
+    require(offer.active == true, "S0");
+    require(offer.amountAlice > 0, "M3");
+
+    require (contractType(offer.offerType) == ContractType.MinimumOffers, "S5");
+    
+    for (uint256 index = 0; index < offer.minimumOrderAddresses.length; index++) {
+      require(offer.minimumOrderTokens[index] != address(0), "T0");
+      require(offer.minimumOrderAddresses[index] != address(0), "T0");
+      require(offer.minimumOrderAmountsBob[index] != 0, "M4");
+      
+      require(IERC20(offer.minimumOrderTokens[index]).transfer(offer.minimumOrderAddresses[index], offer.minimumOrderAmountsBob[index]), "T2b");
+    }
+
+      require(IERC20(offer.tokenAlice).transfer(offer.offerer, offer.amountAlice), "T1b");
+
+    delete offers[offerId];
+
+    emit OfferCancelled(offerId, msg.sender, block.timestamp);
 
     return offerId;
   }

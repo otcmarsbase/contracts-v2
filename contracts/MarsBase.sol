@@ -13,9 +13,23 @@ contract MarsBase is MarsBaseCommon {
 
   mapping (uint256 => MBOffer) public offers;
 
-  function createOffer(address tokenAlice, address[] calldata tokenBob, uint256 amountAlice, uint256[] calldata amountBob, uint256[] calldata fees, uint256[] calldata offerParameters) public returns (uint256) {
-    uint256 feeAlice = fees[0];
-    uint256 feeBob = fees[1];
+  function setMinimumFee(uint256 _minimumFee) public {
+    require(_minimumFee > 0);
+
+    minimumFee = _minimumFee;
+  }
+
+  function getOffer(uint256 offerId) public view returns (MBOffer memory) {
+    return offers[offerId];
+  }
+
+  function getNextOfferId() public view returns (uint256) {
+    return nextOfferId;
+  }
+
+  function createOffer(address sender, address tokenAlice, address[] calldata tokenBob, uint256 amountAlice, uint256[] calldata amountBob, uint256[] calldata offerParameters) public returns (uint256) {
+    uint256 feeAlice = offerParameters[0];
+    uint256 feeBob = offerParameters[1];
     
     require(tokenAlice != address(0), "T0");
     for (uint256 index = 0; index < tokenBob.length; index++) {
@@ -24,13 +38,16 @@ contract MarsBase is MarsBaseCommon {
 
     require(feeAlice + feeBob >= minimumFee, "M0");
     
-    MBOffer memory offer = initOffer(nextOfferId, tokenAlice, tokenBob, amountAlice, amountBob, fees);
+    MBOffer memory offer = initOffer(nextOfferId, tokenAlice, tokenBob, amountAlice, amountBob, offerParameters);
     offer = setOfferProperties(offer, offerParameters);
+
+    offer.payoutAddress = sender;
+    offer.offerer = sender;
 
     uint256 offerId = nextOfferId;
     offers[offerId] = offer;
 
-    require(IERC20(offer.tokenAlice).transferFrom(msg.sender, address(this), amountAlice), "T1a");
+    require(IERC20(offer.tokenAlice).transferFrom(sender, address(this), amountAlice), "T1a");
 
     nextOfferId ++;
 
@@ -39,45 +56,15 @@ contract MarsBase is MarsBaseCommon {
     return offerId;
   }
 
-  function cancelExpiredOffer(uint256 offerId) private returns (uint256) {
+  function cancelExpiredOffer(uint256 offerId, address sender) private returns (uint256) {
     MBOffer memory offer = offers[offerId];
 
     if (offer.capabilities[1] == false) {
       return offerId;
     }
 
-    require(offer.active == true, "S0");
-    require(offer.amountAlice > 0, "M3");
-
-    if (offer.offerType == OfferType.MinimumChunkedPurchase || 
-      offer.offerType == OfferType.LimitedTimeMinimumPurchase || 
-      offer.offerType == OfferType.LimitedTimeMinimumChunkedPurchase) 
-    {
-      for (uint256 index = 0; index < offer.minimumOrderAddresses.length; index++) {
-        require(offer.minimumOrderTokens[index] != address(0), "T0");
-        require(offer.minimumOrderAddresses[index] != address(0), "T0");
-        require(offer.minimumOrderAmountsBob[index] != 0, "M4");
-        
-        require(IERC20(offer.minimumOrderTokens[index]).transfer(offer.minimumOrderAddresses[index], offer.minimumOrderAmountsBob[index]), "T2b");
-      }
-
-      require(IERC20(offer.tokenAlice).transfer(offer.offerer, offer.amountAlice), "T1b");
-    } else {
-      require(IERC20(offer.tokenAlice).transfer(offer.offerer, offer.amountRemaining), "T1b");
-    }
-
-    delete offers[offerId];
-
-    emit OfferCancelled(offerId, msg.sender, block.timestamp);
-
-    return offerId;
-  }
-
-  function cancelOffer(uint256 offerId) public returns (uint256) {
-    MBOffer memory offer = offers[offerId];
-
     require(offer.capabilities[1] == true, "S1");
-    require(msg.sender == offer.offerer, "S2");
+    require(sender == offer.offerer, "S2");
     require(offer.active == true, "S0");
     require(offer.amountAlice > 0, "M3");
 
@@ -90,7 +77,7 @@ contract MarsBase is MarsBaseCommon {
     return offer.offerId;
   }
 
-  function changeOfferPrice(uint256 offerId, address[] calldata tokenBob, uint256[] calldata amountBob) public view returns (MBOffer memory) {
+  function changeOfferPrice(uint256 offerId, address[] calldata tokenBob, uint256[] calldata amountBob, address sender) public view returns (MBOffer memory) {
     MBOffer memory offer = offers[offerId];
 
     require(tokenBob.length == amountBob.length, "M5");
@@ -102,7 +89,7 @@ contract MarsBase is MarsBaseCommon {
 
     require(offer.capabilities[0] == true, "S4");
 
-    require(offer.offerer == msg.sender, "S2");
+    require(offer.offerer == sender, "S2");
 
     offer.tokenBob = tokenBob;
     offer.amountBob = amountBob;
@@ -111,7 +98,9 @@ contract MarsBase is MarsBaseCommon {
 
   }
 
-  function changeOfferPricePart(MBOffer calldata _offer, address[] calldata tokenBob, uint256[] calldata amountBob, uint256 smallestChunkSize) public view returns (MBOffer memory) {
+  function changeOfferPricePart(uint256 offerId, address[] calldata tokenBob, uint256[] calldata amountBob, uint256 smallestChunkSize, address sender) public view returns (MBOffer memory) {
+    MBOffer memory offer = offers[offerId];
+
     require(tokenBob.length == amountBob.length, "M5");
 
     for (uint256 index = 0; index < tokenBob.length; index++) {
@@ -119,11 +108,9 @@ contract MarsBase is MarsBaseCommon {
       require(amountBob[index] > 0, "M6");
     }
 
-    MBOffer memory offer = _offer;
-
     require(offer.capabilities[0] == true, "S4");
 
-    require(offer.offerer == msg.sender, "S2");
+    require(offer.offerer == sender, "S2");
     require(smallestChunkSize <= offer.amountAlice, "M1");
 
     offer.tokenBob = tokenBob;
