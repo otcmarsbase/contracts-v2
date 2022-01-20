@@ -7,10 +7,21 @@ contract MarsBaseCommon {
   event OfferModified(uint256 offerId, address sender, uint256 blockTimestamp);
   event OfferCancelled(uint256 offerId, address sender, uint256 blockTimestamp);
   event OfferAccepted(uint256 offerId, address sender, uint256 blockTimestamp);
-  event OfferPartiallyAccepted(uint256 offerId, address sender, uint256 blockTimestamp);
 
   // For testing usage
   event Log(uint256 log);
+
+  // OfferType as int
+  /*
+    Full Purchase - 0
+    Limited Time / Deadline - 1
+    Chunked Purchase - 2
+    Chunked Purchse with Minimum - 3
+    Limited Time / Deadline with Minimum - 4
+    Limited Time / Deaadline and Chunked - 5
+    Limited Time / Deadline, Chunked with Minimum - 6
+    Limited Time / Deadline, Chunked with Minimum with delyed distribution - 7
+    */
 
   enum OfferType {
     FullPurchase,
@@ -19,7 +30,8 @@ contract MarsBaseCommon {
     MinimumChunkedPurchase,
     LimitedTimeMinimumPurchase,
     LimitedTimeChunkedPurchase,
-    LimitedTimeMinimumChunkedPurchase
+    LimitedTimeMinimumChunkedPurchase,
+    LimitedTimeMinimumChunkedDeadlinePurchase
   }
 
   enum ContractType {
@@ -86,7 +98,11 @@ contract MarsBaseCommon {
       offer.capabilities[1] = true;
     }
 
-    if (offerParameters.length == 7) {
+    if (offerParameters[7] == 1) {
+      offer.capabilities[2] = true;
+    }
+
+    if (offerParameters.length == 8) {
       offer.minimumSize = offerParameters[6];
     } else {
       offer.minimumSize = 0;
@@ -100,7 +116,7 @@ contract MarsBaseCommon {
   function getOfferType (uint256 amountAlice, uint256[] calldata offerParameters) public pure returns (OfferType) {
     OfferType offerType;
 
-    if (offerParameters.length == 6) {
+    if (offerParameters.length == 7) {
       if (offerParameters[3] > 0 && offerParameters[3] > 0 && offerParameters[3] != amountAlice) {
         offerType = OfferType.LimitedTimeChunkedPurchase;
       } else if (offerParameters[2] > 0 && offerParameters[2] != amountAlice) {
@@ -110,8 +126,10 @@ contract MarsBaseCommon {
       } else {
         offerType = OfferType.FullPurchase;
       }
-    } else if (offerParameters.length == 7) {
-      if (offerParameters[2] > 0 && offerParameters[3] > 0 && offerParameters[2] != amountAlice) {
+    } else if (offerParameters.length == 8) {
+      if (offerParameters[2] > 0 && offerParameters[3] > 0 && offerParameters[2] != amountAlice && offerParameters[7] == 1) {
+        offerType = OfferType.LimitedTimeMinimumChunkedDeadlinePurchase;
+      } else if (offerParameters[2] > 0 && offerParameters[3] > 0 && offerParameters[2] != amountAlice) {
         offerType = OfferType.LimitedTimeMinimumChunkedPurchase;
       } else if (offerParameters[2] > 0 && offerParameters[2] != amountAlice) {
         offerType = OfferType.MinimumChunkedPurchase;
@@ -147,7 +165,7 @@ contract MarsBaseCommon {
     offer.minimumOrderAmountsAlice = new uint256[](0);
     offer.minimumOrderAmountsBob = new uint256[](0);
 
-    offer.capabilities = new bool[](2);
+    offer.capabilities = new bool[](3);
 
     offer.active = true;
 

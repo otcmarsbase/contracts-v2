@@ -40,6 +40,7 @@ contract MarsBase is MarsBaseCommon {
     
     MBOffer memory offer = initOffer(nextOfferId, tokenAlice, tokenBob, amountAlice, amountBob, offerParameters);
     offer = setOfferProperties(offer, offerParameters);
+    offer.offerType = getOfferType(amountAlice, offerParameters);
 
     offer.payoutAddress = sender;
     offer.offerer = sender;
@@ -50,8 +51,6 @@ contract MarsBase is MarsBaseCommon {
     require(IERC20(offer.tokenAlice).transferFrom(sender, address(this), amountAlice), "T1a");
 
     nextOfferId ++;
-
-    emit OfferCreated(offerId, msg.sender, block.timestamp);
 
     return offerId;
   }
@@ -77,7 +76,7 @@ contract MarsBase is MarsBaseCommon {
     return offer.offerId;
   }
 
-  function changeOfferPrice(uint256 offerId, address[] calldata tokenBob, uint256[] calldata amountBob, address sender) public view returns (MBOffer memory) {
+  function changeOfferPrice(uint256 offerId, address[] calldata tokenBob, uint256[] calldata amountBob, address sender) public returns (MBOffer memory) {
     MBOffer memory offer = offers[offerId];
 
     require(tokenBob.length == amountBob.length, "M5");
@@ -94,11 +93,13 @@ contract MarsBase is MarsBaseCommon {
     offer.tokenBob = tokenBob;
     offer.amountBob = amountBob;
 
+    offers[offerId] = offer;
+
     return offer;
 
   }
 
-  function changeOfferPricePart(uint256 offerId, address[] calldata tokenBob, uint256[] calldata amountBob, uint256 smallestChunkSize, address sender) public view returns (MBOffer memory) {
+  function changeOfferPricePart(uint256 offerId, address[] calldata tokenBob, uint256[] calldata amountBob, uint256 smallestChunkSize, address sender) public returns (MBOffer memory) {
     MBOffer memory offer = offers[offerId];
 
     require(tokenBob.length == amountBob.length, "M5");
@@ -116,6 +117,8 @@ contract MarsBase is MarsBaseCommon {
     offer.tokenBob = tokenBob;
     offer.amountBob = amountBob;
     offer.smallestChunkSize = smallestChunkSize;
+
+    offers[offerId] = offer;
 
     return offer;
   }

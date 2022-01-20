@@ -84,10 +84,6 @@ contract MarsBaseOffers is MarsBaseCommon, MarsBase {
 
     if (offers[offerId].amountRemaining == 0) {
       delete offers[offerId];
-
-      emit OfferAccepted(offerId, msg.sender, block.timestamp);
-    } else {
-      emit OfferPartiallyAccepted(offerId, msg.sender, block.timestamp);
     }
 
     return offerId;
@@ -96,7 +92,7 @@ contract MarsBaseOffers is MarsBaseCommon, MarsBase {
   function cancelOffer(uint256 offerId, address sender) public returns (uint256) {
     MBOffer memory offer = offers[offerId];
 
-    require(offer.capabilities[1] == true, "S1");
+    require(offer.capabilities[1] == false, "S1");
     require(sender == offer.offerer, "S2");
     require(offer.active == true, "S0");
     require(offer.amountAlice > 0, "M3");
@@ -105,8 +101,6 @@ contract MarsBaseOffers is MarsBaseCommon, MarsBase {
     require(IERC20(offer.tokenAlice).transfer(offer.offerer, offer.amountRemaining), "T1b");
 
     delete offers[offerId];
-
-    emit OfferCancelled(offerId, sender, block.timestamp);
 
     return offerId;
   }

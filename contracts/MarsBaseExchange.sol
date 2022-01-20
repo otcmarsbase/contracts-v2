@@ -13,7 +13,7 @@ contract MarsBaseExchange is MarsBaseCommon {
 
     constructor(address offersAddress, address minimumOffersAddress) {
         marsBaseOffersAddress = offersAddress;
-        minimumOffersAddress = minimumOffersAddress;
+        marsBaseMinimumOffersAddress = minimumOffersAddress;
     }
 
     function getOffer(uint256 offerId, OfferType offerType) public view returns (MBOffer memory) {
@@ -55,11 +55,14 @@ contract MarsBaseExchange is MarsBaseCommon {
     function createOffer(address tokenAlice, address[] calldata tokenBob, uint256 amountAlice, uint256[] calldata amountBob, uint256[] calldata offerParameters) public {
         OfferType offerType = getOfferType(amountAlice, offerParameters);
 
+        uint256 offerId;
         if (contractType(offerType) == ContractType.Offers) {
-            MarsBaseOffers(marsBaseOffersAddress).createOffer(msg.sender, tokenAlice, tokenBob, amountAlice, amountBob, offerParameters);
+            offerId = MarsBaseOffers(marsBaseOffersAddress).createOffer(msg.sender, tokenAlice, tokenBob, amountAlice, amountBob, offerParameters);
         } else {
-            MarsBaseMinimumOffers(marsBaseMinimumOffersAddress).createOffer(msg.sender, tokenAlice, tokenBob, amountAlice, amountBob, offerParameters);
+            offerId = MarsBaseMinimumOffers(marsBaseMinimumOffersAddress).createOffer(msg.sender, tokenAlice, tokenBob, amountAlice, amountBob, offerParameters);
         }
+
+        emit OfferCreated(offerId, msg.sender, block.timestamp);
     }
 
     function cancelOffer(uint256 offerId, OfferType offerType) public {
@@ -68,6 +71,8 @@ contract MarsBaseExchange is MarsBaseCommon {
         } else {
             MarsBaseMinimumOffers(marsBaseMinimumOffersAddress).cancelOffer(offerId, msg.sender);
         }
+
+        emit OfferCancelled(offerId, msg.sender, block.timestamp);
     }
 
     function acceptOffer(uint256 offerId, address tokenBob, uint256 amountBob, OfferType offerType) public {
@@ -80,21 +85,27 @@ contract MarsBaseExchange is MarsBaseCommon {
         } else {
             MarsBaseMinimumOffers(marsBaseMinimumOffersAddress).acceptOfferPartWithMinimum(offerId, tokenBob, amountBob, msg.sender);
         }
+
+        emit OfferAccepted(offerId, msg.sender, block.timestamp);
     }
 
-    function changeOfferPricePart(uint256 offerId, address[] calldata tokenBob, uint256[] calldata amountBob, uint256 smallestChunkSize, OfferType offerType) public view {
+    function changeOfferPricePart(uint256 offerId, address[] calldata tokenBob, uint256[] calldata amountBob, uint256 smallestChunkSize, OfferType offerType) public {
         if (contractType(offerType) == ContractType.Offers) {
             MarsBaseOffers(marsBaseOffersAddress).changeOfferPricePart(offerId, tokenBob, amountBob, smallestChunkSize, msg.sender);
         } else {
             MarsBaseMinimumOffers(marsBaseMinimumOffersAddress).changeOfferPricePart(offerId, tokenBob, amountBob, smallestChunkSize, msg.sender);
         }
+
+        emit OfferModified(offerId, msg.sender, block.timestamp);
     }
 
-    function changeOfferPrice(uint256 offerId, address[] calldata tokenBob, uint256[] calldata amountBob, OfferType offerType) public view {
+    function changeOfferPrice(uint256 offerId, address[] calldata tokenBob, uint256[] calldata amountBob, OfferType offerType) public {
         if (contractType(offerType) == ContractType.Offers) {
             MarsBaseOffers(marsBaseOffersAddress).changeOfferPrice(offerId, tokenBob, amountBob, msg.sender);
         } else {
             MarsBaseMinimumOffers(marsBaseMinimumOffersAddress).changeOfferPrice(offerId, tokenBob, amountBob, msg.sender);
         }
+
+        emit OfferModified(offerId, msg.sender, block.timestamp);
     }
 }
