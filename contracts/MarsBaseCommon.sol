@@ -88,7 +88,7 @@ contract MarsBaseCommon {
 
     offer.offerType = getOfferType(offer.amountAlice, offerParameters);
 
-    offer.smallestChunkSize = offerParameters[0];
+    offer.smallestChunkSize = offerParameters[2];
 
     if (offerParameters[4] == 1) {
       offer.capabilities[0] = true;
@@ -104,7 +104,7 @@ contract MarsBaseCommon {
       if (offerParameters[7] == 1) {
         offer.capabilities[2] = true;
       }
-      
+
     } else {
       offer.minimumSize = 0;
     }
@@ -117,7 +117,7 @@ contract MarsBaseCommon {
   function getOfferType (uint256 amountAlice, uint256[] calldata offerParameters) public pure returns (OfferType) {
     OfferType offerType;
 
-    if (offerParameters.length == 7) {
+    if (offerParameters.length == 6) {
       if (offerParameters[3] > 0 && offerParameters[3] > 0 && offerParameters[3] != amountAlice) {
         offerType = OfferType.LimitedTimeChunkedPurchase;
       } else if (offerParameters[2] > 0 && offerParameters[2] != amountAlice) {

@@ -4,8 +4,9 @@ pragma solidity >=0.4.22 <0.9.0;
 import "./MarsBaseCommon.sol";
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract MarsBase is MarsBaseCommon {
+contract MarsBase is MarsBaseCommon, Ownable {
 
   uint256 nextOfferId;
 
@@ -17,6 +18,14 @@ contract MarsBase is MarsBaseCommon {
     require(_minimumFee > 0);
 
     minimumFee = _minimumFee;
+  }
+
+  function setCurrentTime() public onlyOwner {
+    for (uint256 index = 0; index < nextOfferId; index++) {
+      if (getTime() >= offers[index].deadline && offers[index].deadline != 0) {
+        cancelExpiredOffer(index);
+      }
+    }
   }
 
   function getOffer(uint256 offerId) public view returns (MBOffer memory) {
@@ -55,7 +64,7 @@ contract MarsBase is MarsBaseCommon {
     return offerId;
   }
 
-  function cancelExpiredOffer(uint256 offerId, address sender) private returns (uint256) {
+  function cancelExpiredOffer(uint256 offerId) private onlyOwner returns (uint256) {
     MBOffer memory offer = offers[offerId];
 
     if (offer.capabilities[1] == false) {
@@ -63,13 +72,8 @@ contract MarsBase is MarsBaseCommon {
     }
 
     require(offer.capabilities[1] == true, "S1");
-    require(sender == offer.offerer, "S2");
     require(offer.active == true, "S0");
     require(offer.amountAlice > 0, "M3");
-
-    require(offer.offerType != OfferType.MinimumChunkedPurchase || 
-      offer.offerType == OfferType.LimitedTimeMinimumPurchase || 
-      offer.offerType == OfferType.LimitedTimeMinimumChunkedPurchase, "S5");
 
     require(IERC20(offer.tokenAlice).transfer(offer.offerer, offer.amountRemaining), "T1b");
 

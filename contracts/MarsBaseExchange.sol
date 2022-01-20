@@ -6,8 +6,9 @@ import "./MarsBaseOffers.sol";
 import "./MarsBaseMinimumOffers.sol";
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract MarsBaseExchange is MarsBaseCommon {
+contract MarsBaseExchange is MarsBaseCommon, Ownable {
     address marsBaseOffersAddress;
     address marsBaseMinimumOffersAddress;
 

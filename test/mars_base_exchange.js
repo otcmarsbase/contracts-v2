@@ -1,4 +1,6 @@
-const MarsBaseExchange = artifacts.require("MockMarsBaseExchange");
+const MarsBaseExchange = artifacts.require("MarsBaseExchange");
+const MarsBaseMinimumOffer = artifacts.require("MarsBaseMinimumOffers");
+const MarsBaseOffer = artifacts.require("MarsBaseOffers");
 const USDTCoin = artifacts.require("USDTCoin");
 const TestToken = artifacts.require("TestToken");
 const EPICCoin = artifacts.require("EPICCoin");
@@ -24,7 +26,9 @@ contract("MarsBaseExchange", async function (accounts) {
     const userAddress = accounts[0];
 
     // Get contract instances
-    let dex = await MarsBaseExchange.new();
+    let o = await MarsBaseOffer.new();
+    let m = await MarsBaseMinimumOffer.new();
+    let dex = await MarsBaseExchange.new(o.address, m.address);
     let testToken = await TestToken.new();
     let usdt = await USDTCoin.new();
     let epicCoin = await EPICCoin.new();
@@ -42,19 +46,23 @@ contract("MarsBaseExchange", async function (accounts) {
     assert.equal(initialDexTestTokenBalance.toString(), "0");
     
     // Approve the contract to move our tokens
-    await testToken.approve(dex.address, approvalAmount);
-    await usdt.approve(dex.address, approvalAmount);
-    await epicCoin.approve(dex.address, approvalAmount);
+    await testToken.approve(o.address, approvalAmount);
+    await usdt.approve(o.address, approvalAmount);
+    await epicCoin.approve(o.address, approvalAmount);
+
+    await testToken.approve(m.address, approvalAmount);
+    await usdt.approve(m.address, approvalAmount);
+    await epicCoin.approve(m.address, approvalAmount);
 
     // Create Offer
-    await dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, [feeAlice, feeBob], [smallestChunkSize, deadline, 1, 1]);
+    await dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, [feeAlice, feeBob, smallestChunkSize, deadline, 1, 1]);
 
     // Get the updated balances, user should be less, dex should have the tokens deposited
     let finalUserTestTokenBalance = await testToken.balanceOf(userAddress);
-    let finalDexTestTokenBalance = await testToken.balanceOf(dex.address);
+    let finalDexTestTokenBalance = await testToken.balanceOf(o.address);
 
     // Get the offer and ensure it's all set correctly
-    let offer = await dex.getOffer(0);
+    let offer = await dex.getOffer(0, 0);
 
     assert.equal(offer.active, true);
 
@@ -82,7 +90,9 @@ contract("MarsBaseExchange", async function (accounts) {
     const userAddress = accounts[0];
 
     // Get Contract Alicestances
-    let dex = await MarsBaseExchange.new();
+    let o = await MarsBaseOffer.new();
+    let m = await MarsBaseMinimumOffer.new();
+    let dex = await MarsBaseExchange.new(o.address, m.address);
 
     let owner = await dex.owner();
 
@@ -103,7 +113,9 @@ contract("MarsBaseExchange", async function (accounts) {
     const userAddress = accounts[0];
 
     // Get contract instances
-    let dex = await MarsBaseExchange.new();
+    let o = await MarsBaseOffer.new();
+    let m = await MarsBaseMinimumOffer.new();
+    let dex = await MarsBaseExchange.new(o.address, m.address);
     let testToken = await TestToken.new();
     let usdt = await USDTCoin.new();
 
@@ -111,14 +123,16 @@ contract("MarsBaseExchange", async function (accounts) {
     let tokensBob = [usdt.address];
 
     // Approve the contract to move our tokens
-    await testToken.approve(dex.address, approvalAmount);
-    await usdt.approve(dex.address, approvalAmount);
+    await testToken.approve(o.address, approvalAmount);
+    await testToken.approve(m.address, approvalAmount);
+    await usdt.approve(o.address, approvalAmount);
+    await usdt.approve(m.address, approvalAmount);
 
     // Create Offer
-    await dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, [feeAlice, feeBob], [smallestChunkSize, deadline, 1, 1]);
+    await dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, [feeAlice, feeBob, smallestChunkSize, deadline, 1, 1]);
 
     // Get the offer and ensure it's all set correctly
-    let offer = await dex.getOffer(0);
+    let offer = await dex.getOffer(0, 5);
 
     assert.equal(offer.offerType, '5');
     assert.equal(offer.active, true);
@@ -142,7 +156,9 @@ contract("MarsBaseExchange", async function (accounts) {
     const userAddress = accounts[0];
 
     // Get contract instances
-    let dex = await MarsBaseExchange.new();
+    let o = await MarsBaseOffer.new();
+    let m = await MarsBaseMinimumOffer.new();
+    let dex = await MarsBaseExchange.new(o.address, m.address);
     let testToken = await TestToken.new();
     let usdt = await USDTCoin.new();
 
@@ -150,14 +166,16 @@ contract("MarsBaseExchange", async function (accounts) {
     let tokensBob = [usdt.address];
 
     // Approve the contract to move our tokens
-    await testToken.approve(dex.address, approvalAmount);
-    await usdt.approve(dex.address, approvalAmount);
+    await testToken.approve(o.address, approvalAmount);
+    await testToken.approve(m.address, approvalAmount);
+    await usdt.approve(o.address, approvalAmount);
+    await usdt.approve(m.address, approvalAmount);
 
     // Create Offer
-    await dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, [feeAlice, feeBob], [smallestChunkSize, deadline, 1, 1]);
+    await dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, [feeAlice, feeBob, smallestChunkSize, deadline, 1, 1]);
 
     // Get the offer and ensure it's all set correctly
-    let offer = await dex.getOffer(0);
+    let offer = await dex.getOffer(0, 5);
 
     assert.equal(offer.offerType, '5');
     assert.equal(offer.active, true);
@@ -167,7 +185,7 @@ contract("MarsBaseExchange", async function (accounts) {
 
     await dex.setCurrentTime();
 
-    let cancelledOffer = await dex.getOffer(0);
+    let cancelledOffer = await dex.getOffer(0, 5);
 
     assert.equal(cancelledOffer.active, false);
     assert.equal(cancelledOffer.deadline, '0');
@@ -189,7 +207,9 @@ contract("MarsBaseExchange", async function (accounts) {
     const userAddress = accounts[0];
 
     // Get contract instances
-    let dex = await MarsBaseExchange.new();
+    let o = await MarsBaseOffer.new();
+    let m = await MarsBaseMinimumOffer.new();
+    let dex = await MarsBaseExchange.new(o.address, m.address);
     let testToken = await TestToken.new();
     let usdt = await USDTCoin.new();
 
@@ -197,13 +217,15 @@ contract("MarsBaseExchange", async function (accounts) {
     let tokensBob = [usdt.address];
 
     // Approve the contract to move our tokens
-    await testToken.approve(dex.address, approvalAmount);
-    await usdt.approve(dex.address, approvalAmount);
+    await testToken.approve(o.address, approvalAmount);
+    await testToken.approve(m.address, approvalAmount);
+    await usdt.approve(o.address, approvalAmount);
+    await usdt.approve(m.address, approvalAmount);
 
     // Create Offer
-    await dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, [feeAlice, feeBob], [smallestChunkSize, deadline, 1, 1]);
+    await dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, [feeAlice, feeBob, smallestChunkSize, deadline, 1, 1]);
     // Get the offer and ensure it's all set correctly
-    let offer = await dex.getOffer(0);
+    let offer = await dex.getOffer(0, 2);
 
     assert.equal(offer.offerType, '2');
     assert.equal(offer.active, true);
@@ -222,7 +244,9 @@ contract("MarsBaseExchange", async function (accounts) {
     const expectedAmount = (buyAmount * amountBob) / (amountAlice);
     
     // Get Contract Alicestances
-    let dex = await MarsBaseExchange.new();
+    let o = await MarsBaseOffer.new();
+    let m = await MarsBaseMinimumOffer.new();
+    let dex = await MarsBaseExchange.new(o.address, m.address);
 
     let price = await dex.price(buyAmount, amountAlice, amountBob);
 
@@ -239,7 +263,9 @@ contract("MarsBaseExchange", async function (accounts) {
     const expectedAmount = (buyAmount * amountBob) / amountAlice;
     
     // Get Contract Alicestances
-    let dex = await MarsBaseExchange.new();
+    let o = await MarsBaseOffer.new();
+    let m = await MarsBaseMinimumOffer.new();
+    let dex = await MarsBaseExchange.new(o.address, m.address);
 
     let price = await dex.price(buyAmount, amountAlice, amountBob);
 
@@ -260,15 +286,19 @@ contract("MarsBaseExchange", async function (accounts) {
     const userAddress = accounts[0];
     
     // Get Contract Alicestances
-    let dex = await MarsBaseExchange.new();
+    let o = await MarsBaseOffer.new();
+    let m = await MarsBaseMinimumOffer.new();
+    let dex = await MarsBaseExchange.new(o.address, m.address);
     let testToken = await TestToken.new();
     let usdt = await USDTCoin.new();
 
     let tokensBob = [usdt.address];
 
     // Approve token transfers
-    await testToken.approve(dex.address, approvalAmount);
-    await usdt.approve(dex.address, approvalAmount);
+    await testToken.approve(o.address, approvalAmount);
+    await testToken.approve(m.address, approvalAmount);
+    await usdt.approve(o.address, approvalAmount);
+    await usdt.approve(m.address, approvalAmount);
 
     // Get users balance and total supply of TestToken
     let initialUserTestTokenBalance = await testToken.balanceOf(userAddress);
@@ -278,13 +308,13 @@ contract("MarsBaseExchange", async function (accounts) {
     assert.equal(initialUserTestTokenBalance.toString(), testTokenTotalSupply.toString());
 
     // Create the offer
-    await dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, [feeAlice, feeBob], [smallestChunkSize, deadline, 1, 1]);
+    await dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, [feeAlice, feeBob, smallestChunkSize, deadline, 1, 1]);
     // Get balance and validate that the tokens have been moved to the dex
     let createdUserTestTokenBalance = await testToken.balanceOf(userAddress);
     assert.equal(createdUserTestTokenBalance.toString(), (initialUserTestTokenBalance - amountAlice).toLocaleString('fullwide', {useGrouping:false}));
 
     // Ensure the offer is active
-    let offer = await dex.getOffer(0);
+    let offer = await dex.getOffer(0, 2);
     assert.equal(offer.active, true);
 
     // Ensure the offerType has been correctly calculated
@@ -292,10 +322,10 @@ contract("MarsBaseExchange", async function (accounts) {
     assert.equal(offer.offerType, '2');
 
     // Cancel the offer, thus returning everything to its initial state
-    await dex.cancelOffer(0);
+    await dex.cancelOffer(0, 2);
 
     // Get the offer again, this time after it's been cancelled.
-    let cancelledOffer = await dex.getOffer(0);
+    let cancelledOffer = await dex.getOffer(0, 2);
 
     // Ensure it's no longer active and the amount in is 0
     assert.equal(cancelledOffer.active, false);
@@ -328,15 +358,19 @@ contract("MarsBaseExchange", async function (accounts) {
     const userAddress = accounts[0];
     
     // Get Contract Alicestances
-    let dex = await MarsBaseExchange.new();
+    let o = await MarsBaseOffer.new();
+    let m = await MarsBaseMinimumOffer.new();
+    let dex = await MarsBaseExchange.new(o.address, m.address);
     let testToken = await TestToken.new();
     let usdt = await USDTCoin.new();
 
     let tokensBob = [usdt.address];
 
     // Approve token transfers
-    await testToken.approve(dex.address, approvalAmount);
-    await usdt.approve(dex.address, approvalAmount);
+    await testToken.approve(o.address, approvalAmount);
+    await testToken.approve(m.address, approvalAmount);
+    await usdt.approve(o.address, approvalAmount);
+    await usdt.approve(m.address, approvalAmount);
 
     // Get users balance and total supply of TestToken
     let initialUserTestTokenBalance = await testToken.balanceOf(userAddress);
@@ -346,13 +380,13 @@ contract("MarsBaseExchange", async function (accounts) {
     assert.equal(initialUserTestTokenBalance.toString(), testTokenTotalSupply.toString());
 
     // Create the offer
-    await dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, [feeAlice, feeBob], [smallestChunkSize, deadline, 1, 0]);
+    await dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, [feeAlice, feeBob, smallestChunkSize, deadline, 1, 0]);
     // Get balance and validate that the tokens have been moved to the dex
     let createdUserTestTokenBalance = await testToken.balanceOf(userAddress);
     assert.equal(createdUserTestTokenBalance.toString(), (initialUserTestTokenBalance - amountAlice).toLocaleString('fullwide', {useGrouping:false}));
 
     // Ensure the offer is active
-    let offer = await dex.getOffer(0);
+    let offer = await dex.getOffer(0, 2);
     assert.equal(offer.active, true);
 
     // Ensure the offerType has been correctly calculated
@@ -360,7 +394,7 @@ contract("MarsBaseExchange", async function (accounts) {
     assert.equal(offer.offerType, '2');
 
     // Cancel the offer, thus returning everything to its initial state
-    assert.rejects(dex.cancelOffer(0));
+    assert.rejects(dex.cancelOffer(0, 2));
     return;
     
   });
@@ -381,7 +415,9 @@ contract("MarsBaseExchange", async function (accounts) {
     const userAddress = accounts[0];
     
     // Get Contract Alicestances
-    let dex = await MarsBaseExchange.new();
+    let o = await MarsBaseOffer.new();
+    let m = await MarsBaseMinimumOffer.new();
+    let dex = await MarsBaseExchange.new(o.address, m.address);
     let testToken = await TestToken.new();
     let usdt = await USDTCoin.new();
     let epicCoin = await EPICCoin.new();
@@ -390,9 +426,13 @@ contract("MarsBaseExchange", async function (accounts) {
     let tokensBob = [usdt.address, epicCoin.address];
 
     // Approve token transfers
-    await testToken.approve(dex.address, approvalAmount);
-    await usdt.approve(dex.address, approvalAmount);
-    await epicCoin.approve(dex.address, approvalAmount);
+    await testToken.approve(o.address, approvalAmount);
+    await usdt.approve(o.address, approvalAmount);
+    await epicCoin.approve(o.address, approvalAmount);
+
+    await testToken.approve(m.address, approvalAmount);
+    await usdt.approve(m.address, approvalAmount);
+    await epicCoin.approve(m.address, approvalAmount);
 
     // Get users balance and total supply of TestToken and USDT
     let initialUserTestTokenBalance = await testToken.balanceOf(userAddress);
@@ -406,7 +446,7 @@ contract("MarsBaseExchange", async function (accounts) {
     assert.equal(initialUserEpicCoinBalance.toString(), epicCoinTotalSupply.toString());
 
     // Create the offer
-    await dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, [feeAlice, feeBob], [smallestChunkSize, deadline, 1, 1]);
+    await dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, [feeAlice, feeBob, smallestChunkSize, deadline, 1, 1]);
     // Get balance and validate that the tokens have been moved to the dex
     let createdUserTestTokenBalance = await testToken.balanceOf(userAddress);
     assert.equal(createdUserTestTokenBalance.toString(), (initialUserTestTokenBalance - amountAlice).toLocaleString('fullwide', {useGrouping:false}));
@@ -416,7 +456,7 @@ contract("MarsBaseExchange", async function (accounts) {
     assert.equal(createdUserUSDTBalance.toString(), initialUserEpicCoinBalance.toString());
 
     // Ensure the offer is active
-    let offer = await dex.getOffer(0);
+    let offer = await dex.getOffer(0, 0);
     assert.equal(offer.active, true);
 
     // Ensure the offerType has been correctly calculated
@@ -424,10 +464,10 @@ contract("MarsBaseExchange", async function (accounts) {
     assert.equal(offer.offerType, '0');
 
     // Cancel the offer, thus returning everything to its initial state
-    await dex.acceptOffer(0, tokensBob[1], amountBob[1]);
+    await dex.acceptOffer(0, tokensBob[1], amountBob[1], 0);
 
     // Get the offer again, this time after it's been cancelled.
-    let acceptedOffer = await dex.getOffer(0);
+    let acceptedOffer = await dex.getOffer(0, 0);
 
     // Ensure it's no longer active and the amount in/out is 0
     assert.equal(acceptedOffer.active, false);
@@ -443,7 +483,7 @@ contract("MarsBaseExchange", async function (accounts) {
     let finalUserTestTokenBalance = await testToken.balanceOf(userAddress);
     assert.equal(finalUserTestTokenBalance.toString(), (initialUserTestTokenBalance - (amountAlice - amountAfterFeeAlice)).toLocaleString('fullwide', {useGrouping:false}));
 
-    let finalDexEpicCoinBalance = await epicCoin.balanceOf(dex.address);
+    let finalDexEpicCoinBalance = await epicCoin.balanceOf(o.address);
     assert.equal(finalDexEpicCoinBalance.toString(), (amountBob[1] - amountAfterFeeBob).toLocaleString('fullwide', {useGrouping:false}));
 
     let finalUserEpicCoinBalance = await epicCoin.balanceOf(userAddress);
@@ -469,7 +509,9 @@ contract("MarsBaseExchange", async function (accounts) {
     const userAddress = accounts[0];
     
     // Get Contract Alicestances
-    let dex = await MarsBaseExchange.new();
+    let o = await MarsBaseOffer.new();
+    let m = await MarsBaseMinimumOffer.new();
+    let dex = await MarsBaseExchange.new(o.address, m.address);
     let testToken = await TestToken.new();
     let usdt = await USDTCoin.new();
     let epicCoin = await EPICCoin.new();
@@ -478,9 +520,13 @@ contract("MarsBaseExchange", async function (accounts) {
     let tokensBob = [testToken.address];
 
     // Approve token transfers
-    await testToken.approve(dex.address, approvalAmount);
-    await usdt.approve(dex.address, approvalAmount);
-    await epicCoin.approve(dex.address, approvalAmount);
+    await testToken.approve(o.address, approvalAmount);
+    await usdt.approve(o.address, approvalAmount);
+    await epicCoin.approve(o.address, approvalAmount);
+
+    await testToken.approve(m.address, approvalAmount);
+    await usdt.approve(m.address, approvalAmount);
+    await epicCoin.approve(m.address, approvalAmount);
 
     // Get users balance and total supply of TestToken and USDT
     let initialUserTestTokenBalance = await testToken.balanceOf(userAddress);
@@ -494,7 +540,7 @@ contract("MarsBaseExchange", async function (accounts) {
     assert.equal(initialUserEpicCoinBalance.toString(), epicCoinTotalSupply.toString());
 
     // Create the offer
-    await dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, [feeAlice, feeBob], [smallestChunkSize, deadline, 1, 1]);
+    await dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, [feeAlice, feeBob, smallestChunkSize, deadline, 1, 1]);
     // Get balance and validate that the tokens have been moved to the dex
     let createdUserTestTokenBalance = await testToken.balanceOf(userAddress);
     assert.equal(createdUserTestTokenBalance.toString(), (initialUserTestTokenBalance - amountAlice).toLocaleString('fullwide', {useGrouping:false}));
@@ -504,7 +550,7 @@ contract("MarsBaseExchange", async function (accounts) {
     assert.equal(createdUserUSDTBalance.toString(), initialUserEpicCoinBalance.toString());
 
     // Ensure the offer is active
-    let offer = await dex.getOffer(0);
+    let offer = await dex.getOffer(0, 0);
     assert.equal(offer.active, true);
 
     // Ensure the offerType has been correctly calculated
@@ -512,7 +558,7 @@ contract("MarsBaseExchange", async function (accounts) {
     assert.equal(offer.offerType, '0');
 
     // Cancel the offer, thus returning everything to its initial state
-    assert.rejects(dex.acceptOffer(0, tokensBob[1], amountBob[1]));
+    assert.rejects(dex.acceptOffer(0, tokensBob[1], amountBob[1], 0));
 
     return;
     
@@ -534,7 +580,9 @@ contract("MarsBaseExchange", async function (accounts) {
     const userAddress = accounts[0];
     
     // Get Contract Alicestances
-    let dex = await MarsBaseExchange.new();
+    let o = await MarsBaseOffer.new();
+    let m = await MarsBaseMinimumOffer.new();
+    let dex = await MarsBaseExchange.new(o.address, m.address);
     let testToken = await TestToken.new();
     let usdt = await USDTCoin.new();
     let epicCoin = await EPICCoin.new();
@@ -543,9 +591,13 @@ contract("MarsBaseExchange", async function (accounts) {
     let tokensBob = [usdt.address, epicCoin.address];
 
     // Approve token transfers
-    await testToken.approve(dex.address, approvalAmount);
-    await usdt.approve(dex.address, approvalAmount);
-    await epicCoin.approve(dex.address, approvalAmount);
+    await testToken.approve(o.address, approvalAmount);
+    await usdt.approve(o.address, approvalAmount);
+    await epicCoin.approve(o.address, approvalAmount);
+
+    await testToken.approve(m.address, approvalAmount);
+    await usdt.approve(m.address, approvalAmount);
+    await epicCoin.approve(m.address, approvalAmount);
 
     // Get users balance and total supply of TestToken and USDT
     let initialUserTestTokenBalance = await testToken.balanceOf(userAddress);
@@ -559,8 +611,8 @@ contract("MarsBaseExchange", async function (accounts) {
     assert.equal(initialUserEpicCoinBalance.toString(), epicCoinTotalSupply.toString());
 
     // Create the offer
-    await dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, [feeAlice, feeBob], [smallestChunkSize, deadline, 1, 1]);
-    await dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, [feeAlice, feeBob], [smallestChunkSize, deadline, 1, 1]);
+    await dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, [feeAlice, feeBob, smallestChunkSize, deadline, 1, 1]);
+    await dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, [feeAlice, feeBob, smallestChunkSize, deadline, 1, 1]);
 
     // Get balance and validate that the tokens have been moved to the dex
     let createdUserTestTokenBalance = await testToken.balanceOf(userAddress);
@@ -571,7 +623,7 @@ contract("MarsBaseExchange", async function (accounts) {
     assert.equal(createdUserUSDTBalance.toString(), initialUserEpicCoinBalance.toString());
 
     // Ensure the offer is active
-    let offer = await dex.getOffer(0);
+    let offer = await dex.getOffer(0, 0);
     assert.equal(offer.active, true);
 
     // Ensure the offerType has been correctly calculated
@@ -579,10 +631,10 @@ contract("MarsBaseExchange", async function (accounts) {
     assert.equal(offer.offerType, '0');
 
     // Cancel the offer, thus returning everything to its initial state
-    await dex.acceptOffer(0, tokensBob[1], amountBob[1]);
+    await dex.acceptOffer(0, tokensBob[1], amountBob[1], 0);
 
     // Get the offer again, this time after it's been cancelled.
-    let acceptedOffer = await dex.getOffer(0);
+    let acceptedOffer = await dex.getOffer(0, 0);
 
     // Ensure it's no longer active and the amount in/out is 0
     assert.equal(acceptedOffer.active, false);
@@ -598,7 +650,7 @@ contract("MarsBaseExchange", async function (accounts) {
     let finalUserTestTokenBalance = await testToken.balanceOf(userAddress);
     assert.equal(finalUserTestTokenBalance.toString(), (initialUserTestTokenBalance - (amountAlice - amountAfterFeeAlice) - amountAlice).toLocaleString('fullwide', {useGrouping:false}));
 
-    let finalDexEpicCoinBalance = await epicCoin.balanceOf(dex.address);
+    let finalDexEpicCoinBalance = await epicCoin.balanceOf(o.address);
     assert.equal(finalDexEpicCoinBalance.toString(), (amountBob[1] - amountAfterFeeBob).toLocaleString('fullwide', {useGrouping:false}));
 
     let finalUserEpicCoinBalance = await epicCoin.balanceOf(userAddress);
@@ -610,83 +662,6 @@ contract("MarsBaseExchange", async function (accounts) {
     assert.equal(offers[0].offerId, "1");
     assert.equal(offers[0].active, true);
     assert.equal(offers[1].active, false);
-
-    return;
-    
-  });
-
-  it("should get all open orders for a specific address", async function () {
-    // Define Constants
-    const approvalAmount = 100000 * 10 ** 10;
-    const amountAlice = 50 * 10 ** 10;
-    const amountBob = [10 * 10 ** 10, 20 * 10 ** 10];
-    const feeAlice = 10;
-    const feeBob = 20;
-    const smallestChunkSize = 0;
-    const deadline = 0;
-    const amountAfterFeeAlice = amountAlice * (1000 - feeAlice) / 1000;
-    const amountAfterFeeBob = amountBob[1] * (1000 - feeBob) / 1000;
-
-    // Get the user's address
-    const userAddress = accounts[0];
-    
-    // Get Contract Alicestances
-    let dex = await MarsBaseExchange.new();
-    let testToken = await TestToken.new();
-    let usdt = await USDTCoin.new();
-    let epicCoin = await EPICCoin.new();
-
-    // Make a list of tokens we are willing to accept
-    let tokensBob = [usdt.address, epicCoin.address];
-
-    // Approve token transfers
-    await testToken.approve(dex.address, approvalAmount);
-    await usdt.approve(dex.address, approvalAmount);
-    await epicCoin.approve(dex.address, approvalAmount);
-
-    // Get users balance and total supply of TestToken and USDT
-    let initialUserTestTokenBalance = await testToken.balanceOf(userAddress);
-    const testTokenTotalSupply = await testToken.totalSupply();
-
-    let initialUserEpicCoinBalance = await epicCoin.balanceOf(userAddress);
-    const epicCoinTotalSupply = await epicCoin.totalSupply();
-
-    // Check that it's all assigned to us
-    assert.equal(initialUserTestTokenBalance.toString(), testTokenTotalSupply.toString());
-    assert.equal(initialUserEpicCoinBalance.toString(), epicCoinTotalSupply.toString());
-
-    // Create the offer
-    await dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, [feeAlice, feeBob], [smallestChunkSize, deadline, 1, 1]);
-    await dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, [feeAlice, feeBob], [smallestChunkSize, deadline, 1, 1]);
-    await dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, [feeAlice, feeBob], [smallestChunkSize, deadline, 1, 1]);
-
-    // Get balance and validate that the tokens have been moved to the dex
-    let createdUserTestTokenBalance = await testToken.balanceOf(userAddress);
-    assert.equal(createdUserTestTokenBalance.toString(), (initialUserTestTokenBalance - amountAlice - amountAlice - amountAlice).toLocaleString('fullwide', {useGrouping:false}));
-
-    // Get USDT balance and ensure it's unchanged
-    let createdUserUSDTBalance = await usdt.balanceOf(userAddress);
-    assert.equal(createdUserUSDTBalance.toString(), initialUserEpicCoinBalance.toString());
-
-    // Ensure the offer is active
-    let offer = await dex.getOffer(0);
-    assert.equal(offer.active, true);
-
-    // Ensure the offerType has been correctly calculated
-    // 0 is Full Purchase
-    assert.equal(offer.offerType, '0');
-
-    // Cancel the offer, thus returning everything to its initial state
-    await dex.acceptOffer(0, tokensBob[1], amountBob[1]);
-
-    // Ensure that only the second offer is open
-    let offers = await dex.getOpenOffersForAddress(userAddress);
-
-    assert.equal(offers.length, 3);
-    assert.equal(offers[0].offerId, "1");
-    assert.equal(offers[0].active, true);
-    assert.equal(offers[1].offerId, "2");
-    assert.equal(offers[1].active, true);
 
     return;
     
@@ -704,7 +679,9 @@ contract("MarsBaseExchange", async function (accounts) {
     const minimumSale = 0;
     
     // Get Contract Alicestances
-    let dex = await MarsBaseExchange.new();
+    let o = await MarsBaseOffer.new();
+    let m = await MarsBaseMinimumOffer.new();
+    let dex = await MarsBaseExchange.new(o.address, m.address);
     let zeroToken = "0x0000000000000000000000000000000000000000";
     let epicCoin = await EPICCoin.new();
 
@@ -715,17 +692,17 @@ contract("MarsBaseExchange", async function (accounts) {
     await epicCoin.approve(dex.address, approvalAmount);
 
     // Try and create the offer - should fail
-    assert.rejects(dex.createOffer(zeroToken, tokensBob, amountAlice, amountBob, [feeAlice, feeBob], [smallestChunkSize, deadline, 1, 1, minimumSale]));
+    assert.rejects(dex.createOffer(zeroToken, tokensBob, amountAlice, amountBob, [feeAlice, feeBob, smallestChunkSize, deadline, 1, 1, minimumSale, 0]));
 
     // Ensure the offer is not active
-    let offer = await dex.getOffer(0);
+    let offer = await dex.getOffer(0, 0);
     assert.equal(offer.active, false);
 
     // Cancel the offer, thus returning everything to its initial state
-    assert.rejects(dex.acceptOffer(0, tokensBob[1], amountAlice, amountBob[1]));
+    assert.rejects(dex.acceptOffer(0, tokensBob[1], amountAlice, amountBob[1], 0));
 
     // Get the offer again, it should still be inactive
-    let acceptedOffer = await dex.getOffer(0);
+    let acceptedOffer = await dex.getOffer(0, 0);
 
     // Ensure it's inactive
     assert.equal(acceptedOffer.active, false);
@@ -753,7 +730,9 @@ contract("MarsBaseExchange", async function (accounts) {
     const minimumSale = 0;
     
     // Get Contract Alicestances
-    let dex = await MarsBaseExchange.new();
+    let o = await MarsBaseOffer.new();
+    let m = await MarsBaseMinimumOffer.new();
+    let dex = await MarsBaseExchange.new(o.address, m.address);
     let zeroToken = "0x0000000000000000000000000000000000000000";
     let epicCoin = await EPICCoin.new();
 
@@ -764,17 +743,17 @@ contract("MarsBaseExchange", async function (accounts) {
     await epicCoin.approve(dex.address, approvalAmount);
 
     // Try and create the offer - should fail
-    assert.rejects(dex.createOffer(zeroToken, tokensBob, amountAlice, amountBob, [feeAlice, feeBob], [smallestChunkSize, deadline, 1, 1, minimumSale]));
+    assert.rejects(dex.createOffer(zeroToken, tokensBob, amountAlice, amountBob, [feeAlice, feeBob, smallestChunkSize, deadline, 1, 1, minimumSale]));
 
     // Ensure the offer is not active
-    let offer = await dex.getOffer(0);
+    let offer = await dex.getOffer(0, 0);
     assert.equal(offer.active, false);
 
     // Cancel the offer, thus returning everything to its initial state
-    assert.rejects(dex.acceptOfferPart(0, tokensBob[1], smallestChunkSize));
+    assert.rejects(dex.acceptOffer(0, tokensBob[1], smallestChunkSize, 0));
 
     // Get the offer again, it should still be inactive
-    let acceptedOffer = await dex.getOffer(0);
+    let acceptedOffer = await dex.getOffer(0, 0);
 
     // Ensure it's inactive
     assert.equal(acceptedOffer.active, false);
@@ -807,7 +786,9 @@ contract("MarsBaseExchange", async function (accounts) {
     const userAddress = accounts[0];
     
     // Get Contract Alicestances
-    let dex = await MarsBaseExchange.new();
+    let o = await MarsBaseOffer.new();
+    let m = await MarsBaseMinimumOffer.new();
+    let dex = await MarsBaseExchange.new(o.address, m.address);
     let testToken = await TestToken.new();
     let usdt = await USDTCoin.new();
     let epicCoin = await EPICCoin.new();
@@ -816,9 +797,13 @@ contract("MarsBaseExchange", async function (accounts) {
     let tokensBob = [usdt.address, epicCoin.address];
 
     // Approve token transfers
-    await testToken.approve(dex.address, approvalAmount);
-    await usdt.approve(dex.address, approvalAmount);
-    await epicCoin.approve(dex.address, approvalAmount);
+    await testToken.approve(o.address, approvalAmount);
+    await usdt.approve(o.address, approvalAmount);
+    await epicCoin.approve(o.address, approvalAmount);
+
+    await testToken.approve(m.address, approvalAmount);
+    await usdt.approve(m.address, approvalAmount);
+    await epicCoin.approve(m.address, approvalAmount);
 
     // Get users balance and total supply of TestToken and USDT
     let initialUserTestTokenBalance = await testToken.balanceOf(userAddress);
@@ -832,7 +817,7 @@ contract("MarsBaseExchange", async function (accounts) {
     assert.equal(initialUserUSDTBalance.toString(), usdtTotalSupply.toString());
 
     // Create the offer
-    await dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, [feeAlice, feeBob], [smallestChunkSize, deadline, 1, 1]);
+    await dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, [feeAlice, feeBob, smallestChunkSize, deadline, 1, 1]);
 
     // Get balance and validate that the tokens have been moved to the dex
     let createdUserTestTokenBalance = await testToken.balanceOf(userAddress);
@@ -843,7 +828,7 @@ contract("MarsBaseExchange", async function (accounts) {
     assert.equal(createdUserUSDTBalance.toString(), initialUserUSDTBalance.toString());
 
     // Ensure the offer is active
-    let offer = await dex.getOffer(0);
+    let offer = await dex.getOffer(0, 2);
     assert.equal(offer.active, true);
 
     // Ensure the offerType has been correctly calculated
@@ -851,10 +836,10 @@ contract("MarsBaseExchange", async function (accounts) {
     assert.equal(offer.offerType, '2');
 
     // Cancel the offer, thus returning everything to its initial state
-    await dex.acceptOfferPart(0, tokensBob[0], smallestChunkSize);
+    await dex.acceptOffer(0, tokensBob[0], smallestChunkSize, 2);
 
     // Get the offer again, this time after it's been cancelled.
-    let acceptedOffer = await dex.getOffer(0);
+    let acceptedOffer = await dex.getOffer(0, 2);
 
     // Ensure it's no longer active and the amount in/out is 0
     assert.equal(acceptedOffer.active, true);
@@ -896,7 +881,9 @@ contract("MarsBaseExchange", async function (accounts) {
     const userAddress = accounts[0];
     
     // Get Contract Alicestances
-    let dex = await MarsBaseExchange.new();
+    let o = await MarsBaseOffer.new();
+    let m = await MarsBaseMinimumOffer.new();
+    let dex = await MarsBaseExchange.new(o.address, m.address);
     let testToken = await TestToken.new();
     let usdt = await USDTCoin.new();
     let epicCoin = await EPICCoin.new();
@@ -906,9 +893,13 @@ contract("MarsBaseExchange", async function (accounts) {
     let changedTokensBob = [usdt.address, epicCoin.address];
 
     // Approve token transfers
-    await testToken.approve(dex.address, approvalAmount);
-    await usdt.approve(dex.address, approvalAmount);
-    await epicCoin.approve(dex.address, approvalAmount);
+    await testToken.approve(o.address, approvalAmount);
+    await usdt.approve(o.address, approvalAmount);
+    await epicCoin.approve(o.address, approvalAmount);
+
+    await testToken.approve(m.address, approvalAmount);
+    await usdt.approve(m.address, approvalAmount);
+    await epicCoin.approve(m.address, approvalAmount);
 
     // Get users balance and total supply of TestToken and USDT
     let initialUserTestTokenBalance = await testToken.balanceOf(userAddress);
@@ -922,7 +913,7 @@ contract("MarsBaseExchange", async function (accounts) {
     assert.equal(initialUserUSDTBalance.toString(), usdtTotalSupply.toString());
 
     // Create the offer
-    await dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, [feeAlice, feeBob], [smallestChunkSize, deadline, 1, 1]);
+    await dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, [feeAlice, feeBob, smallestChunkSize, deadline, 1, 1]);
 
     // Get balance and validate that the tokens have been moved to the dex
     let createdUserTestTokenBalance = await testToken.balanceOf(userAddress);
@@ -933,7 +924,7 @@ contract("MarsBaseExchange", async function (accounts) {
     assert.equal(createdUserUSDTBalance.toString(), initialUserUSDTBalance.toString());
 
     // Ensure the offer is active
-    let offer = await dex.getOffer(0);
+    let offer = await dex.getOffer(0, 2);
     assert.equal(offer.active, true);
 
     // Ensure the offerType has been correctly calculated
@@ -947,10 +938,10 @@ contract("MarsBaseExchange", async function (accounts) {
     assert.equal(offer.tokenBob.length, 1);
 
     // Cancel the offer, thus returning everything to its initial state
-    await dex.changeOfferPrice(0, changedTokensBob, changedAmountsBob);
+    await dex.changeOfferPrice(0, changedTokensBob, changedAmountsBob, 2);
 
     // Get the offer again, this time after it's been cancelled.
-    let acceptedOffer = await dex.getOffer(0);
+    let acceptedOffer = await dex.getOffer(0, 2);
 
     // Ensure it's got all the right info
     assert.equal(acceptedOffer.active, true);
@@ -992,7 +983,9 @@ contract("MarsBaseExchange", async function (accounts) {
     const userAddress = accounts[0];
     
     // Get Contract Alicestances
-    let dex = await MarsBaseExchange.new();
+    let o = await MarsBaseOffer.new();
+    let m = await MarsBaseMinimumOffer.new();
+    let dex = await MarsBaseExchange.new(o.address, m.address);
     let testToken = await TestToken.new();
     let usdt = await USDTCoin.new();
     let epicCoin = await EPICCoin.new();
@@ -1002,9 +995,13 @@ contract("MarsBaseExchange", async function (accounts) {
     let changedTokensBob = [usdt.address, epicCoin.address];
 
     // Approve token transfers
-    await testToken.approve(dex.address, approvalAmount);
-    await usdt.approve(dex.address, approvalAmount);
-    await epicCoin.approve(dex.address, approvalAmount);
+    await testToken.approve(o.address, approvalAmount);
+    await usdt.approve(o.address, approvalAmount);
+    await epicCoin.approve(o.address, approvalAmount);
+
+    await testToken.approve(m.address, approvalAmount);
+    await usdt.approve(m.address, approvalAmount);
+    await epicCoin.approve(m.address, approvalAmount);
 
     // Get users balance and total supply of TestToken and USDT
     let initialUserTestTokenBalance = await testToken.balanceOf(userAddress);
@@ -1018,7 +1015,7 @@ contract("MarsBaseExchange", async function (accounts) {
     assert.equal(initialUserUSDTBalance.toString(), usdtTotalSupply.toString());
 
     // Create the offer
-    await dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, [feeAlice, feeBob], [smallestChunkSize, deadline, 0, 1]);
+    await dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, [feeAlice, feeBob, smallestChunkSize, deadline, 0, 1]);
 
     // Get balance and validate that the tokens have been moved to the dex
     let createdUserTestTokenBalance = await testToken.balanceOf(userAddress);
@@ -1029,7 +1026,7 @@ contract("MarsBaseExchange", async function (accounts) {
     assert.equal(createdUserUSDTBalance.toString(), initialUserUSDTBalance.toString());
 
     // Ensure the offer is active
-    let offer = await dex.getOffer(0);
+    let offer = await dex.getOffer(0, 2);
     assert.equal(offer.active, true);
 
     // Ensure the offerType has been correctly calculated
@@ -1043,7 +1040,7 @@ contract("MarsBaseExchange", async function (accounts) {
     assert.equal(offer.tokenBob.length, 1);
 
     // Cancel the offer, thus returning everything to its initial state
-    assert.rejects(dex.changeOfferPrice(0, changedTokensBob, changedAmountsBob));
+    assert.rejects(dex.changeOfferPrice(0, changedTokensBob, changedAmountsBob, 2));
 
     return;
   });
@@ -1067,7 +1064,9 @@ contract("MarsBaseExchange", async function (accounts) {
     const userAddress = accounts[0];
     
     // Get Contract Alicestances
-    let dex = await MarsBaseExchange.new();
+    let o = await MarsBaseOffer.new();
+    let m = await MarsBaseMinimumOffer.new();
+    let dex = await MarsBaseExchange.new(o.address, m.address);
     let testToken = await TestToken.new();
     let usdt = await USDTCoin.new();
     let epicCoin = await EPICCoin.new();
@@ -1077,9 +1076,13 @@ contract("MarsBaseExchange", async function (accounts) {
     let changedTokensBob = [usdt.address, epicCoin.address];
 
     // Approve token transfers
-    await testToken.approve(dex.address, approvalAmount);
-    await usdt.approve(dex.address, approvalAmount);
-    await epicCoin.approve(dex.address, approvalAmount);
+    await testToken.approve(o.address, approvalAmount);
+    await usdt.approve(o.address, approvalAmount);
+    await epicCoin.approve(o.address, approvalAmount);
+
+    await testToken.approve(m.address, approvalAmount);
+    await usdt.approve(m.address, approvalAmount);
+    await epicCoin.approve(m.address, approvalAmount);
 
     // Get users balance and total supply of TestToken and USDT
     let initialUserTestTokenBalance = await testToken.balanceOf(userAddress);
@@ -1093,7 +1096,7 @@ contract("MarsBaseExchange", async function (accounts) {
     assert.equal(initialUserUSDTBalance.toString(), usdtTotalSupply.toString());
 
     // Create the offer
-    await dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, [feeAlice, feeBob], [smallestChunkSize, deadline, 1, 1]);
+    await dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, [feeAlice, feeBob, smallestChunkSize, deadline, 1, 1]);
 
     // Get balance and validate that the tokens have been moved to the dex
     let createdUserTestTokenBalance = await testToken.balanceOf(userAddress);
@@ -1104,7 +1107,7 @@ contract("MarsBaseExchange", async function (accounts) {
     assert.equal(createdUserUSDTBalance.toString(), initialUserUSDTBalance.toString());
 
     // Ensure the offer is active
-    let offer = await dex.getOffer(0);
+    let offer = await dex.getOffer(0, 2);
     assert.equal(offer.active, true);
 
     // Ensure the offerType has been correctly calculated
@@ -1119,10 +1122,10 @@ contract("MarsBaseExchange", async function (accounts) {
     assert.equal(offer.smallestChunkSize, smallestChunkSize.toString());
 
     // Cancel the offer, thus returning everything to its initial state
-    await dex.changeOfferPricePart(0, changedTokensBob, changedAmountsBob, changedSmallestChunkSize);
+    await dex.changeOfferPricePart(0, changedTokensBob, changedAmountsBob, changedSmallestChunkSize, 2);
 
     // Get the offer again, this time after it's been cancelled.
-    let acceptedOffer = await dex.getOffer(0);
+    let acceptedOffer = await dex.getOffer(0, 2);
 
     // Ensure it's got all the right info
     assert.equal(acceptedOffer.active, true);
@@ -1164,7 +1167,9 @@ contract("MarsBaseExchange", async function (accounts) {
     const userAddress = accounts[0];
     
     // Get Contract Alicestances
-    let dex = await MarsBaseExchange.new();
+    let o = await MarsBaseOffer.new();
+    let m = await MarsBaseMinimumOffer.new();
+    let dex = await MarsBaseExchange.new(o.address, m.address);
     let testToken = await TestToken.new();
     let usdt = await USDTCoin.new();
     let epicCoin = await EPICCoin.new();
@@ -1173,9 +1178,13 @@ contract("MarsBaseExchange", async function (accounts) {
     let tokensBob = [usdt.address, epicCoin.address];
 
     // Approve token transfers
-    await testToken.approve(dex.address, approvalAmount);
-    await usdt.approve(dex.address, approvalAmount);
-    await epicCoin.approve(dex.address, approvalAmount);
+    await testToken.approve(o.address, approvalAmount);
+    await usdt.approve(o.address, approvalAmount);
+    await epicCoin.approve(o.address, approvalAmount);
+
+    await testToken.approve(m.address, approvalAmount);
+    await usdt.approve(m.address, approvalAmount);
+    await epicCoin.approve(m.address, approvalAmount);
 
     // Get users balance and total supply of TestToken and USDT
     let initialUserTestTokenBalance = await testToken.balanceOf(userAddress);
@@ -1189,7 +1198,7 @@ contract("MarsBaseExchange", async function (accounts) {
     assert.equal(initialUserUSDTBalance.toString(), usdtTotalSupply.toString());
 
     // Create the offer
-    await dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, [feeAlice, feeBob], [smallestChunkSize, deadline, 1, 1]);
+    await dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, [feeAlice, feeBob, smallestChunkSize, deadline, 1, 1]);
     // Get balance and validate that the tokens have been moved to the dex
     let createdUserTestTokenBalance = await testToken.balanceOf(userAddress);
     assert.equal(createdUserTestTokenBalance.toString(), (initialUserTestTokenBalance - amountAlice).toLocaleString('fullwide', {useGrouping:false}));
@@ -1199,7 +1208,7 @@ contract("MarsBaseExchange", async function (accounts) {
     assert.equal(createdUserUSDTBalance.toString(), initialUserUSDTBalance.toString());
 
     // Ensure the offer is active
-    let offer = await dex.getOffer(0);
+    let offer = await dex.getOffer(0, 2);
     assert.equal(offer.active, true);
 
     // Ensure the offerType has been correctly calculated
@@ -1207,10 +1216,10 @@ contract("MarsBaseExchange", async function (accounts) {
     assert.equal(offer.offerType, '2');
 
     // Cancel the offer, thus returning everything to its initial state
-    await dex.acceptOfferPart(0, tokensBob[0], amountBob[0]);
+    await dex.acceptOffer(0, tokensBob[0], amountBob[0], 0);
 
     // Get the offer again, this time after it's been cancelled.
-    let acceptedOffer = await dex.getOffer(0);
+    let acceptedOffer = await dex.getOffer(0, 2);
 
     // Ensure it's no longer active and the amount in/out is 0
     assert.equal(acceptedOffer.active, false);
@@ -1251,7 +1260,9 @@ contract("MarsBaseExchange", async function (accounts) {
     const userAddress = accounts[0];
     
     // Get Contract Alicestances
-    let dex = await MarsBaseExchange.new();
+    let o = await MarsBaseOffer.new();
+    let m = await MarsBaseMinimumOffer.new();
+    let dex = await MarsBaseExchange.new(o.address, m.address);
     let testToken = await TestToken.new();
     let usdt = await USDTCoin.new();
     let epicCoin = await EPICCoin.new();
@@ -1260,9 +1271,13 @@ contract("MarsBaseExchange", async function (accounts) {
     let tokensBob = [usdt.address, epicCoin.address];
 
     // Approve token transfers
-    await testToken.approve(dex.address, approvalAmount);
-    await usdt.approve(dex.address, approvalAmount);
-    await epicCoin.approve(dex.address, approvalAmount);
+    await testToken.approve(o.address, approvalAmount);
+    await usdt.approve(o.address, approvalAmount);
+    await epicCoin.approve(o.address, approvalAmount);
+
+    await testToken.approve(m.address, approvalAmount);
+    await usdt.approve(m.address, approvalAmount);
+    await epicCoin.approve(m.address, approvalAmount);
 
     // Get users balance and total supply of TestToken and USDT
     let initialUserTestTokenBalance = await testToken.balanceOf(userAddress);
@@ -1276,7 +1291,7 @@ contract("MarsBaseExchange", async function (accounts) {
     assert.equal(initialUserUSDTBalance.toString(), usdtTotalSupply.toString());
 
     // Create the offer
-    await dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, [feeAlice, feeBob], [smallestChunkSize, deadline, 1, 1, minimumSale]);
+    await dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, [feeAlice, feeBob, smallestChunkSize, deadline, 1, 1, minimumSale, 0]);
     // Get balance and validate that the tokens have been moved to the dex
     let createdUserTestTokenBalance = await testToken.balanceOf(userAddress);
     assert.equal(createdUserTestTokenBalance.toString(), (initialUserTestTokenBalance - amountAlice).toLocaleString('fullwide', {useGrouping:false}));
@@ -1286,7 +1301,7 @@ contract("MarsBaseExchange", async function (accounts) {
     assert.equal(createdUserUSDTBalance.toString(), initialUserUSDTBalance.toString());
 
     // Ensure the offer is active
-    let offer = await dex.getOffer(0);
+    let offer = await dex.getOffer(0, 3);
     assert.equal(offer.active, true);
 
     // Ensure the offerType has been correctly calculated
@@ -1294,10 +1309,10 @@ contract("MarsBaseExchange", async function (accounts) {
     assert.equal(offer.offerType, '3');
 
     // Accept part of the offer without going over the minimum
-    await dex.acceptOfferPartWithMinimum(0, tokensBob[0], smallestChunkSize);
+    await dex.acceptOffer(0, tokensBob[0], smallestChunkSize, 3);
 
     // Get the offer again, this time after it's been cancelled.
-    let acceptedOffer = await dex.getOffer(0);
+    let acceptedOffer = await dex.getOffer(0, 3);
 
     const conversionnRate = amountAlice / amountBob[0];
 
@@ -1345,7 +1360,9 @@ contract("MarsBaseExchange", async function (accounts) {
     const userAddress = accounts[0];
     
     // Get Contract Alicestances
-    let dex = await MarsBaseExchange.new();
+    let o = await MarsBaseOffer.new();
+    let m = await MarsBaseMinimumOffer.new();
+    let dex = await MarsBaseExchange.new(o.address, m.address);
     let testToken = await TestToken.new();
     let usdt = await USDTCoin.new();
     let epicCoin = await EPICCoin.new();
@@ -1354,9 +1371,13 @@ contract("MarsBaseExchange", async function (accounts) {
     let tokensBob = [usdt.address, epicCoin.address];
 
     // Approve token transfers
-    await testToken.approve(dex.address, approvalAmount);
-    await usdt.approve(dex.address, approvalAmount);
-    await epicCoin.approve(dex.address, approvalAmount);
+    await testToken.approve(o.address, approvalAmount);
+    await usdt.approve(o.address, approvalAmount);
+    await epicCoin.approve(o.address, approvalAmount);
+
+    await testToken.approve(m.address, approvalAmount);
+    await usdt.approve(m.address, approvalAmount);
+    await epicCoin.approve(m.address, approvalAmount);
 
     // Get users balance and total supply of TestToken and USDT
     let initialUserTestTokenBalance = await testToken.balanceOf(userAddress);
@@ -1370,7 +1391,7 @@ contract("MarsBaseExchange", async function (accounts) {
     assert.equal(initialUserUSDTBalance.toString(), usdtTotalSupply.toString());
 
     // Create the offer
-    await dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, [feeAlice, feeBob], [smallestChunkSize, deadline, 1, 1, minimumSale]);
+    await dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, [feeAlice, feeBob, smallestChunkSize, deadline, 1, 1, minimumSale, 0]);
 
     // Get balance and validate that the tokens have been moved to the dex
     let createdUserTestTokenBalance = await testToken.balanceOf(userAddress);
@@ -1381,7 +1402,7 @@ contract("MarsBaseExchange", async function (accounts) {
     assert.equal(createdUserUSDTBalance.toString(), initialUserUSDTBalance.toString());
 
     // Ensure the offer is active
-    let offer = await dex.getOffer(0);
+    let offer = await dex.getOffer(0, 3);
     assert.equal(offer.active, true);
 
     // Ensure the offerType has been correctly calculated
@@ -1389,10 +1410,10 @@ contract("MarsBaseExchange", async function (accounts) {
     assert.equal(offer.offerType, '3');
 
     // Accept part of the offer without going over the minimum
-    await dex.acceptOfferPartWithMinimum(0, tokensBob[0], minimumSale);
+    await dex.acceptOffer(0, tokensBob[0], minimumSale, 3);
 
     // Get the offer again, this time after it's been cancelled.
-    let acceptedOffer = await dex.getOffer(0);
+    let acceptedOffer = await dex.getOffer(0, 3);
 
     // Ensure everything adds up
     assert.equal(acceptedOffer.active, true);
@@ -1439,7 +1460,9 @@ contract("MarsBaseExchange", async function (accounts) {
     const userAddress = accounts[0];
     
     // Get Contract Alicestances
-    let dex = await MarsBaseExchange.new();
+    let o = await MarsBaseOffer.new();
+    let m = await MarsBaseMinimumOffer.new();
+    let dex = await MarsBaseExchange.new(o.address, m.address);
     let testToken = await TestToken.new();
     let usdt = await USDTCoin.new();
     let epicCoin = await EPICCoin.new();
@@ -1448,9 +1471,13 @@ contract("MarsBaseExchange", async function (accounts) {
     let tokensBob = [usdt.address, epicCoin.address];
 
     // Approve token transfers
-    await testToken.approve(dex.address, approvalAmount);
-    await usdt.approve(dex.address, approvalAmount);
-    await epicCoin.approve(dex.address, approvalAmount);
+    await testToken.approve(o.address, approvalAmount);
+    await usdt.approve(o.address, approvalAmount);
+    await epicCoin.approve(o.address, approvalAmount);
+
+    await testToken.approve(m.address, approvalAmount);
+    await usdt.approve(m.address, approvalAmount);
+    await epicCoin.approve(m.address, approvalAmount);
 
     // Get users balance and total supply of TestToken and USDT
     let initialUserTestTokenBalance = await testToken.balanceOf(userAddress);
@@ -1464,7 +1491,7 @@ contract("MarsBaseExchange", async function (accounts) {
     assert.equal(initialUserUSDTBalance.toString(), usdtTotalSupply.toString());
 
     // Create the offer
-    await dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, [feeAlice, feeBob], [smallestChunkSize, deadline, 1, 1, minimumSale]);
+    await dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, [feeAlice, feeBob, smallestChunkSize, deadline, 1, 1, minimumSale, 1]);
     // Get balance and validate that the tokens have been moved to the dex
     let createdUserTestTokenBalance = await testToken.balanceOf(userAddress);
     assert.equal(createdUserTestTokenBalance.toString(), (initialUserTestTokenBalance - amountAlice).toLocaleString('fullwide', {useGrouping:false}));
@@ -1474,7 +1501,7 @@ contract("MarsBaseExchange", async function (accounts) {
     assert.equal(createdUserUSDTBalance.toString(), initialUserUSDTBalance.toString());
 
     // Ensure the offer is active
-    let offer = await dex.getOffer(0);
+    let offer = await dex.getOffer(0, 3);
     assert.equal(offer.active, true);
 
     // Ensure the offerType has been correctly calculated
@@ -1482,10 +1509,10 @@ contract("MarsBaseExchange", async function (accounts) {
     assert.equal(offer.offerType, '3');
 
     // Accept part of the offer without going over the minimum
-    await dex.acceptOfferPartWithMinimum(0, tokensBob[0], smallestChunkSize);
+    await dex.acceptOffer(0, tokensBob[0], smallestChunkSize, 3);
 
     // Get the offer again, this time after it's been cancelled.
-    let acceptedOffer = await dex.getOffer(0);
+    let acceptedOffer = await dex.getOffer(0, 3);
 
     const conversionnRate = amountAlice / amountBob[0];
 
@@ -1511,9 +1538,9 @@ contract("MarsBaseExchange", async function (accounts) {
     let finalUserUSDTBalance = await usdt.balanceOf(userAddress);
     assert.equal(finalUserUSDTBalance.toString(), (initialUserUSDTBalance - (smallestChunkSize)).toLocaleString('fullwide', {useGrouping:false}));
 
-    await dex.cancelOffer(0);
+    await dex.cancelOffer(0, 3);
 
-    let cancelledOffer = await dex.getOffer(0);
+    let cancelledOffer = await dex.getOffer(0, 3);
 
     // Ensure it's no longer active and the amount in is 0
     assert.equal(cancelledOffer.active, false);

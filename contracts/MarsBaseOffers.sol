@@ -92,7 +92,7 @@ contract MarsBaseOffers is MarsBaseCommon, MarsBase {
   function cancelOffer(uint256 offerId, address sender) public returns (uint256) {
     MBOffer memory offer = offers[offerId];
 
-    require(offer.capabilities[1] == false, "S1");
+    require(offer.capabilities[1] == true, "S1");
     require(sender == offer.offerer, "S2");
     require(offer.active == true, "S0");
     require(offer.amountAlice > 0, "M3");

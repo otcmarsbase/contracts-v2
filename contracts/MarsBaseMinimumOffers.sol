@@ -56,7 +56,7 @@ contract MarsBaseMinimumOffers is MarsBaseCommon, MarsBase {
         require(IERC20(offer.tokenAlice).transfer(offer.minimumOrderAddresses[index], offer.minimumOrderAmountsBob[index] * (1000-offer.feeBob) / 1000), "T1b");
       }
 
-    } else if (tokensSold < offer.minimumSize && offer.capabilities[2] == true && offer.deadline < getTime()) {
+    } else if (tokensSold < offer.minimumSize && offer.capabilities[2] == true && offer.offerType == OfferType.LimitedTimeMinimumChunkedDeadlinePurchase && offer.deadline < getTime()) {
       cancelExpiredMinimumOffer(offerId);
       return offerId;
     } else {
@@ -105,7 +105,7 @@ contract MarsBaseMinimumOffers is MarsBaseCommon, MarsBase {
   function cancelOffer(uint256 offerId, address sender) public returns (uint256) {
     MBOffer memory offer = offers[offerId];
 
-    require(offer.capabilities[1] == false && offer.offerType != OfferType.LimitedTimeMinimumChunkedDeadlinePurchase, "S1");
+    require(offer.capabilities[1] == true, "S1");
     require(sender == offer.offerer, "S2");
     require(offer.active == true, "S0");
     require(offer.amountAlice > 0, "M3");
