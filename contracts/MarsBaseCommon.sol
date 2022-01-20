@@ -98,12 +98,13 @@ contract MarsBaseCommon {
       offer.capabilities[1] = true;
     }
 
-    if (offerParameters[7] == 1) {
-      offer.capabilities[2] = true;
-    }
-
     if (offerParameters.length == 8) {
       offer.minimumSize = offerParameters[6];
+
+      if (offerParameters[7] == 1) {
+        offer.capabilities[2] = true;
+      }
+      
     } else {
       offer.minimumSize = 0;
     }
