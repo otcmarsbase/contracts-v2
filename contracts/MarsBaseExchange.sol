@@ -8,7 +8,7 @@ import "./MarsBaseMinimumOffers.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract MarsBaseExchange is MarsBaseCommon, Ownable {
+contract MarsBaseExchange is MarsBaseCommon {
     address marsBaseOffersAddress;
     address marsBaseMinimumOffersAddress;
 
@@ -77,17 +77,18 @@ contract MarsBaseExchange is MarsBaseCommon, Ownable {
     }
 
     function acceptOffer(uint256 offerId, address tokenBob, uint256 amountBob, OfferType offerType) public {
+        uint256 amountAlice = 0;
         if (contractType(offerType) == ContractType.Offers) {
             if (offerType == OfferType.FullPurchase || offerType == OfferType.LimitedTime) {
-                MarsBaseOffers(marsBaseOffersAddress).acceptOffer(offerId, tokenBob, amountBob, msg.sender);
+                amountAlice = MarsBaseOffers(marsBaseOffersAddress).acceptOffer(offerId, tokenBob, amountBob, msg.sender);
             } else {
-                MarsBaseOffers(marsBaseOffersAddress).acceptOfferPart(offerId, tokenBob, amountBob, msg.sender);
+                amountAlice = MarsBaseOffers(marsBaseOffersAddress).acceptOfferPart(offerId, tokenBob, amountBob, msg.sender);
             }
         } else {
-            MarsBaseMinimumOffers(marsBaseMinimumOffersAddress).acceptOfferPartWithMinimum(offerId, tokenBob, amountBob, msg.sender);
+            amountAlice = MarsBaseMinimumOffers(marsBaseMinimumOffersAddress).acceptOfferPartWithMinimum(offerId, tokenBob, amountBob, msg.sender);
         }
 
-        emit OfferAccepted(offerId, msg.sender, block.timestamp);
+        emit OfferAccepted(offerId, msg.sender, block.timestamp, amountAlice, amountBob, tokenBob);
     }
 
     function changeOfferPricePart(uint256 offerId, address[] calldata tokenBob, uint256[] calldata amountBob, uint256 smallestChunkSize, OfferType offerType) public {

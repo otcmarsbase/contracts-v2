@@ -78,7 +78,7 @@ contract MarsBaseMinimumOffers is MarsBaseCommon, MarsBase {
       delete offers[offerId];
     }
 
-    return offerId;
+    return tokensSold;
   }
 
   function cancelExpiredMinimumOffer(uint256 offerId) private {

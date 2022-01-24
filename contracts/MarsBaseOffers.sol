@@ -38,9 +38,7 @@ contract MarsBaseOffers is MarsBaseCommon, MarsBase {
     
     delete offers[offerId];
 
-    emit OfferAccepted(offerId, msg.sender, block.timestamp);
-
-    return offerId;
+    return amountAfterFeeAlice;
   }
 
   function acceptOfferPart(uint256 offerId, address tokenBob, uint256 amountBob, address sender) public returns (uint256) {
@@ -86,7 +84,7 @@ contract MarsBaseOffers is MarsBaseCommon, MarsBase {
       delete offers[offerId];
     }
 
-    return offerId;
+    return amountAfterFeeAlice;
   }
 
   function cancelOffer(uint256 offerId, address sender) public returns (uint256) {

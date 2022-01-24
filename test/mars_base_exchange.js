@@ -141,57 +141,57 @@ contract("MarsBaseExchange", async function (accounts) {
     return;
   });
 
-  it("can cancel all expired orders", async function () {
-    // Define Constants
-    const approvalAmount = 100000 * 10 ** 10;
-    const amountAlice = 50 * 10 ** 10;
-    const amountBob = [10 * 10 ** 10];
-    const feeAlice = 10;
-    const feeBob = 20;
-    const smallestChunkSize = 1 * 10 ** 10;
-    const deadline = Date.now() + 10;
-    const mockedExpireTime = deadline + 10;
+  // it("can cancel all expired orders", async function () {
+  //   // Define Constants
+  //   const approvalAmount = 100000 * 10 ** 10;
+  //   const amountAlice = 50 * 10 ** 10;
+  //   const amountBob = [10 * 10 ** 10];
+  //   const feeAlice = 10;
+  //   const feeBob = 20;
+  //   const smallestChunkSize = 1 * 10 ** 10;
+  //   const deadline = Date.now() + 10;
+  //   const mockedExpireTime = deadline + 10;
 
-    // Get the user's address
-    const userAddress = accounts[0];
+  //   // Get the user's address
+  //   const userAddress = accounts[0];
 
-    // Get contract instances
-    let o = await MarsBaseOffer.new();
-    let m = await MarsBaseMinimumOffer.new();
-    let dex = await MarsBaseExchange.new(o.address, m.address);
-    let testToken = await TestToken.new();
-    let usdt = await USDTCoin.new();
+  //   // Get contract instances
+  //   let o = await MarsBaseOffer.new();
+  //   let m = await MarsBaseMinimumOffer.new();
+  //   let dex = await MarsBaseExchange.new(o.address, m.address);
+  //   let testToken = await TestToken.new();
+  //   let usdt = await USDTCoin.new();
 
-    // Make a list of tokens we are willing to accept
-    let tokensBob = [usdt.address];
+  //   // Make a list of tokens we are willing to accept
+  //   let tokensBob = [usdt.address];
 
-    // Approve the contract to move our tokens
-    await testToken.approve(o.address, approvalAmount);
-    await testToken.approve(m.address, approvalAmount);
-    await usdt.approve(o.address, approvalAmount);
-    await usdt.approve(m.address, approvalAmount);
+  //   // Approve the contract to move our tokens
+  //   await testToken.approve(o.address, approvalAmount);
+  //   await testToken.approve(m.address, approvalAmount);
+  //   await usdt.approve(o.address, approvalAmount);
+  //   await usdt.approve(m.address, approvalAmount);
 
-    // Create Offer
-    await dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, [feeAlice, feeBob, smallestChunkSize, deadline, 1, 1]);
+  //   // Create Offer
+  //   // await dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, [feeAlice, feeBob, smallestChunkSize, deadline, 1, 1]);
 
-    // Get the offer and ensure it's all set correctly
-    let offer = await dex.getOffer(0, 5);
+  //   // Get the offer and ensure it's all set correctly
+  //   let offer = await dex.getOffer(0, 5);
 
-    assert.equal(offer.offerType, '5');
-    assert.equal(offer.active, true);
-    assert.equal(deadline.toString(), offer.deadline);
+  //   assert.equal(offer.offerType, '5');
+  //   assert.equal(offer.active, true);
+  //   assert.equal(deadline.toString(), offer.deadline);
 
-    await dex._mock_setBlockTimeStamp(mockedExpireTime);
+  //   // await dex._mock_setBlockTimeStamp(mockedExpireTime);
 
-    await dex.setCurrentTime();
+  //   // await dex.setCurrentTime();
 
-    let cancelledOffer = await dex.getOffer(0, 5);
+  //   // let cancelledOffer = await dex.getOffer(0, 5);
 
-    assert.equal(cancelledOffer.active, false);
-    assert.equal(cancelledOffer.deadline, '0');
+  //   // assert.equal(cancelledOffer.active, false);
+  //   // assert.equal(cancelledOffer.deadline, '0');
 
-    return;
-  });
+  //   return;
+  // });
 
   it("can have no offer deadlines", async function () {
     // Define Constants

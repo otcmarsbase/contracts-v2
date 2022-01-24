@@ -6,7 +6,7 @@ contract MarsBaseCommon {
   event OfferCreated(uint256 offerId, address sender, uint256 blockTimestamp);
   event OfferModified(uint256 offerId, address sender, uint256 blockTimestamp);
   event OfferCancelled(uint256 offerId, address sender, uint256 blockTimestamp);
-  event OfferAccepted(uint256 offerId, address sender, uint256 blockTimestamp);
+  event OfferAccepted(uint256 offerId, address sender, uint256 blockTimestamp, uint256 amountAlice, uint256 amountBob, address tokenAddress);
 
   // For testing usage
   event Log(uint256 log);
@@ -115,7 +115,7 @@ contract MarsBaseCommon {
   }
 
   function getOfferType (uint256 amountAlice, uint256[] calldata offerParameters) public pure returns (OfferType) {
-    OfferType offerType;
+    OfferType offerType = OfferType.FullPurchase;
 
     if (offerParameters.length == 6) {
       if (offerParameters[3] > 0 && offerParameters[3] > 0 && offerParameters[3] != amountAlice) {

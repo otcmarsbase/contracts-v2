@@ -6,7 +6,7 @@ import "./MarsBaseCommon.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract MarsBase is MarsBaseCommon, Ownable {
+contract MarsBase is MarsBaseCommon {
 
   uint256 nextOfferId;
 
@@ -20,7 +20,7 @@ contract MarsBase is MarsBaseCommon, Ownable {
     minimumFee = _minimumFee;
   }
 
-  function setCurrentTime() public onlyOwner {
+  function setCurrentTime() public {
     for (uint256 index = 0; index < nextOfferId; index++) {
       if (getTime() >= offers[index].deadline && offers[index].deadline != 0) {
         cancelExpiredOffer(index);
@@ -64,7 +64,7 @@ contract MarsBase is MarsBaseCommon, Ownable {
     return offerId;
   }
 
-  function cancelExpiredOffer(uint256 offerId) private onlyOwner returns (uint256) {
+  function cancelExpiredOffer(uint256 offerId) private returns (uint256) {
     MBOffer memory offer = offers[offerId];
 
     if (offer.capabilities[1] == false) {
