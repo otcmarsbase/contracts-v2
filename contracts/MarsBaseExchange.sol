@@ -11,10 +11,12 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 contract MarsBaseExchange is MarsBaseCommon {
     address marsBaseOffersAddress;
     address marsBaseMinimumOffersAddress;
+    address owner;
 
     constructor(address offersAddress, address minimumOffersAddress) {
         marsBaseOffersAddress = offersAddress;
         marsBaseMinimumOffersAddress = minimumOffersAddress;
+        owner = msg.sender;
     }
 
     function getOffer(uint256 offerId, OfferType offerType) public view returns (MBOffer memory) {
@@ -27,6 +29,10 @@ contract MarsBaseExchange is MarsBaseCommon {
         }
 
         return offer;
+    }
+
+    function getOwner() public view returns (address) {
+        return owner;
     }
 
     function getAllOffers() public view returns (MBOffer[] memory) {
@@ -56,14 +62,14 @@ contract MarsBaseExchange is MarsBaseCommon {
     function createOffer(address tokenAlice, address[] calldata tokenBob, uint256 amountAlice, uint256[] calldata amountBob, uint256[] calldata offerParameters) public {
         OfferType offerType = getOfferType(amountAlice, offerParameters);
 
-        uint256 offerId;
+        MBOffer memory offer;
         if (contractType(offerType) == ContractType.Offers) {
-            offerId = MarsBaseOffers(marsBaseOffersAddress).createOffer(msg.sender, tokenAlice, tokenBob, amountAlice, amountBob, offerParameters);
+            offer = MarsBaseOffers(marsBaseOffersAddress).createOffer(msg.sender, tokenAlice, tokenBob, amountAlice, amountBob, offerParameters);
         } else {
-            offerId = MarsBaseMinimumOffers(marsBaseMinimumOffersAddress).createOffer(msg.sender, tokenAlice, tokenBob, amountAlice, amountBob, offerParameters);
+            offer = MarsBaseMinimumOffers(marsBaseMinimumOffersAddress).createOffer(msg.sender, tokenAlice, tokenBob, amountAlice, amountBob, offerParameters);
         }
 
-        emit OfferCreated(offerId, msg.sender, block.timestamp);
+        emit OfferCreated(offer.offerId, msg.sender, block.timestamp, offer);
     }
 
     function cancelOffer(uint256 offerId, OfferType offerType) public {
@@ -91,23 +97,15 @@ contract MarsBaseExchange is MarsBaseCommon {
         emit OfferAccepted(offerId, msg.sender, block.timestamp, amountAlice, amountBob, tokenBob);
     }
 
-    function changeOfferPricePart(uint256 offerId, address[] calldata tokenBob, uint256[] calldata amountBob, uint256 smallestChunkSize, OfferType offerType) public {
+    function changeOfferParams(uint256 offerId, address[] calldata tokenBob, uint256[] calldata amountBob, uint256[] calldata offerParameters, OfferType offerType) public {
+        require(offerParameters.length == 4, "S6");
+        
         if (contractType(offerType) == ContractType.Offers) {
-            MarsBaseOffers(marsBaseOffersAddress).changeOfferPricePart(offerId, tokenBob, amountBob, smallestChunkSize, msg.sender);
+            MarsBaseOffers(marsBaseOffersAddress).changeOfferParams(offerId, tokenBob, amountBob, offerParameters, msg.sender);
         } else {
-            MarsBaseMinimumOffers(marsBaseMinimumOffersAddress).changeOfferPricePart(offerId, tokenBob, amountBob, smallestChunkSize, msg.sender);
+            MarsBaseMinimumOffers(marsBaseMinimumOffersAddress).changeOfferParams(offerId, tokenBob, amountBob, offerParameters, msg.sender);
         }
 
-        emit OfferModified(offerId, msg.sender, block.timestamp);
-    }
-
-    function changeOfferPrice(uint256 offerId, address[] calldata tokenBob, uint256[] calldata amountBob, OfferType offerType) public {
-        if (contractType(offerType) == ContractType.Offers) {
-            MarsBaseOffers(marsBaseOffersAddress).changeOfferPrice(offerId, tokenBob, amountBob, msg.sender);
-        } else {
-            MarsBaseMinimumOffers(marsBaseMinimumOffersAddress).changeOfferPrice(offerId, tokenBob, amountBob, msg.sender);
-        }
-
-        emit OfferModified(offerId, msg.sender, block.timestamp);
+        emit OfferModified(offerId, msg.sender, block.timestamp, offerParameters);
     }
 }

@@ -94,9 +94,9 @@ contract("MarsBaseExchange", async function (accounts) {
     let m = await MarsBaseMinimumOffer.new();
     let dex = await MarsBaseExchange.new(o.address, m.address);
 
-    let owner = await dex.owner();
+    let owner = await dex.getOwner();
 
-    assert.equal(owner,userAddress);
+    assert.equal(owner, userAddress);
   });
 
   it("has offer deadlines", async function () {
@@ -938,7 +938,7 @@ contract("MarsBaseExchange", async function (accounts) {
     assert.equal(offer.tokenBob.length, 1);
 
     // Cancel the offer, thus returning everything to its initial state
-    await dex.changeOfferPrice(0, changedTokensBob, changedAmountsBob, 2);
+    await dex.changeOfferParams(0, changedTokensBob, changedAmountsBob, [feeAlice, feeBob, smallestChunkSize, deadline], 2);
 
     // Get the offer again, this time after it's been cancelled.
     let acceptedOffer = await dex.getOffer(0, 2);
@@ -1040,7 +1040,7 @@ contract("MarsBaseExchange", async function (accounts) {
     assert.equal(offer.tokenBob.length, 1);
 
     // Cancel the offer, thus returning everything to its initial state
-    assert.rejects(dex.changeOfferPrice(0, changedTokensBob, changedAmountsBob, 2));
+    assert.rejects(dex.changeOfferParams(0, changedTokensBob, changedAmountsBob, [feeAlice, feeBob, 2, deadline], 2));
 
     return;
   });
@@ -1122,7 +1122,7 @@ contract("MarsBaseExchange", async function (accounts) {
     assert.equal(offer.smallestChunkSize, smallestChunkSize.toString());
 
     // Cancel the offer, thus returning everything to its initial state
-    await dex.changeOfferPricePart(0, changedTokensBob, changedAmountsBob, changedSmallestChunkSize, 2);
+    await dex.changeOfferParams(0, changedTokensBob, changedAmountsBob, [feeAlice, feeBob, changedSmallestChunkSize, deadline], 2);
 
     // Get the offer again, this time after it's been cancelled.
     let acceptedOffer = await dex.getOffer(0, 2);

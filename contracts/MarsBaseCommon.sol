@@ -3,8 +3,8 @@ pragma solidity >=0.4.22 <0.9.0;
 
 contract MarsBaseCommon {
 
-  event OfferCreated(uint256 offerId, address sender, uint256 blockTimestamp);
-  event OfferModified(uint256 offerId, address sender, uint256 blockTimestamp);
+  event OfferCreated(uint256 offerId, address sender, uint256 blockTimestamp, MBOffer offer);
+  event OfferModified(uint256 offerId, address sender, uint256 blockTimestamp, uint256[] offerParameters);
   event OfferCancelled(uint256 offerId, address sender, uint256 blockTimestamp);
   event OfferAccepted(uint256 offerId, address sender, uint256 blockTimestamp, uint256 amountAlice, uint256 amountBob, address tokenAddress);
 
