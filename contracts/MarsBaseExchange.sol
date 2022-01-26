@@ -12,10 +12,31 @@ contract MarsBaseExchange is MarsBaseCommon {
     address marsBaseMinimumOffersAddress;
     address owner;
 
+    struct MBAddresses {
+        address offersContract;
+        address minimumOffersContract;
+    }
+
     constructor(address offersAddress, address minimumOffersAddress) {
         marsBaseOffersAddress = offersAddress;
         marsBaseMinimumOffersAddress = minimumOffersAddress;
         owner = msg.sender;
+    }
+
+    function getContractAddresses() public view returns (MBAddresses memory) {
+        MBAddresses memory addresses;
+
+        addresses.offersContract = marsBaseOffersAddress;
+        addresses.minimumOffersContract = marsBaseMinimumOffersAddress;
+
+        return addresses;
+    }
+
+    function setContractAddresses(MBAddresses calldata addresses) public {
+        require(msg.sender == owner, "S7");
+
+        marsBaseOffersAddress = addresses.offersContract;
+        marsBaseMinimumOffersAddress = addresses.minimumOffersContract;
     }
 
     function getOffer(uint256 offerId, OfferType offerType) public view returns (MBOffer memory) {
@@ -35,6 +56,8 @@ contract MarsBaseExchange is MarsBaseCommon {
     }
 
     function cancelExpiredOffers() public {
+        require(msg.sender == owner, "S7");
+
         MarsBaseOffers offersContract = MarsBaseOffers(marsBaseOffersAddress);
         MarsBaseMinimumOffers minimumOffersContract = MarsBaseMinimumOffers(marsBaseMinimumOffersAddress);
     

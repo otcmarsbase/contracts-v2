@@ -99,6 +99,46 @@ contract("MarsBaseExchange", async function (accounts) {
     assert.equal(owner, userAddress);
   });
 
+  it("gets the other contract addresses", async function () {
+    // Get the user's address
+    const userAddress = accounts[0];
+
+    // Get Contract Alicestances
+    let o = await MarsBaseOffer.new();
+    let m = await MarsBaseMinimumOffer.new();
+    let dex = await MarsBaseExchange.new(o.address, m.address);
+
+    let contracts = await dex.getContractAddresses();
+
+    assert.equal(contracts.offersContract, o.address);
+    assert.equal(contracts.minimumOffersContract, m.address);
+  });
+
+  it("sets the other contract addresses", async function () {
+    // Get the user's address
+    const userAddress = accounts[0];
+
+    // Get Contract Alicestances
+    let o = await MarsBaseOffer.new();
+    let m = await MarsBaseMinimumOffer.new();
+    let dex = await MarsBaseExchange.new(o.address, m.address);
+
+    let contracts = await dex.getContractAddresses();
+
+    assert.equal(contracts.offersContract, o.address);
+    assert.equal(contracts.minimumOffersContract, m.address);
+
+    o = await MarsBaseOffer.new();
+    m = await MarsBaseMinimumOffer.new();
+
+    await dex.setContractAddresses({offersContract: o.address, minimumOffersContract: m.address});
+
+    contracts = await dex.getContractAddresses();
+
+    assert.equal(contracts.offersContract, o.address);
+    assert.equal(contracts.minimumOffersContract, m.address);    
+  });
+
   it("has offer deadlines", async function () {
     // Define Constants
     const approvalAmount = 100000 * 10 ** 10;
