@@ -6,7 +6,6 @@ import "./MarsBaseOffers.sol";
 import "./MarsBaseMinimumOffers.sol";
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract MarsBaseExchange is MarsBaseCommon {
     address marsBaseOffersAddress;
@@ -33,6 +32,14 @@ contract MarsBaseExchange is MarsBaseCommon {
 
     function getOwner() public view returns (address) {
         return owner;
+    }
+
+    function cancelExpiredOffers() public {
+        MarsBaseOffers offersContract = MarsBaseOffers(marsBaseOffersAddress);
+        MarsBaseMinimumOffers minimumOffersContract = MarsBaseMinimumOffers(marsBaseMinimumOffersAddress);
+    
+        offersContract.cancelExpiredOffers();
+        minimumOffersContract.cancelExpiredOffers();
     }
 
     function getAllOffers() public view returns (MBOffer[] memory) {

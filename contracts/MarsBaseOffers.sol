@@ -6,7 +6,7 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "./MarsBaseCommon.sol";
 import "./MarsBase.sol";
 
-contract MarsBaseOffers is MarsBaseCommon, MarsBase {
+contract MarsBaseOffers is MarsBase {
 
   function acceptOffer(uint256 offerId, address tokenBob, uint256 amountBob, address sender) public returns (uint256) {
     MBOffer memory offer = offers[offerId];
@@ -85,6 +85,34 @@ contract MarsBaseOffers is MarsBaseCommon, MarsBase {
     }
 
     return amountAfterFeeAlice;
+  }
+
+  function cancelExpiredOffers() public {
+    require(msg.sender == dexAddress, "S8");
+
+    for (uint256 index = 0; index < nextOfferId; index++) {
+      if (getTime() >= offers[index].deadline && offers[index].deadline != 0) {
+          cancelExpiredOffer(index);
+      }
+    }
+  }
+
+  function cancelExpiredOffer(uint256 offerId) private returns (uint256) {
+    MBOffer memory offer = offers[offerId];
+
+    if (offer.capabilities[1] == false) {
+      return offerId;
+    }
+
+    require(offer.capabilities[1] == true, "S1");
+    require(offer.active == true, "S0");
+    require(offer.amountAlice > 0, "M3");
+
+    require(IERC20(offer.tokenAlice).transfer(offer.offerer, offer.amountRemaining), "T1b");
+
+    delete offers[offerId];
+
+    return offer.offerId;
   }
 
   function cancelOffer(uint256 offerId, address sender) public returns (uint256) {

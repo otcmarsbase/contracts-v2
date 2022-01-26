@@ -1,13 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.4.22 <0.9.0;
 
-import "../MarsBaseExchange.sol";
+import "../MarsBaseOffers.sol";
 
-contract MockMarsBaseExchange is MarsBaseExchange {  
+contract MockMarsBaseOffers is MarsBaseOffers {  
   
   uint256 public fakeBlockTimeStamp;
-
-  constructor(address offersAddress, address minimumOffersAddress) MarsBaseExchange(offersAddress, minimumOffersAddress) {}
 
   // override Cars.getTime()
   function getTime() override internal view returns (uint256) {

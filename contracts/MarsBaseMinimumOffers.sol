@@ -6,7 +6,7 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "./MarsBaseCommon.sol";
 import "./MarsBase.sol";
 
-contract MarsBaseMinimumOffers is MarsBaseCommon, MarsBase {
+contract MarsBaseMinimumOffers is MarsBase {
 
   function acceptOfferPartWithMinimum(uint256 offerId, address tokenBob, uint256 amountBob, address sender) public returns (uint256) {
     MBOffer memory offer = offers[offerId];
@@ -100,6 +100,16 @@ contract MarsBaseMinimumOffers is MarsBaseCommon, MarsBase {
     require(IERC20(offer.tokenAlice).transfer(offer.offerer, offer.amountAlice), "T1b");
 
     delete offers[offerId];
+  }
+
+  function cancelExpiredOffers() public {
+    require(msg.sender == dexAddress, "S8");
+
+    for (uint256 index = 0; index < nextOfferId; index++) {
+      if (getTime() >= offers[index].deadline && offers[index].deadline != 0) {
+          cancelExpiredMinimumOffer(index);
+      }
+    }
   }
 
   function cancelOffer(uint256 offerId, address sender) public returns (uint256) {

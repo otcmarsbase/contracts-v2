@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.4.22 <0.9.0;
 
-contract MarsBaseCommon {
+abstract contract MarsBaseCommon {
 
   event OfferCreated(uint256 offerId, address sender, uint256 blockTimestamp, MBOffer offer);
   event OfferModified(uint256 offerId, address sender, uint256 blockTimestamp, uint256[] offerParameters);
