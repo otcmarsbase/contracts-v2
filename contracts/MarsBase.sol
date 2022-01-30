@@ -42,9 +42,9 @@ contract MarsBase is MarsBaseCommon {
     return nextOfferId;
   }
 
-  function createOffer(address sender, address tokenAlice, address[] calldata tokenBob, uint256 amountAlice, uint256[] calldata amountBob, uint256[] calldata offerParameters) public returns (MBOffer memory) {
-    uint256 feeAlice = offerParameters[0];
-    uint256 feeBob = offerParameters[1];
+  function createOffer(address sender, address tokenAlice, address[] calldata tokenBob, uint256 amountAlice, uint256[] calldata amountBob, OfferParams calldata offerParameters) public returns (MBOffer memory) {
+    uint256 feeAlice = offerParameters.feeAlice;
+    uint256 feeBob = offerParameters.feeBob;
     
     require(tokenAlice != address(0), "T0");
     for (uint256 index = 0; index < tokenBob.length; index++) {
@@ -70,7 +70,7 @@ contract MarsBase is MarsBaseCommon {
     return offer;
   }
 
-  function changeOfferParams(uint256 offerId, address[] calldata tokenBob, uint256[] calldata amountBob, uint256[] calldata offerParameters, address sender) public returns (MBOffer memory) {
+  function changeOfferParams(uint256 offerId, address[] calldata tokenBob, uint256[] calldata amountBob, OfferParams calldata offerParameters, address sender) public returns (MBOffer memory) {
     MBOffer memory offer = offers[offerId];
 
     require(offer.offerer == sender, "S2");
@@ -83,14 +83,14 @@ contract MarsBase is MarsBaseCommon {
 
     require(offer.capabilities[0] == true, "S4");
 
-    require(offerParameters[2] <= offer.amountAlice, "M1");
+    require(offerParameters.smallestChunkSize <= offer.amountAlice, "M1");
 
     offer.tokenBob = tokenBob;
     offer.amountBob = amountBob;
-    offer.feeAlice = offerParameters[0];
-    offer.feeBob = offerParameters[1];
-    offer.smallestChunkSize = offerParameters[2];
-    offer.deadline = offerParameters[3];
+    offer.feeAlice = offerParameters.feeAlice;
+    offer.feeBob = offerParameters.feeBob;
+    offer.smallestChunkSize = offerParameters.smallestChunkSize;
+    offer.deadline = offerParameters.deadline;
 
     offers[offerId] = offer;
 

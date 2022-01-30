@@ -4,7 +4,7 @@ pragma solidity >=0.4.22 <0.9.0;
 abstract contract MarsBaseCommon {
 
   event OfferCreated(uint256 offerId, address sender, uint256 blockTimestamp, MBOffer offer);
-  event OfferModified(uint256 offerId, address sender, uint256 blockTimestamp, uint256[] offerParameters);
+  event OfferModified(uint256 offerId, address sender, uint256 blockTimestamp, OfferParams offerParameters);
   event OfferCancelled(uint256 offerId, address sender, uint256 blockTimestamp);
   event OfferAccepted(uint256 offerId, address sender, uint256 blockTimestamp, uint256 amountAlice, uint256 amountBob, address tokenAddress);
 
@@ -37,6 +37,17 @@ abstract contract MarsBaseCommon {
   enum ContractType {
     Offers,
     MinimumOffers
+  }
+
+  struct OfferParams {
+    bool cancelEnabled;
+    bool modifyEnabled;
+    bool holdTokens;
+    uint256 feeAlice;
+    uint256 feeBob;
+    uint256 smallestChunkSize;
+    uint256 deadline;
+    uint256 minimumSize;
   }
 
   struct MBOffer {
@@ -82,26 +93,26 @@ abstract contract MarsBaseCommon {
     return finalPrice;
   }
 
-  function setOfferProperties (MBOffer memory offer, uint256[] calldata offerParameters) public view returns (MBOffer memory) {
-    require(offer.amountAlice >= offerParameters[2], "M1");
-    require(getTime() < offerParameters[3] || offerParameters[3] == 0, "M2");
+  function setOfferProperties (MBOffer memory offer, OfferParams calldata offerParams) public view returns (MBOffer memory) {
+    require(offer.amountAlice >= offerParams.smallestChunkSize, "M1");
+    require(getTime() < offerParams.deadline || offerParams.deadline == 0, "M2");
 
-    offer.offerType = getOfferType(offer.amountAlice, offerParameters);
+    offer.offerType = getOfferType(offer.amountAlice, offerParams);
 
-    offer.smallestChunkSize = offerParameters[2];
+    offer.smallestChunkSize = offerParams.smallestChunkSize;
 
-    if (offerParameters[4] == 1) {
-      offer.capabilities[0] = true;
-    }
-
-    if (offerParameters[5] == 1) {
+    if (offerParams.cancelEnabled == true) {
       offer.capabilities[1] = true;
     }
 
-    if (offerParameters.length == 8) {
-      offer.minimumSize = offerParameters[6];
+    if (offerParams.modifyEnabled == true) {
+      offer.capabilities[0] = true;
+    }
 
-      if (offerParameters[7] == 1) {
+    if (offerParams.minimumSize != 0) {
+      offer.minimumSize = offerParams.minimumSize;
+
+      if (offerParams.minimumSize != 0 && offerParams.holdTokens == true) {
         offer.capabilities[2] = true;
       }
 
@@ -109,32 +120,32 @@ abstract contract MarsBaseCommon {
       offer.minimumSize = 0;
     }
 
-    offer.deadline = offerParameters[3];
+    offer.deadline = offerParams.deadline;
 
     return offer;
   }
 
-  function getOfferType (uint256 amountAlice, uint256[] calldata offerParameters) public pure returns (OfferType) {
+  function getOfferType (uint256 amountAlice, OfferParams calldata offerParameters) public pure returns (OfferType) {
     OfferType offerType = OfferType.FullPurchase;
 
-    if (offerParameters.length == 6) {
-      if (offerParameters[3] > 0 && offerParameters[3] > 0 && offerParameters[3] != amountAlice) {
+    if (offerParameters.minimumSize == 0) {
+      if (offerParameters.deadline > 0 && offerParameters.smallestChunkSize > 0 && offerParameters.smallestChunkSize != amountAlice) {
         offerType = OfferType.LimitedTimeChunkedPurchase;
-      } else if (offerParameters[2] > 0 && offerParameters[2] != amountAlice) {
+      } else if (offerParameters.smallestChunkSize > 0 && offerParameters.smallestChunkSize != amountAlice) {
         offerType = OfferType.ChunkedPurchase;
-      } else if (offerParameters[3] > 0) {
+      } else if (offerParameters.deadline > 0) {
         offerType = OfferType.LimitedTime;
       } else {
         offerType = OfferType.FullPurchase;
       }
-    } else if (offerParameters.length == 8) {
-      if (offerParameters[2] > 0 && offerParameters[3] > 0 && offerParameters[2] != amountAlice && offerParameters[7] == 1) {
+    } else {
+      if (offerParameters.deadline > 0 && offerParameters.smallestChunkSize > 0 && offerParameters.smallestChunkSize != amountAlice && offerParameters.holdTokens == true) {
         offerType = OfferType.LimitedTimeMinimumChunkedDeadlinePurchase;
-      } else if (offerParameters[2] > 0 && offerParameters[3] > 0 && offerParameters[2] != amountAlice) {
+      } else if (offerParameters.deadline > 0 && offerParameters.smallestChunkSize > 0 && offerParameters.smallestChunkSize != amountAlice) {
         offerType = OfferType.LimitedTimeMinimumChunkedPurchase;
-      } else if (offerParameters[2] > 0 && offerParameters[2] != amountAlice) {
+      } else if (offerParameters.smallestChunkSize > 0 && offerParameters.smallestChunkSize != amountAlice) {
         offerType = OfferType.MinimumChunkedPurchase;
-      } else if (offerParameters[3] > 0) {
+      } else if (offerParameters.deadline > 0) {
         offerType = OfferType.LimitedTimeMinimumPurchase;
       } else {
         offerType = OfferType.MinimumChunkedPurchase;
@@ -144,7 +155,7 @@ abstract contract MarsBaseCommon {
     return offerType;
   }
 
-  function initOffer(uint256 nextOfferId, address tokenAlice, address[] calldata tokenBob, uint256 amountAlice, uint256[] calldata amountBob, uint256[] calldata offerParameters) public pure returns (MBOffer memory) {
+  function initOffer(uint256 nextOfferId, address tokenAlice, address[] calldata tokenBob, uint256 amountAlice, uint256[] calldata amountBob, OfferParams calldata offerParameters) public pure returns (MBOffer memory) {
     
     MBOffer memory offer;
 
@@ -156,8 +167,8 @@ abstract contract MarsBaseCommon {
     offer.amountAlice = amountAlice;
     offer.amountBob = amountBob;
 
-    offer.feeAlice = offerParameters[0];
-    offer.feeBob = offerParameters[1];
+    offer.feeAlice = offerParameters.feeAlice;
+    offer.feeBob = offerParameters.feeBob;
 
     offer.amountRemaining = amountAlice;
 

@@ -89,7 +89,7 @@ contract MarsBaseExchange is MarsBaseCommon {
         return openOffers;
       }
 
-    function createOffer(address tokenAlice, address[] calldata tokenBob, uint256 amountAlice, uint256[] calldata amountBob, uint256[] calldata offerParameters) public {
+    function createOffer(address tokenAlice, address[] calldata tokenBob, uint256 amountAlice, uint256[] calldata amountBob, OfferParams calldata offerParameters) public {
         OfferType offerType = getOfferType(amountAlice, offerParameters);
 
         MBOffer memory offer;
@@ -127,9 +127,7 @@ contract MarsBaseExchange is MarsBaseCommon {
         emit OfferAccepted(offerId, msg.sender, block.timestamp, amountAlice, amountBob, tokenBob);
     }
 
-    function changeOfferParams(uint256 offerId, address[] calldata tokenBob, uint256[] calldata amountBob, uint256[] calldata offerParameters, OfferType offerType) public {
-        require(offerParameters.length == 4, "S6");
-        
+    function changeOfferParams(uint256 offerId, address[] calldata tokenBob, uint256[] calldata amountBob, OfferParams calldata offerParameters, OfferType offerType) public {
         if (contractType(offerType) == ContractType.Offers) {
             MarsBaseOffers(marsBaseOffersAddress).changeOfferParams(offerId, tokenBob, amountBob, offerParameters, msg.sender);
         } else {
