@@ -7,8 +7,12 @@
     "@openzeppelin/contracts": "^4.4.0"
   },
   "devDependencies": {
+    "@nomiclabs/hardhat-truffle5": "^2.0.3",
+    "@nomiclabs/hardhat-web3": "^2.0.0",
     "@truffle/hdwallet-provider": "^2.0.0",
-    "truffle": "^5.4.23"
+    "hardhat": "^2.8.3",
+    "truffle": "^5.4.23",
+    "web3": "^1.7.0"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

@@ -1,12 +1,10 @@
-// const MarsBaseExchange = artifacts.require("MockMarsBaseExchange");
+const MarsBaseExchange = artifacts.require("MockMarsBaseExchange");
 const MarsBaseMinimumOffer = artifacts.require("MockMarsBaseMinimumOffers");
 const MarsBaseOffer = artifacts.require("MockMarsBaseOffers");
 const USDTCoin = artifacts.require("USDTCoin");
 const TestToken = artifacts.require("TestToken");
 const EPICCoin = artifacts.require("EPICCoin");
 const assert = require('assert/strict');
-
-const MarsBaseExchange = await ethers.getContractFactory("MockMarsBaseExchange");
 
 /*
  * uncomment accounts to access the test accounts made available by the
