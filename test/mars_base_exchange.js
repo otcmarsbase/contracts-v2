@@ -1711,6 +1711,7 @@ contract("MarsBaseExchange", async function (accounts) {
     assert.equal(cancelledOffer.amountRemaining, amountAlice.toString());
     assert.equal(cancelledOffer.minimumOrderAmountsAlice[0], "0");
     assert.equal(cancelledOffer.minimumOrderAmountsAlice.length, 1);
+    assert.equal(cancelledOffer.minimumOrderAddresses[0], "0x0000000000000000000000000000000000000000");
 
     return;
     
