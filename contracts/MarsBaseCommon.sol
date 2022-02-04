@@ -5,8 +5,9 @@ abstract contract MarsBaseCommon {
 
   event OfferCreated(uint256 offerId, address sender, uint256 blockTimestamp, MBOffer offer);
   event OfferModified(uint256 offerId, address sender, uint256 blockTimestamp, OfferParams offerParameters);
-  event OfferCancelled(uint256 offerId, address sender, uint256 blockTimestamp);
   event OfferAccepted(uint256 offerId, address sender, uint256 blockTimestamp, uint256 amountAlice, uint256 amountBob, address tokenAddress);
+  event OfferCancelled(uint256 offerId, address sender, uint256 blockTimestamp);
+  event BidCancelled(uint256 offerId, address sender, uint256 blockTimestamp);
 
   // For testing usage
   event Log(uint256 log);

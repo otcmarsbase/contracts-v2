@@ -52,9 +52,11 @@ contract MarsBaseMinimumOffers is MarsBase {
       require(IERC20(acceptedTokenBob).transferFrom(sender, address(this), partialAmountBob - amountAfterFeeBob), "T1a");
 
       for (uint256 index = 0; index < offer.minimumOrderAddresses.length; index++) {
-        require(IERC20(offer.minimumOrderTokens[index]).transfer(offer.payoutAddress, offer.minimumOrderAmountsAlice[index] * (1000-offer.feeAlice) / 1000), "T2b");
-        require(IERC20(offer.tokenAlice).transfer(offer.minimumOrderAddresses[index], offer.minimumOrderAmountsBob[index] * (1000-offer.feeBob) / 1000), "T1b");
-      }
+        if (offer.minimumOrderAmountsAlice[index] != 0) {
+          require(IERC20(offer.minimumOrderTokens[index]).transfer(offer.payoutAddress, offer.minimumOrderAmountsAlice[index] * (1000-offer.feeAlice) / 1000), "T2b");
+          require(IERC20(offer.tokenAlice).transfer(offer.minimumOrderAddresses[index], offer.minimumOrderAmountsBob[index] * (1000-offer.feeBob) / 1000), "T1b");
+        }
+    }
 
     } else if (tokensSold < offer.minimumSize && offer.capabilities[2] == true && offer.offerType == OfferType.LimitedTimeMinimumChunkedDeadlinePurchase && offer.deadline < getTime()) {
       cancelExpiredMinimumOffer(offerId);
@@ -90,11 +92,9 @@ contract MarsBaseMinimumOffers is MarsBase {
     require (contractType(offer.offerType) == ContractType.MinimumOffers, "S5");
 
     for (uint256 index = 0; index < offer.minimumOrderAddresses.length; index++) {
-      require(offer.minimumOrderTokens[index] != address(0), "T0");
-      require(offer.minimumOrderAddresses[index] != address(0), "T0");
-      require(offer.minimumOrderAmountsBob[index] != 0, "M4");
-      
-      require(IERC20(offer.minimumOrderTokens[index]).transfer(offer.minimumOrderAddresses[index], offer.minimumOrderAmountsBob[index]), "T2b");
+      if (offer.minimumOrderAmountsAlice[index] != 0) {
+        require(IERC20(offer.minimumOrderTokens[index]).transfer(offer.minimumOrderAddresses[index], offer.minimumOrderAmountsBob[index]), "T2b");
+      }
     }
 
     require(IERC20(offer.tokenAlice).transfer(offer.offerer, offer.amountAlice), "T1b");
@@ -123,16 +123,41 @@ contract MarsBaseMinimumOffers is MarsBase {
     require (contractType(offer.offerType) == ContractType.MinimumOffers, "S5");
     
     for (uint256 index = 0; index < offer.minimumOrderAddresses.length; index++) {
-      require(offer.minimumOrderTokens[index] != address(0), "T0");
-      require(offer.minimumOrderAddresses[index] != address(0), "T0");
-      require(offer.minimumOrderAmountsBob[index] != 0, "M4");
-      
-      require(IERC20(offer.minimumOrderTokens[index]).transfer(offer.minimumOrderAddresses[index], offer.minimumOrderAmountsBob[index]), "T2b");
+      if (offer.minimumOrderAmountsAlice[index] != 0) {
+        require(IERC20(offer.minimumOrderTokens[index]).transfer(offer.minimumOrderAddresses[index], offer.minimumOrderAmountsBob[index]), "T2b");
+      }
     }
 
-      require(IERC20(offer.tokenAlice).transfer(offer.offerer, offer.amountAlice), "T1b");
+    require(IERC20(offer.tokenAlice).transfer(offer.offerer, offer.amountAlice), "T1b");
 
     delete offers[offerId];
+
+    return offerId;
+  }
+
+
+  function cancelBid(uint256 offerId, address sender) public returns (uint256) {
+    MBOffer memory offer = offers[offerId];
+
+    require(sender == offer.offerer, "S2");
+    require(offer.active == true, "S0");
+    require(offer.amountAlice > 0, "M3");
+
+    require (contractType(offer.offerType) == ContractType.MinimumOffers, "S5");
+    
+    for (uint256 index = 0; index < offer.minimumOrderAddresses.length; index++) {
+      if (offer.minimumOrderAddresses[index] == sender && offer.minimumOrderAmountsAlice[index] != 0) {
+        require(IERC20(offer.tokenAlice).transfer(sender, offer.minimumOrderAmountsAlice[index]), "T2b");
+        require(IERC20(offer.minimumOrderTokens[index]).transfer(offer.offerer, offer.minimumOrderAmountsBob[index]), "T1b");
+
+        offers[offerId].amountRemaining += offer.minimumOrderAmountsBob[index];
+
+        delete offers[offerId].minimumOrderAddresses[index];
+        delete offers[offerId].minimumOrderAmountsBob[index];
+        delete offers[offerId].minimumOrderAmountsAlice[index];
+        delete offers[offerId].minimumOrderTokens[index];
+      }
+    }
 
     return offerId;
   }

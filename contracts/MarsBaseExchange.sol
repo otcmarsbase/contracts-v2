@@ -136,4 +136,11 @@ contract MarsBaseExchange is MarsBaseCommon {
 
         emit OfferModified(offerId, msg.sender, block.timestamp, offerParameters);
     }
+
+
+    function cancelBid(uint256 offerId) public {
+        MarsBaseMinimumOffers(marsBaseMinimumOffersAddress).cancelBid(offerId, msg.sender);
+
+        emit BidCancelled(offerId, msg.sender, block.timestamp);
+    }
 }
