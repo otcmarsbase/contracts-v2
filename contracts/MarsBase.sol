@@ -14,11 +14,13 @@ contract MarsBase is MarsBaseCommon {
 
   address dexAddress;
   address owner;
+  address commissionWallet;
 
   mapping (uint256 => MBOffer) public offers;
 
   constructor() {
     owner = msg.sender;
+    commissionWallet = msg.sender;
   }
 
   function setDexAddress(address dex) public {
@@ -27,9 +29,15 @@ contract MarsBase is MarsBaseCommon {
     dexAddress = dex;
   }
 
+  function setCommissionAddress(address wallet) public {
+    require(msg.sender == owner, "S7");
+    require(wallet != address(0), "T0");
+
+    commissionWallet = wallet;
+  }
+
   function setMinimumFee(uint256 _minimumFee) public {
     require(msg.sender == owner, "S7");
-    require(_minimumFee > 0, "M11");
 
     minimumFee = _minimumFee;
   }

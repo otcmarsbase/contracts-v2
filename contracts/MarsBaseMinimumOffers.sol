@@ -49,12 +49,13 @@ contract MarsBaseMinimumOffers is MarsBase {
       (tokensSold >= offer.minimumSize && offer.capabilities[2] == true && offer.deadline < getTime())) {
       require(IERC20(acceptedTokenBob).transferFrom(sender, offer.payoutAddress, amountAfterFeeBob), "T2a");
       require(IERC20(offer.tokenAlice).transfer(sender, amountAfterFeeAlice), "T5");
-      require(IERC20(acceptedTokenBob).transferFrom(sender, address(this), partialAmountBob - amountAfterFeeBob), "T1a");
+      require(IERC20(acceptedTokenBob).transferFrom(sender, commissionWallet, partialAmountBob - amountAfterFeeBob), "T1a");
 
       for (uint256 index = 0; index < offer.minimumOrderAddresses.length; index++) {
         if (offer.minimumOrderAmountsAlice[index] != 0) {
           require(IERC20(offer.minimumOrderTokens[index]).transfer(offer.payoutAddress, offer.minimumOrderAmountsAlice[index] * (1000-offer.feeAlice) / 1000), "T2b");
           require(IERC20(offer.tokenAlice).transfer(offer.minimumOrderAddresses[index], offer.minimumOrderAmountsBob[index] * (1000-offer.feeBob) / 1000), "T1b");
+          require(IERC20(offer.minimumOrderTokens[index]).transfer(commissionWallet, offer.minimumOrderAmountsBob[index] - (offer.minimumOrderAmountsBob[index] * (1000-offer.feeBob))), "T1a");
         }
     }
 

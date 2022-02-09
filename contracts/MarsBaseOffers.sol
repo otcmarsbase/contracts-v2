@@ -30,11 +30,10 @@ contract MarsBaseOffers is MarsBase {
     uint256 amountAfterFeeAlice = offer.amountRemaining * (1000-offer.feeAlice) / 1000;
     uint256 amountAfterFeeBob = acceptedAmountBob * (1000-offer.feeBob) / 1000;
     uint256 amountFeeDex = acceptedAmountBob - amountAfterFeeBob;
-    require(amountFeeDex > 0, "M7");
 
     require(IERC20(acceptedTokenBob).transferFrom(sender, offer.payoutAddress, amountAfterFeeBob), "T2a");
     require(IERC20(offer.tokenAlice).transfer(sender, amountAfterFeeAlice), "T1b");
-    require(IERC20(acceptedTokenBob).transferFrom(sender, address(this), amountFeeDex), "T5");
+    require(IERC20(acceptedTokenBob).transferFrom(sender, commissionWallet, amountFeeDex), "T5");
     
     delete offers[offerId];
 
@@ -75,7 +74,7 @@ contract MarsBaseOffers is MarsBase {
     require(amountAfterFeeAlice <= offer.amountRemaining, "M10");
 
     require(IERC20(acceptedTokenBob).transferFrom(sender, offer.payoutAddress, amountAfterFeeBob), "T2a");
-    require(IERC20(acceptedTokenBob).transferFrom(sender, address(this), amountFeeDex), "T5");
+    require(IERC20(acceptedTokenBob).transferFrom(sender, commissionWallet, amountFeeDex), "T5");
     require(IERC20(offer.tokenAlice).transfer(sender, amountAfterFeeAlice), "T1b");
 
     offers[offerId].amountRemaining -= partialAmountAlice;

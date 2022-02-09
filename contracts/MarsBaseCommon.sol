@@ -22,7 +22,7 @@ abstract contract MarsBaseCommon {
     Limited Time / Deaadline and Chunked - 5
     Limited Time / Deadline, Chunked with Minimum - 6
     Limited Time / Deadline, Chunked with Minimum with delyed distribution - 7
-    */
+  */
 
   enum OfferType {
     FullPurchase,

@@ -29,6 +29,8 @@ contract("MarsBaseExchange", async function (accounts) {
     let o = await MarsBaseOffer.new();
     let m = await MarsBaseMinimumOffer.new();
     let dex = await MarsBaseExchange.new(o.address, m.address);
+    await o.setCommissionAddress(accounts[1]);
+    await m.setCommissionAddress(accounts[1]);
     let testToken = await TestToken.new();
     let usdt = await USDTCoin.new();
     let epicCoin = await EPICCoin.new();
@@ -93,6 +95,8 @@ contract("MarsBaseExchange", async function (accounts) {
     let o = await MarsBaseOffer.new();
     let m = await MarsBaseMinimumOffer.new();
     let dex = await MarsBaseExchange.new(o.address, m.address);
+    await o.setCommissionAddress(accounts[1]);
+    await m.setCommissionAddress(accounts[1]);
 
     let owner = await dex.getOwner();
 
@@ -107,6 +111,8 @@ contract("MarsBaseExchange", async function (accounts) {
     let o = await MarsBaseOffer.new();
     let m = await MarsBaseMinimumOffer.new();
     let dex = await MarsBaseExchange.new(o.address, m.address);
+    await o.setCommissionAddress(accounts[1]);
+    await m.setCommissionAddress(accounts[1]);
 
     let contracts = await dex.getContractAddresses();
 
@@ -122,6 +128,8 @@ contract("MarsBaseExchange", async function (accounts) {
     let o = await MarsBaseOffer.new();
     let m = await MarsBaseMinimumOffer.new();
     let dex = await MarsBaseExchange.new(o.address, m.address);
+    await o.setCommissionAddress(accounts[1]);
+    await m.setCommissionAddress(accounts[1]);
 
     let contracts = await dex.getContractAddresses();
 
@@ -156,6 +164,8 @@ contract("MarsBaseExchange", async function (accounts) {
     let o = await MarsBaseOffer.new();
     let m = await MarsBaseMinimumOffer.new();
     let dex = await MarsBaseExchange.new(o.address, m.address);
+    await o.setCommissionAddress(accounts[1]);
+    await m.setCommissionAddress(accounts[1]);
     let testToken = await TestToken.new();
     let usdt = await USDTCoin.new();
 
@@ -199,6 +209,8 @@ contract("MarsBaseExchange", async function (accounts) {
     let o = await MarsBaseOffer.new();
     let m = await MarsBaseMinimumOffer.new();
     let dex = await MarsBaseExchange.new(o.address, m.address);
+    await o.setCommissionAddress(accounts[1]);
+    await m.setCommissionAddress(accounts[1]);
     await o.setDexAddress(dex.address);
     await m.setDexAddress(dex.address);
 
@@ -255,6 +267,8 @@ contract("MarsBaseExchange", async function (accounts) {
     let o = await MarsBaseOffer.new();
     let m = await MarsBaseMinimumOffer.new();
     let dex = await MarsBaseExchange.new(o.address, m.address);
+    await o.setCommissionAddress(accounts[1]);
+    await m.setCommissionAddress(accounts[1]);
     let testToken = await TestToken.new();
     let usdt = await USDTCoin.new();
 
@@ -292,6 +306,8 @@ contract("MarsBaseExchange", async function (accounts) {
     let o = await MarsBaseOffer.new();
     let m = await MarsBaseMinimumOffer.new();
     let dex = await MarsBaseExchange.new(o.address, m.address);
+    await o.setCommissionAddress(accounts[1]);
+    await m.setCommissionAddress(accounts[1]);
 
     let price = await dex.price(buyAmount, amountAlice, amountBob);
 
@@ -311,6 +327,8 @@ contract("MarsBaseExchange", async function (accounts) {
     let o = await MarsBaseOffer.new();
     let m = await MarsBaseMinimumOffer.new();
     let dex = await MarsBaseExchange.new(o.address, m.address);
+    await o.setCommissionAddress(accounts[1]);
+    await m.setCommissionAddress(accounts[1]);
 
     let price = await dex.price(buyAmount, amountAlice, amountBob);
 
@@ -334,6 +352,8 @@ contract("MarsBaseExchange", async function (accounts) {
     let o = await MarsBaseOffer.new();
     let m = await MarsBaseMinimumOffer.new();
     let dex = await MarsBaseExchange.new(o.address, m.address);
+    await o.setCommissionAddress(accounts[1]);
+    await m.setCommissionAddress(accounts[1]);
     let testToken = await TestToken.new();
     let usdt = await USDTCoin.new();
 
@@ -406,6 +426,8 @@ contract("MarsBaseExchange", async function (accounts) {
     let o = await MarsBaseOffer.new();
     let m = await MarsBaseMinimumOffer.new();
     let dex = await MarsBaseExchange.new(o.address, m.address);
+    await o.setCommissionAddress(accounts[1]);
+    await m.setCommissionAddress(accounts[1]);
     let testToken = await TestToken.new();
     let usdt = await USDTCoin.new();
 
@@ -463,6 +485,8 @@ contract("MarsBaseExchange", async function (accounts) {
     let o = await MarsBaseOffer.new();
     let m = await MarsBaseMinimumOffer.new();
     let dex = await MarsBaseExchange.new(o.address, m.address);
+    await o.setCommissionAddress(accounts[1]);
+    await m.setCommissionAddress(accounts[1]);
     let testToken = await TestToken.new();
     let usdt = await USDTCoin.new();
     let epicCoin = await EPICCoin.new();
@@ -528,7 +552,7 @@ contract("MarsBaseExchange", async function (accounts) {
     let finalUserTestTokenBalance = await testToken.balanceOf(userAddress);
     assert.equal(finalUserTestTokenBalance.toString(), (initialUserTestTokenBalance - (amountAlice - amountAfterFeeAlice)).toLocaleString('fullwide', {useGrouping:false}));
 
-    let finalDexEpicCoinBalance = await epicCoin.balanceOf(o.address);
+    let finalDexEpicCoinBalance = await epicCoin.balanceOf(accounts[1]);
     assert.equal(finalDexEpicCoinBalance.toString(), (amountBob[1] - amountAfterFeeBob).toLocaleString('fullwide', {useGrouping:false}));
 
     let finalUserEpicCoinBalance = await epicCoin.balanceOf(userAddress);
@@ -557,6 +581,8 @@ contract("MarsBaseExchange", async function (accounts) {
     let o = await MarsBaseOffer.new();
     let m = await MarsBaseMinimumOffer.new();
     let dex = await MarsBaseExchange.new(o.address, m.address);
+    await o.setCommissionAddress(accounts[1]);
+    await m.setCommissionAddress(accounts[1]);
     let testToken = await TestToken.new();
     let usdt = await USDTCoin.new();
     let epicCoin = await EPICCoin.new();
@@ -628,6 +654,8 @@ contract("MarsBaseExchange", async function (accounts) {
     let o = await MarsBaseOffer.new();
     let m = await MarsBaseMinimumOffer.new();
     let dex = await MarsBaseExchange.new(o.address, m.address);
+    await o.setCommissionAddress(accounts[1]);
+    await m.setCommissionAddress(accounts[1]);
     let testToken = await TestToken.new();
     let usdt = await USDTCoin.new();
     let epicCoin = await EPICCoin.new();
@@ -695,7 +723,7 @@ contract("MarsBaseExchange", async function (accounts) {
     let finalUserTestTokenBalance = await testToken.balanceOf(userAddress);
     assert.equal(finalUserTestTokenBalance.toString(), (initialUserTestTokenBalance - (amountAlice - amountAfterFeeAlice) - amountAlice).toLocaleString('fullwide', {useGrouping:false}));
 
-    let finalDexEpicCoinBalance = await epicCoin.balanceOf(o.address);
+    let finalDexEpicCoinBalance = await epicCoin.balanceOf(accounts[1]);
     assert.equal(finalDexEpicCoinBalance.toString(), (amountBob[1] - amountAfterFeeBob).toLocaleString('fullwide', {useGrouping:false}));
 
     let finalUserEpicCoinBalance = await epicCoin.balanceOf(userAddress);
@@ -727,6 +755,8 @@ contract("MarsBaseExchange", async function (accounts) {
     let o = await MarsBaseOffer.new();
     let m = await MarsBaseMinimumOffer.new();
     let dex = await MarsBaseExchange.new(o.address, m.address);
+    await o.setCommissionAddress(accounts[1]);
+    await m.setCommissionAddress(accounts[1]);
     let zeroToken = "0x0000000000000000000000000000000000000000";
     let epicCoin = await EPICCoin.new();
 
@@ -778,6 +808,8 @@ contract("MarsBaseExchange", async function (accounts) {
     let o = await MarsBaseOffer.new();
     let m = await MarsBaseMinimumOffer.new();
     let dex = await MarsBaseExchange.new(o.address, m.address);
+    await o.setCommissionAddress(accounts[1]);
+    await m.setCommissionAddress(accounts[1]);
     let zeroToken = "0x0000000000000000000000000000000000000000";
     let epicCoin = await EPICCoin.new();
 
@@ -834,6 +866,8 @@ contract("MarsBaseExchange", async function (accounts) {
     let o = await MarsBaseOffer.new();
     let m = await MarsBaseMinimumOffer.new();
     let dex = await MarsBaseExchange.new(o.address, m.address);
+    await o.setCommissionAddress(accounts[1]);
+    await m.setCommissionAddress(accounts[1]);
     let testToken = await TestToken.new();
     let usdt = await USDTCoin.new();
     let epicCoin = await EPICCoin.new();
@@ -929,6 +963,8 @@ contract("MarsBaseExchange", async function (accounts) {
     let o = await MarsBaseOffer.new();
     let m = await MarsBaseMinimumOffer.new();
     let dex = await MarsBaseExchange.new(o.address, m.address);
+    await o.setCommissionAddress(accounts[1]);
+    await m.setCommissionAddress(accounts[1]);
     let testToken = await TestToken.new();
     let usdt = await USDTCoin.new();
     let epicCoin = await EPICCoin.new();
@@ -1031,6 +1067,8 @@ contract("MarsBaseExchange", async function (accounts) {
     let o = await MarsBaseOffer.new();
     let m = await MarsBaseMinimumOffer.new();
     let dex = await MarsBaseExchange.new(o.address, m.address);
+    await o.setCommissionAddress(accounts[1]);
+    await m.setCommissionAddress(accounts[1]);
     let testToken = await TestToken.new();
     let usdt = await USDTCoin.new();
     let epicCoin = await EPICCoin.new();
@@ -1112,6 +1150,8 @@ contract("MarsBaseExchange", async function (accounts) {
     let o = await MarsBaseOffer.new();
     let m = await MarsBaseMinimumOffer.new();
     let dex = await MarsBaseExchange.new(o.address, m.address);
+    await o.setCommissionAddress(accounts[1]);
+    await m.setCommissionAddress(accounts[1]);
     let testToken = await TestToken.new();
     let usdt = await USDTCoin.new();
     let epicCoin = await EPICCoin.new();
@@ -1215,6 +1255,8 @@ contract("MarsBaseExchange", async function (accounts) {
     let o = await MarsBaseOffer.new();
     let m = await MarsBaseMinimumOffer.new();
     let dex = await MarsBaseExchange.new(o.address, m.address);
+    await o.setCommissionAddress(accounts[1]);
+    await m.setCommissionAddress(accounts[1]);
     let testToken = await TestToken.new();
     let usdt = await USDTCoin.new();
     let epicCoin = await EPICCoin.new();
@@ -1308,6 +1350,8 @@ contract("MarsBaseExchange", async function (accounts) {
     let o = await MarsBaseOffer.new();
     let m = await MarsBaseMinimumOffer.new();
     let dex = await MarsBaseExchange.new(o.address, m.address);
+    await o.setCommissionAddress(accounts[1]);
+    await m.setCommissionAddress(accounts[1]);
     let testToken = await TestToken.new();
     let usdt = await USDTCoin.new();
     let epicCoin = await EPICCoin.new();
@@ -1408,6 +1452,8 @@ contract("MarsBaseExchange", async function (accounts) {
     let o = await MarsBaseOffer.new();
     let m = await MarsBaseMinimumOffer.new();
     let dex = await MarsBaseExchange.new(o.address, m.address);
+    await o.setCommissionAddress(accounts[1]);
+    await m.setCommissionAddress(accounts[1]);
     let testToken = await TestToken.new();
     let usdt = await USDTCoin.new();
     let epicCoin = await EPICCoin.new();
@@ -1508,6 +1554,8 @@ contract("MarsBaseExchange", async function (accounts) {
     let o = await MarsBaseOffer.new();
     let m = await MarsBaseMinimumOffer.new();
     let dex = await MarsBaseExchange.new(o.address, m.address);
+    await o.setCommissionAddress(accounts[1]);
+    await m.setCommissionAddress(accounts[1]);
     let testToken = await TestToken.new();
     let usdt = await USDTCoin.new();
     let epicCoin = await EPICCoin.new();
@@ -1627,6 +1675,8 @@ contract("MarsBaseExchange", async function (accounts) {
     let o = await MarsBaseOffer.new();
     let m = await MarsBaseMinimumOffer.new();
     let dex = await MarsBaseExchange.new(o.address, m.address);
+    await o.setCommissionAddress(accounts[1]);
+    await m.setCommissionAddress(accounts[1]);
     let testToken = await TestToken.new();
     let usdt = await USDTCoin.new();
     let epicCoin = await EPICCoin.new();
