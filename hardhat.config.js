@@ -6,6 +6,7 @@ const mnemonic = fs.readFileSync(".secret").toString().trim();
 const infuraId = fs.readFileSync(".infuraid").toString().trim();
 
 require("@nomiclabs/hardhat-truffle5");
+require('@typechain/hardhat')
 
 module.exports = {
   solidity: {

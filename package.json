@@ -11,8 +11,12 @@
     "@nomiclabs/hardhat-truffle5": "^2.0.3",
     "@nomiclabs/hardhat-web3": "^2.0.0",
     "@truffle/hdwallet-provider": "^2.0.0",
+    "@typechain/ethers-v5": "^9.0.0",
+    "@typechain/hardhat": "^4.0.0",
+    "@typechain/truffle-v5": "^7.0.0",
     "hardhat": "^2.8.3",
     "truffle": "^5.4.23",
+    "typechain": "^7.0.0",
     "web3": "^1.7.0"
   },
   "scripts": {
