@@ -4,9 +4,9 @@ pragma solidity >=0.4.22 <0.9.0;
 abstract contract MarsBaseCommon {
 
   event OfferCreated(uint256 offerId, address sender, uint256 blockTimestamp, MBOffer offer);
-  event OfferModified(uint256 offerId, address sender, uint256 blockTimestamp, OfferParams offerParameters);
-  event OfferAccepted(uint256 offerId, address sender, uint256 blockTimestamp, uint256 amountAlice, uint256 amountBob, address tokenAddress);
-  event OfferCancelled(uint256 offerId, address sender, uint256 blockTimestamp);
+  event OfferModified(uint256 offerId, address sender, uint256 blockTimestamp, OfferParams offerParameters, OfferType offerType);
+  event OfferAccepted(uint256 offerId, address sender, uint256 blockTimestamp, uint256 amountAlice, uint256 amountBob, address tokenAddress, OfferType offerType);
+  event OfferCancelled(uint256 offerId, address sender, uint256 blockTimestamp, OfferType offerType);
   event BidCancelled(uint256 offerId, address sender, uint256 blockTimestamp);
 
   // For testing usage
@@ -28,9 +28,9 @@ abstract contract MarsBaseCommon {
     FullPurchase,
     LimitedTime,
     ChunkedPurchase,
+    LimitedTimeChunkedPurchase,
     MinimumChunkedPurchase,
     LimitedTimeMinimumPurchase,
-    LimitedTimeChunkedPurchase,
     LimitedTimeMinimumChunkedPurchase,
     LimitedTimeMinimumChunkedDeadlinePurchase
   }
@@ -79,7 +79,7 @@ abstract contract MarsBaseCommon {
   }
 
   function contractType(OfferType offerType) public pure returns (ContractType) {
-    if (offerType == OfferType.FullPurchase || offerType == OfferType.ChunkedPurchase || offerType == OfferType.LimitedTime || offerType == OfferType.LimitedTimeChunkedPurchase) {
+    if (uint8(offerType) < 4) {
       return ContractType.Offers;
     } else {
       return ContractType.MinimumOffers;

@@ -109,7 +109,7 @@ contract MarsBaseExchange is MarsBaseCommon {
             MarsBaseMinimumOffers(marsBaseMinimumOffersAddress).cancelOffer(offerId, msg.sender);
         }
 
-        emit OfferCancelled(offerId, msg.sender, block.timestamp);
+        emit OfferCancelled(offerId, msg.sender, block.timestamp, offerType);
     }
 
     function acceptOffer(uint256 offerId, address tokenBob, uint256 amountBob, OfferType offerType) public {
@@ -124,7 +124,7 @@ contract MarsBaseExchange is MarsBaseCommon {
             amountAlice = MarsBaseMinimumOffers(marsBaseMinimumOffersAddress).acceptOfferPartWithMinimum(offerId, tokenBob, amountBob, msg.sender);
         }
 
-        emit OfferAccepted(offerId, msg.sender, block.timestamp, amountAlice, amountBob, tokenBob);
+        emit OfferAccepted(offerId, msg.sender, block.timestamp, amountAlice, amountBob, tokenBob, offerType);
     }
 
     function changeOfferParams(uint256 offerId, address[] calldata tokenBob, uint256[] calldata amountBob, OfferParams calldata offerParameters, OfferType offerType) public {
@@ -134,7 +134,7 @@ contract MarsBaseExchange is MarsBaseCommon {
             MarsBaseMinimumOffers(marsBaseMinimumOffersAddress).changeOfferParams(offerId, tokenBob, amountBob, offerParameters, msg.sender);
         }
 
-        emit OfferModified(offerId, msg.sender, block.timestamp, offerParameters);
+        emit OfferModified(offerId, msg.sender, block.timestamp, offerParameters, offerType);
     }
 
 
