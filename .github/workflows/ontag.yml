@@ -20,9 +20,12 @@ jobs:
           fetch-depth: 0
         
       - name: Get the version
-        run: echo "VERSION=$(echo $GITHUB_REF | cut -d / -f 3)" >> $GITHUB_ENV
+        run: echo "TAG_NAME=$(echo $GITHUB_REF | cut -d / -f 3)" >> $GITHUB_ENV
 
-      - if: ${{ env.VERSION == '' }}
+      - name: Get the version
+        run: echo "VERSION=$(echo $GITHUB_REF | cut -d / -f 3 | cut -c2-)" >> $GITHUB_ENV
+
+      - if: ${{ env.TAG_NAME == '' }}
         name: check version existence
         run: echo "version is not exists" && exit 1
 
