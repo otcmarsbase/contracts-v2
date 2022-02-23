@@ -53,6 +53,11 @@ jobs:
           message: '[auto] types updated'
           github_token: ${{ env.MB_GITHUB_TOKEN }}
 
+
+      - name: Get git commit SHA
+        id: git-commit-sha
+        run: echo "::set-output name=sha::$(git rev-parse HEAD)"
+      
       - name: Tag new version
         uses: pkgdeps/action-package-version-to-git-tag@v1.5.0
         with:
@@ -60,3 +65,4 @@ jobs:
           git_tag_prefix: "v"
           github_token: ${{ env.MB_GITHUB_TOKEN }}
           github_repo: ${{ github.repository }}
+          git_commit_sha: ${{ steps.git-commit-sha.outputs.sha }}
