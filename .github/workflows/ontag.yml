@@ -1,0 +1,55 @@
+name: Build NPM package on tag
+on: 
+  push:
+    tags:
+      - 'v*'
+
+env:
+  MB_NPM_TOKEN: ${{ secrets.MB_NPM_TOKEN }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+        
+      - name: Get the version
+        run: echo "VERSION=$(echo $GITHUB_REF | cut -d / -f 3)" >> $GITHUB_ENV
+
+      - if: ${{ env.VERSION == '' }}
+        name: check version existence
+        run: echo "version is not exists" && exit 1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: '16.x'
+          
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "::set-output name=dir::$(yarn cache dir)"
+
+      - uses: actions/cache@v2
+        id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+
+      - name: Cleanup build cache
+        run: rm -rf ./artifacts ./cache
+      - name: Cleanup source code
+        run: rm -rf ./contracts ./migrations ./test ./truffle-config.js ./hardhat.config.js ./.gitignore
+      - name: Cleanup secrets
+        run: rm -rf ./.secret ./.infuraid
+        
+      - name: NPM Publish
+        uses: JS-DevTools/npm-publish@v1
+        with:
+          token: ${{ env.MB_NPM_TOKEN }}
+          access: public
