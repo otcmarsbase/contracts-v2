@@ -6,6 +6,8 @@ on:
 
 env:
   MB_NPM_TOKEN: ${{ secrets.MB_NPM_TOKEN }}
+  MB_TELEGRAM_BOT_TOKEN: ${{ secrets.MB_TELEGRAM_BOT_TOKEN }}
+  TG_CHAT_ID: "-638121972"
 
 jobs:
   build:
@@ -53,3 +55,13 @@ jobs:
         with:
           token: ${{ env.MB_NPM_TOKEN }}
           access: public
+
+      - name: Telegram Notify
+        uses: appleboy/telegram-action@v0.1.1
+        with:
+          to: ${{ env.TG_CHAT_ID }}
+          token: ${{ env.MB_TELEGRAM_BOT_TOKEN }}
+          format: markdown
+          message: |
+            @otcmarsbase/contracts-v2-types@${{ env.VERSION }} deployed
+            https://www.npmjs.com/package/@otcmarsbase/contracts-v2-types/v/${{ env.VERSION }}
