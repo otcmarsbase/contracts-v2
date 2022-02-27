@@ -1,26 +1,94 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0 <0.9.0;
 
+import "./MarsBase.sol";
 import "./MarsBaseCommon.sol";
-import "./MarsBaseOffers.sol";
-import "./MarsBaseMinimumOffers.sol";
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-contract MarsBaseExchange is MarsBaseCommon {
+contract MarsBaseExchange {
+    event OfferCreated(
+        uint256 offerId,
+        address sender,
+        uint256 blockTimestamp,
+        MarsBaseCommon.MBOffer offer
+    );
+    event OfferModified(
+        uint256 offerId,
+        address sender,
+        uint256 blockTimestamp,
+        MarsBaseCommon.OfferParams offerParameters
+    );
+    event OfferAccepted(
+        uint256 offerId,
+        address sender,
+        uint256 blockTimestamp,
+        uint256 amountBob,
+        address tokenAddress,
+        MarsBaseCommon.OfferType offerType
+    );
+    event OfferCancelled(
+        uint256 offerId,
+        address sender,
+        uint256 blockTimestamp
+    );
+    event BidCancelled(uint256 offerId, address sender, uint256 blockTimestamp);
+
+    // For testing usage
+    event Log(uint256 log);
+
     address marsBaseOffersAddress;
     address marsBaseMinimumOffersAddress;
     address owner;
+
+    uint256 nextOfferId;
+
+    uint256 minimumFee = 10;
+
+    address dexAddress;
+    address commissionWallet;
+
+    mapping(uint256 => MarsBaseCommon.MBOffer) public offers;
+
+    constructor() {
+        owner = msg.sender;
+        commissionWallet = msg.sender;
+    }
 
     struct MBAddresses {
         address offersContract;
         address minimumOffersContract;
     }
 
-    constructor(address offersAddress, address minimumOffersAddress) {
-        marsBaseOffersAddress = offersAddress;
-        marsBaseMinimumOffersAddress = minimumOffersAddress;
-        owner = msg.sender;
+    function setDexAddress(address dex) public {
+        require(msg.sender == owner, "S7");
+
+        dexAddress = dex;
+    }
+
+    function setCommissionAddress(address wallet) public {
+        require(msg.sender == owner, "S7");
+        require(wallet != address(0), "T0");
+
+        commissionWallet = wallet;
+    }
+
+    function setMinimumFee(uint256 _minimumFee) public {
+        require(msg.sender == owner, "S7");
+
+        minimumFee = _minimumFee;
+    }
+
+    function getOffer(uint256 offerId)
+        public
+        view
+        returns (MarsBaseCommon.MBOffer memory)
+    {
+        return offers[offerId];
+    }
+
+    function getNextOfferId() public view returns (uint256) {
+        return nextOfferId;
     }
 
     function getContractAddresses() public view returns (MBAddresses memory) {
@@ -39,108 +107,166 @@ contract MarsBaseExchange is MarsBaseCommon {
         marsBaseMinimumOffersAddress = addresses.minimumOffersContract;
     }
 
-    function getOffer(uint256 offerId, OfferType offerType) public view returns (MBOffer memory) {
-        MBOffer memory offer;
-
-        if (contractType(offerType) == ContractType.Offers) {
-            offer = MarsBaseOffers(marsBaseOffersAddress).getOffer(offerId);
-        } else {
-            offer = MarsBaseMinimumOffers(marsBaseMinimumOffersAddress).getOffer(offerId);
-        }
-
-        return offer;
-    }
-
     function getOwner() public view returns (address) {
         return owner;
     }
 
-    function cancelExpiredOffers() public {
-        require(msg.sender == owner, "S7");
+    // function cancelExpiredOffers() public {
+    //     require(msg.sender == owner, "S7");
+    // }
 
-        MarsBaseOffers offersContract = MarsBaseOffers(marsBaseOffersAddress);
-        MarsBaseMinimumOffers minimumOffersContract = MarsBaseMinimumOffers(marsBaseMinimumOffersAddress);
-    
-        offersContract.cancelExpiredOffers();
-        minimumOffersContract.cancelExpiredOffers();
-    }
-
-    function getAllOffers() public view returns (MBOffer[] memory) {
-        MarsBaseOffers offersContract = MarsBaseOffers(marsBaseOffersAddress);
-        MarsBaseMinimumOffers minimumOffersContract = MarsBaseMinimumOffers(marsBaseMinimumOffersAddress);
-
-        MBOffer[] memory openOffers = new MBOffer[](offersContract.getNextOfferId() + minimumOffersContract.getNextOfferId());
+    function getAllOffers()
+        public
+        view
+        returns (MarsBaseCommon.MBOffer[] memory)
+    {
+        MarsBaseCommon.MBOffer[]
+            memory openOffers = new MarsBaseCommon.MBOffer[](nextOfferId);
         uint256 counter = 0;
-    
-        for (uint256 index = 0; index < offersContract.getNextOfferId(); index++) {
-          if (offersContract.getOffer(index).active == true) {
-            openOffers[counter] = offersContract.getOffer(index);
-            counter++;
-          }
+
+        for (uint256 index = 0; index < nextOfferId; index++) {
+            if (getOffer(index).active == true) {
+                openOffers[counter] = getOffer(index);
+                counter++;
+            }
         }
-    
-        for (uint256 index = 0; index < minimumOffersContract.getNextOfferId(); index++) {
-          if (minimumOffersContract.getOffer(index).active == true) {
-            openOffers[counter] = minimumOffersContract.getOffer(index);
-            counter++;
-          }
-        }
-    
+
         return openOffers;
-      }
-
-    function createOffer(address tokenAlice, address[] calldata tokenBob, uint256 amountAlice, uint256[] calldata amountBob, OfferParams calldata offerParameters) public {
-        OfferType offerType = getOfferType(amountAlice, offerParameters);
-
-        MBOffer memory offer;
-        if (contractType(offerType) == ContractType.Offers) {
-            offer = MarsBaseOffers(marsBaseOffersAddress).createOffer(msg.sender, tokenAlice, tokenBob, amountAlice, amountBob, offerParameters);
-        } else {
-            offer = MarsBaseMinimumOffers(marsBaseMinimumOffersAddress).createOffer(msg.sender, tokenAlice, tokenBob, amountAlice, amountBob, offerParameters);
-        }
-
-        emit OfferCreated(offer.offerId, msg.sender, block.timestamp, offer);
     }
 
-    function cancelOffer(uint256 offerId, OfferType offerType) public {
-        if (contractType(offerType) == ContractType.Offers) {
-            MarsBaseOffers(marsBaseOffersAddress).cancelOffer(offerId, msg.sender);
-        } else {
-            MarsBaseMinimumOffers(marsBaseMinimumOffersAddress).cancelOffer(offerId, msg.sender);
-        }
+    function createOffer(
+        address tokenAlice,
+        address[] calldata tokenBob,
+        uint256 amountAlice,
+        uint256[] calldata amountBob,
+        MarsBaseCommon.OfferParams calldata offerParameters
+    ) public payable {
+        require(
+            offerParameters.feeAlice + offerParameters.feeBob >= minimumFee,
+            "M0"
+        );
 
-        emit OfferCancelled(offerId, msg.sender, block.timestamp, offerType);
+        offers[nextOfferId] = MarsBase.createOffer(
+            nextOfferId,
+            tokenAlice,
+            tokenBob,
+            amountAlice,
+            amountBob,
+            offerParameters
+        );
+        emit OfferCreated(
+            nextOfferId,
+            msg.sender,
+            block.timestamp,
+            offers[nextOfferId]
+        );
+
+        nextOfferId++;
     }
 
-    function acceptOffer(uint256 offerId, address tokenBob, uint256 amountBob, OfferType offerType) public {
-        uint256 amountAlice = 0;
-        if (contractType(offerType) == ContractType.Offers) {
-            if (offerType == OfferType.FullPurchase || offerType == OfferType.LimitedTime) {
-                amountAlice = MarsBaseOffers(marsBaseOffersAddress).acceptOffer(offerId, tokenBob, amountBob, msg.sender);
+    function cancelOffer(uint256 offerId) public {
+        offers[offerId] = MarsBase.cancelOffer(offers[offerId]);
+        emit OfferCancelled(offerId, msg.sender, block.timestamp);
+    }
+
+    function price(
+        uint256 amountAlice,
+        uint256 offerAmountAlice,
+        uint256 offerAmountBob
+    ) public pure returns (uint256) {
+        return MarsBase.price(amountAlice, offerAmountAlice, offerAmountBob);
+    }
+
+    function acceptOffer(
+        uint256 offerId,
+        address tokenBob,
+        uint256 amountBob
+    ) public payable {
+        MarsBaseCommon.MBOffer memory offer = offers[offerId];
+        MarsBaseCommon.OfferType offerType = offer.offerType;
+
+        if (tokenBob == address(0)) {
+            amountBob = msg.value;
+        }
+
+        if (
+            MarsBase.contractType(offerType) ==
+            MarsBaseCommon.ContractType.Offers
+        ) {
+            if (
+                offerType == MarsBaseCommon.OfferType.FullPurchase ||
+                offerType == MarsBaseCommon.OfferType.LimitedTime
+            ) {
+                offers[offerId] = MarsBase.acceptOffer(
+                    offer,
+                    tokenBob,
+                    amountBob
+                );
             } else {
-                amountAlice = MarsBaseOffers(marsBaseOffersAddress).acceptOfferPart(offerId, tokenBob, amountBob, msg.sender);
+                offers[offerId] = MarsBase.acceptOfferPart(
+                    offer,
+                    tokenBob,
+                    amountBob
+                );
             }
         } else {
-            amountAlice = MarsBaseMinimumOffers(marsBaseMinimumOffersAddress).acceptOfferPartWithMinimum(offerId, tokenBob, amountBob, msg.sender);
+            offers[offerId] = MarsBase.acceptOfferPartWithMinimum(
+                offer,
+                tokenBob,
+                amountBob
+            );
         }
 
-        emit OfferAccepted(offerId, msg.sender, block.timestamp, amountAlice, amountBob, tokenBob, offerType);
+        emit OfferAccepted(
+            offerId,
+            msg.sender,
+            block.timestamp,
+            amountBob,
+            tokenBob,
+            offerType
+        );
     }
 
-    function changeOfferParams(uint256 offerId, address[] calldata tokenBob, uint256[] calldata amountBob, OfferParams calldata offerParameters, OfferType offerType) public {
-        if (contractType(offerType) == ContractType.Offers) {
-            MarsBaseOffers(marsBaseOffersAddress).changeOfferParams(offerId, tokenBob, amountBob, offerParameters, msg.sender);
-        } else {
-            MarsBaseMinimumOffers(marsBaseMinimumOffersAddress).changeOfferParams(offerId, tokenBob, amountBob, offerParameters, msg.sender);
-        }
+    function changeOfferParams(
+        uint256 offerId,
+        address[] calldata tokenBob,
+        uint256[] calldata amountBob,
+        MarsBaseCommon.OfferParams calldata offerParameters
+    ) public {
+        offers[offerId] = MarsBase.changeOfferParams(
+            offers[offerId],
+            tokenBob,
+            amountBob,
+            offerParameters
+        );
 
-        emit OfferModified(offerId, msg.sender, block.timestamp, offerParameters, offerType);
+        emit OfferModified(
+            offerId,
+            msg.sender,
+            block.timestamp,
+            offerParameters
+        );
     }
-
 
     function cancelBid(uint256 offerId) public {
-        MarsBaseMinimumOffers(marsBaseMinimumOffersAddress).cancelBid(offerId, msg.sender);
+        offers[offerId] = MarsBase.cancelBid(offers[offerId]);
 
         emit BidCancelled(offerId, msg.sender, block.timestamp);
+    }
+
+    function cancelExpiredOffers() public payable {
+        require(msg.sender == owner, "S8");
+
+        for (uint256 index = 0; index < nextOfferId; index++) {
+            if (
+                block.timestamp >= offers[index].deadline &&
+                offers[index].deadline != 0 &&
+                MarsBase.contractType(offers[index].offerType) == MarsBaseCommon.ContractType.Offers
+            ) {
+                offers[index] = MarsBase.cancelExpiredOffer(offers[index]);
+            } else {
+                offers[index] = MarsBase.cancelExpiredMinimumOffer(offers[index]);
+            }
+        }
     }
 }
