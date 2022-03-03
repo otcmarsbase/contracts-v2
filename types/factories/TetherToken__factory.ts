@@ -9,8 +9,8 @@ import {
   Overrides,
   BigNumberish,
 } from "ethers";
-import { Provider, TransactionRequest } from "@ethersproject/providers";
-import type { TetherToken, TetherTokenInterface } from "../TetherToken";
+import {Provider, TransactionRequest} from "@ethersproject/providers";
+import type {TetherToken, TetherTokenInterface} from "../TetherToken";
 
 const _abi = [
   {
@@ -707,7 +707,7 @@ export class TetherToken__factory extends ContractFactory {
     _name: string,
     _symbol: string,
     _decimals: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
+    overrides?: Overrides & {from?: string | Promise<string>}
   ): Promise<TetherToken> {
     return super.deploy(
       _initialSupply,
@@ -722,7 +722,7 @@ export class TetherToken__factory extends ContractFactory {
     _name: string,
     _symbol: string,
     _decimals: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
+    overrides?: Overrides & {from?: string | Promise<string>}
   ): TransactionRequest {
     return super.getDeployTransaction(
       _initialSupply,

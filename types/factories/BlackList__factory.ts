@@ -2,9 +2,9 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { Contract, Signer, utils } from "ethers";
-import { Provider } from "@ethersproject/providers";
-import type { BlackList, BlackListInterface } from "../BlackList";
+import {Contract, Signer, utils} from "ethers";
+import {Provider} from "@ethersproject/providers";
+import type {BlackList, BlackListInterface} from "../BlackList";
 
 const _abi = [
   {

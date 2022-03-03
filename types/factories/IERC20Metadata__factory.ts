@@ -2,12 +2,9 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { Contract, Signer, utils } from "ethers";
-import { Provider } from "@ethersproject/providers";
-import type {
-  IERC20Metadata,
-  IERC20MetadataInterface,
-} from "../IERC20Metadata";
+import {Contract, Signer, utils} from "ethers";
+import {Provider} from "@ethersproject/providers";
+import type {IERC20Metadata, IERC20MetadataInterface} from "../IERC20Metadata";
 
 const _abi = [
   {
@@ -183,7 +180,7 @@ const _abi = [
     inputs: [
       {
         internalType: "address",
-        name: "to",
+        name: "recipient",
         type: "address",
       },
       {
@@ -207,12 +204,12 @@ const _abi = [
     inputs: [
       {
         internalType: "address",
-        name: "from",
+        name: "sender",
         type: "address",
       },
       {
         internalType: "address",
-        name: "to",
+        name: "recipient",
         type: "address",
       },
       {

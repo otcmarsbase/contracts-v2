@@ -13,9 +13,9 @@ import {
   Signer,
   utils,
 } from "ethers";
-import { FunctionFragment, Result, EventFragment } from "@ethersproject/abi";
-import { Listener, Provider } from "@ethersproject/providers";
-import { TypedEventFilter, TypedEvent, TypedListener, OnEvent } from "./common";
+import {FunctionFragment, Result, EventFragment} from "@ethersproject/abi";
+import {Listener, Provider} from "@ethersproject/providers";
+import {TypedEventFilter, TypedEvent, TypedListener, OnEvent} from "./common";
 
 export interface BasicTokenInterface extends utils.Interface {
   contractName: "BasicToken";
@@ -90,7 +90,7 @@ export interface BasicTokenInterface extends utils.Interface {
 
 export type TransferEvent = TypedEvent<
   [string, string, BigNumber],
-  { from: string; to: string; value: BigNumber }
+  {from: string; to: string; value: BigNumber}
 >;
 
 export type TransferEventFilter = TypedEventFilter<TransferEvent>;
@@ -127,7 +127,7 @@ export interface BasicToken extends BaseContract {
 
     balanceOf(
       _owner: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & {from?: string | Promise<string>}
     ): Promise<ContractTransaction>;
 
     balances(arg0: string, overrides?: CallOverrides): Promise<[BigNumber]>;
@@ -139,18 +139,18 @@ export interface BasicToken extends BaseContract {
     owner(overrides?: CallOverrides): Promise<[string]>;
 
     totalSupply(
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & {from?: string | Promise<string>}
     ): Promise<ContractTransaction>;
 
     transfer(
       _to: string,
       _value: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & {from?: string | Promise<string>}
     ): Promise<ContractTransaction>;
 
     transferOwnership(
       newOwner: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & {from?: string | Promise<string>}
     ): Promise<ContractTransaction>;
   };
 
@@ -158,7 +158,7 @@ export interface BasicToken extends BaseContract {
 
   balanceOf(
     _owner: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
+    overrides?: Overrides & {from?: string | Promise<string>}
   ): Promise<ContractTransaction>;
 
   balances(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
@@ -170,18 +170,18 @@ export interface BasicToken extends BaseContract {
   owner(overrides?: CallOverrides): Promise<string>;
 
   totalSupply(
-    overrides?: Overrides & { from?: string | Promise<string> }
+    overrides?: Overrides & {from?: string | Promise<string>}
   ): Promise<ContractTransaction>;
 
   transfer(
     _to: string,
     _value: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
+    overrides?: Overrides & {from?: string | Promise<string>}
   ): Promise<ContractTransaction>;
 
   transferOwnership(
     newOwner: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
+    overrides?: Overrides & {from?: string | Promise<string>}
   ): Promise<ContractTransaction>;
 
   callStatic: {
@@ -229,7 +229,7 @@ export interface BasicToken extends BaseContract {
 
     balanceOf(
       _owner: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & {from?: string | Promise<string>}
     ): Promise<BigNumber>;
 
     balances(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
@@ -241,18 +241,18 @@ export interface BasicToken extends BaseContract {
     owner(overrides?: CallOverrides): Promise<BigNumber>;
 
     totalSupply(
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & {from?: string | Promise<string>}
     ): Promise<BigNumber>;
 
     transfer(
       _to: string,
       _value: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & {from?: string | Promise<string>}
     ): Promise<BigNumber>;
 
     transferOwnership(
       newOwner: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & {from?: string | Promise<string>}
     ): Promise<BigNumber>;
   };
 
@@ -261,7 +261,7 @@ export interface BasicToken extends BaseContract {
 
     balanceOf(
       _owner: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & {from?: string | Promise<string>}
     ): Promise<PopulatedTransaction>;
 
     balances(
@@ -276,18 +276,18 @@ export interface BasicToken extends BaseContract {
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     totalSupply(
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & {from?: string | Promise<string>}
     ): Promise<PopulatedTransaction>;
 
     transfer(
       _to: string,
       _value: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & {from?: string | Promise<string>}
     ): Promise<PopulatedTransaction>;
 
     transferOwnership(
       newOwner: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & {from?: string | Promise<string>}
     ): Promise<PopulatedTransaction>;
   };
 }

@@ -19,10 +19,6 @@ library MarsBase {
     Limited Time / Deadline, Chunked with Minimum with delyed distribution - 7
   */
 
-  function getTime() internal view returns (uint256) {
-    return block.timestamp;
-  }
-
   function contractType(MarsBaseCommon.OfferType offerType) public pure returns (MarsBaseCommon.ContractType) {
     if (uint8(offerType) < 4) {
       return MarsBaseCommon.ContractType.Offers;
@@ -41,7 +37,7 @@ library MarsBase {
 
   function setOfferProperties (MarsBaseCommon.MBOffer memory offer, MarsBaseCommon.OfferParams calldata offerParams) public view returns (MarsBaseCommon.MBOffer memory) {
     require(offer.amountAlice >= offerParams.smallestChunkSize, "M1");
-    require(getTime() < offerParams.deadline || offerParams.deadline == 0, "M2");
+    require(block.timestamp < offerParams.deadline || offerParams.deadline == 0, "M2");
 
     offer.offerType = getOfferType(offer.amountAlice, offerParams);
 
@@ -118,10 +114,10 @@ library MarsBase {
 
     offer.amountRemaining = amountAlice;
 
-    offer.minimumOrderTokens = new address[](0);
-    offer.minimumOrderAddresses = new address[](0);
-    offer.minimumOrderAmountsAlice = new uint256[](0);
-    offer.minimumOrderAmountsBob = new uint256[](0);
+    // offer.minimumOrderTokens = new address[](0);
+    // offer.minimumOrderAddresses = new address[](0);
+    // offer.minimumOrderAmountsAlice = new uint256[](0);
+    // offer.minimumOrderAmountsBob = new uint256[](0);
 
     offer.capabilities = new bool[](3);
 
@@ -211,7 +207,7 @@ library MarsBase {
 
     offer = payMinimumOffer(offer, tokensSold, acceptedTokenBob, amountAfterFeeAlice, amountAfterFeeBob, partialAmountAlice, partialAmountBob);
 
-    if (offer.amountRemaining == 0 || (tokensSold >= offer.minimumSize && offer.capabilities[2] == true && offer.deadline < getTime())) {
+    if (offer.amountRemaining == 0 || (tokensSold >= offer.minimumSize && offer.capabilities[2] == true && offer.deadline < block.timestamp)) {
       delete offer;
     }
 
@@ -219,7 +215,7 @@ library MarsBase {
   }
 
   function cancelExpiredMinimumOffer(MarsBaseCommon.MBOffer memory offer) public returns (MarsBaseCommon.MBOffer memory) {
-    require(offer.offerType != MarsBaseCommon.OfferType.LimitedTimeMinimumChunkedDeadlinePurchase && offer.deadline < getTime(), "S1");
+    require(offer.offerType != MarsBaseCommon.OfferType.LimitedTimeMinimumChunkedDeadlinePurchase && offer.deadline < block.timestamp, "S1");
     require(offer.active == true, "S0");
     require(offer.amountAlice > 0, "M3");
     require(contractType(offer.offerType) == MarsBaseCommon.ContractType.MinimumOffers, "S5");
@@ -245,7 +241,7 @@ library MarsBase {
   function payMinimumOffer(MarsBaseCommon.MBOffer memory offer, uint256 tokensSold, address acceptedTokenBob, uint256 amountAfterFeeAlice, uint256 amountAfterFeeBob, uint256 partialAmountAlice, uint256 partialAmountBob) private returns (MarsBaseCommon.MBOffer memory) {
     if ((tokensSold >= offer.minimumSize && offer.capabilities[2] == false) ||
       (tokensSold == offer.amountAlice && offer.capabilities[2] == true) || 
-      (tokensSold >= offer.minimumSize && offer.capabilities[2] == true && offer.deadline < getTime())) {
+      (tokensSold >= offer.minimumSize && offer.capabilities[2] == true && offer.deadline < block.timestamp)) {
       if (acceptedTokenBob != address(0)) {
         require(IERC20(acceptedTokenBob).transferFrom(msg.sender, offer.payoutAddress, amountAfterFeeBob), "T2a");
         require(IERC20(offer.tokenAlice).transfer(msg.sender, amountAfterFeeAlice), "T5");
@@ -269,7 +265,7 @@ library MarsBase {
         }
     }
 
-    } else if (tokensSold < offer.minimumSize && offer.capabilities[2] == true && offer.offerType == MarsBaseCommon.OfferType.LimitedTimeMinimumChunkedDeadlinePurchase && offer.deadline < getTime()) {
+    } else if (tokensSold < offer.minimumSize && offer.capabilities[2] == true && offer.offerType == MarsBaseCommon.OfferType.LimitedTimeMinimumChunkedDeadlinePurchase && offer.deadline < block.timestamp) {
       cancelExpiredMinimumOffer(offer);
       return offer;
     } else {
@@ -385,7 +381,7 @@ library MarsBase {
 
   function acceptOffer(MarsBaseCommon.MBOffer memory offer, address tokenBob, uint256 amountBob) public returns (MarsBaseCommon.MBOffer memory) {
     require(offer.active == true, "S0");
-    require(getTime() < offer.deadline || offer.deadline == 0, "M2");
+    require(block.timestamp < offer.deadline || offer.deadline == 0, "M2");
 
     address acceptedTokenBob = address(0);
     uint256 acceptedAmountBob = 0;
@@ -422,7 +418,7 @@ library MarsBase {
   function acceptOfferPart(MarsBaseCommon.MBOffer memory offer, address tokenBob, uint256 amountBob) public returns (MarsBaseCommon.MBOffer memory) {
 
     require(offer.active == true, "S0");
-    require(getTime() < offer.deadline || offer.deadline == 0, "M2");
+    require(block.timestamp < offer.deadline || offer.deadline == 0, "M2");
     require(offer.offerType == MarsBaseCommon.OfferType.ChunkedPurchase || 
       offer.offerType == MarsBaseCommon.OfferType.LimitedTimeChunkedPurchase || 
       offer.offerType == MarsBaseCommon.OfferType.LimitedTimeMinimumChunkedPurchase || 

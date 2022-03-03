@@ -2,9 +2,9 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { Contract, Signer, utils } from "ethers";
-import { Provider } from "@ethersproject/providers";
-import type { Ownable, OwnableInterface } from "../Ownable";
+import {Contract, Signer, utils} from "ethers";
+import {Provider} from "@ethersproject/providers";
+import type {Ownable, OwnableInterface} from "../Ownable";
 
 const _abi = [
   {

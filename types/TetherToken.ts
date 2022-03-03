@@ -13,9 +13,9 @@ import {
   Signer,
   utils,
 } from "ethers";
-import { FunctionFragment, Result, EventFragment } from "@ethersproject/abi";
-import { Listener, Provider } from "@ethersproject/providers";
-import { TypedEventFilter, TypedEvent, TypedListener, OnEvent } from "./common";
+import {FunctionFragment, Result, EventFragment} from "@ethersproject/abi";
+import {Listener, Provider} from "@ethersproject/providers";
+import {TypedEventFilter, TypedEvent, TypedListener, OnEvent} from "./common";
 
 export interface TetherTokenInterface extends utils.Interface {
   contractName: "TetherToken";
@@ -237,36 +237,36 @@ export interface TetherTokenInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "Unpause"): EventFragment;
 }
 
-export type AddedBlackListEvent = TypedEvent<[string], { _user: string }>;
+export type AddedBlackListEvent = TypedEvent<[string], {_user: string}>;
 
 export type AddedBlackListEventFilter = TypedEventFilter<AddedBlackListEvent>;
 
 export type ApprovalEvent = TypedEvent<
   [string, string, BigNumber],
-  { owner: string; spender: string; value: BigNumber }
+  {owner: string; spender: string; value: BigNumber}
 >;
 
 export type ApprovalEventFilter = TypedEventFilter<ApprovalEvent>;
 
-export type DeprecateEvent = TypedEvent<[string], { newAddress: string }>;
+export type DeprecateEvent = TypedEvent<[string], {newAddress: string}>;
 
 export type DeprecateEventFilter = TypedEventFilter<DeprecateEvent>;
 
 export type DestroyedBlackFundsEvent = TypedEvent<
   [string, BigNumber],
-  { _blackListedUser: string; _balance: BigNumber }
+  {_blackListedUser: string; _balance: BigNumber}
 >;
 
 export type DestroyedBlackFundsEventFilter =
   TypedEventFilter<DestroyedBlackFundsEvent>;
 
-export type IssueEvent = TypedEvent<[BigNumber], { amount: BigNumber }>;
+export type IssueEvent = TypedEvent<[BigNumber], {amount: BigNumber}>;
 
 export type IssueEventFilter = TypedEventFilter<IssueEvent>;
 
 export type ParamsEvent = TypedEvent<
   [BigNumber, BigNumber],
-  { feeBasisPoints: BigNumber; maxFee: BigNumber }
+  {feeBasisPoints: BigNumber; maxFee: BigNumber}
 >;
 
 export type ParamsEventFilter = TypedEventFilter<ParamsEvent>;
@@ -275,18 +275,18 @@ export type PauseEvent = TypedEvent<[], {}>;
 
 export type PauseEventFilter = TypedEventFilter<PauseEvent>;
 
-export type RedeemEvent = TypedEvent<[BigNumber], { amount: BigNumber }>;
+export type RedeemEvent = TypedEvent<[BigNumber], {amount: BigNumber}>;
 
 export type RedeemEventFilter = TypedEventFilter<RedeemEvent>;
 
-export type RemovedBlackListEvent = TypedEvent<[string], { _user: string }>;
+export type RemovedBlackListEvent = TypedEvent<[string], {_user: string}>;
 
 export type RemovedBlackListEventFilter =
   TypedEventFilter<RemovedBlackListEvent>;
 
 export type TransferEvent = TypedEvent<
   [string, string, BigNumber],
-  { from: string; to: string; value: BigNumber }
+  {from: string; to: string; value: BigNumber}
 >;
 
 export type TransferEventFilter = TypedEventFilter<TransferEvent>;
@@ -329,13 +329,13 @@ export interface TetherToken extends BaseContract {
 
     addBlackList(
       _evilUser: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & {from?: string | Promise<string>}
     ): Promise<ContractTransaction>;
 
     allowance(
       _owner: string,
       _spender: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & {from?: string | Promise<string>}
     ): Promise<ContractTransaction>;
 
     allowed(
@@ -347,12 +347,12 @@ export interface TetherToken extends BaseContract {
     approve(
       _spender: string,
       _value: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & {from?: string | Promise<string>}
     ): Promise<ContractTransaction>;
 
     balanceOf(
       who: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & {from?: string | Promise<string>}
     ): Promise<ContractTransaction>;
 
     balances(arg0: string, overrides?: CallOverrides): Promise<[BigNumber]>;
@@ -363,30 +363,30 @@ export interface TetherToken extends BaseContract {
 
     deprecate(
       _upgradedAddress: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & {from?: string | Promise<string>}
     ): Promise<ContractTransaction>;
 
     deprecated(overrides?: CallOverrides): Promise<[boolean]>;
 
     destroyBlackFunds(
       _blackListedUser: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & {from?: string | Promise<string>}
     ): Promise<ContractTransaction>;
 
     getBlackListStatus(
       _maker: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & {from?: string | Promise<string>}
     ): Promise<ContractTransaction>;
 
     getOwner(
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & {from?: string | Promise<string>}
     ): Promise<ContractTransaction>;
 
     isBlackListed(arg0: string, overrides?: CallOverrides): Promise<[boolean]>;
 
     issue(
       amount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & {from?: string | Promise<string>}
     ): Promise<ContractTransaction>;
 
     maximumFee(overrides?: CallOverrides): Promise<[BigNumber]>;
@@ -396,53 +396,53 @@ export interface TetherToken extends BaseContract {
     owner(overrides?: CallOverrides): Promise<[string]>;
 
     pause(
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & {from?: string | Promise<string>}
     ): Promise<ContractTransaction>;
 
     paused(overrides?: CallOverrides): Promise<[boolean]>;
 
     redeem(
       amount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & {from?: string | Promise<string>}
     ): Promise<ContractTransaction>;
 
     removeBlackList(
       _clearedUser: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & {from?: string | Promise<string>}
     ): Promise<ContractTransaction>;
 
     setParams(
       newBasisPoints: BigNumberish,
       newMaxFee: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & {from?: string | Promise<string>}
     ): Promise<ContractTransaction>;
 
     symbol(overrides?: CallOverrides): Promise<[string]>;
 
     totalSupply(
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & {from?: string | Promise<string>}
     ): Promise<ContractTransaction>;
 
     transfer(
       _to: string,
       _value: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & {from?: string | Promise<string>}
     ): Promise<ContractTransaction>;
 
     transferFrom(
       _from: string,
       _to: string,
       _value: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & {from?: string | Promise<string>}
     ): Promise<ContractTransaction>;
 
     transferOwnership(
       newOwner: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & {from?: string | Promise<string>}
     ): Promise<ContractTransaction>;
 
     unpause(
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & {from?: string | Promise<string>}
     ): Promise<ContractTransaction>;
 
     upgradedAddress(overrides?: CallOverrides): Promise<[string]>;
@@ -454,13 +454,13 @@ export interface TetherToken extends BaseContract {
 
   addBlackList(
     _evilUser: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
+    overrides?: Overrides & {from?: string | Promise<string>}
   ): Promise<ContractTransaction>;
 
   allowance(
     _owner: string,
     _spender: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
+    overrides?: Overrides & {from?: string | Promise<string>}
   ): Promise<ContractTransaction>;
 
   allowed(
@@ -472,12 +472,12 @@ export interface TetherToken extends BaseContract {
   approve(
     _spender: string,
     _value: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
+    overrides?: Overrides & {from?: string | Promise<string>}
   ): Promise<ContractTransaction>;
 
   balanceOf(
     who: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
+    overrides?: Overrides & {from?: string | Promise<string>}
   ): Promise<ContractTransaction>;
 
   balances(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
@@ -488,30 +488,30 @@ export interface TetherToken extends BaseContract {
 
   deprecate(
     _upgradedAddress: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
+    overrides?: Overrides & {from?: string | Promise<string>}
   ): Promise<ContractTransaction>;
 
   deprecated(overrides?: CallOverrides): Promise<boolean>;
 
   destroyBlackFunds(
     _blackListedUser: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
+    overrides?: Overrides & {from?: string | Promise<string>}
   ): Promise<ContractTransaction>;
 
   getBlackListStatus(
     _maker: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
+    overrides?: Overrides & {from?: string | Promise<string>}
   ): Promise<ContractTransaction>;
 
   getOwner(
-    overrides?: Overrides & { from?: string | Promise<string> }
+    overrides?: Overrides & {from?: string | Promise<string>}
   ): Promise<ContractTransaction>;
 
   isBlackListed(arg0: string, overrides?: CallOverrides): Promise<boolean>;
 
   issue(
     amount: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
+    overrides?: Overrides & {from?: string | Promise<string>}
   ): Promise<ContractTransaction>;
 
   maximumFee(overrides?: CallOverrides): Promise<BigNumber>;
@@ -521,53 +521,53 @@ export interface TetherToken extends BaseContract {
   owner(overrides?: CallOverrides): Promise<string>;
 
   pause(
-    overrides?: Overrides & { from?: string | Promise<string> }
+    overrides?: Overrides & {from?: string | Promise<string>}
   ): Promise<ContractTransaction>;
 
   paused(overrides?: CallOverrides): Promise<boolean>;
 
   redeem(
     amount: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
+    overrides?: Overrides & {from?: string | Promise<string>}
   ): Promise<ContractTransaction>;
 
   removeBlackList(
     _clearedUser: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
+    overrides?: Overrides & {from?: string | Promise<string>}
   ): Promise<ContractTransaction>;
 
   setParams(
     newBasisPoints: BigNumberish,
     newMaxFee: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
+    overrides?: Overrides & {from?: string | Promise<string>}
   ): Promise<ContractTransaction>;
 
   symbol(overrides?: CallOverrides): Promise<string>;
 
   totalSupply(
-    overrides?: Overrides & { from?: string | Promise<string> }
+    overrides?: Overrides & {from?: string | Promise<string>}
   ): Promise<ContractTransaction>;
 
   transfer(
     _to: string,
     _value: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
+    overrides?: Overrides & {from?: string | Promise<string>}
   ): Promise<ContractTransaction>;
 
   transferFrom(
     _from: string,
     _to: string,
     _value: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
+    overrides?: Overrides & {from?: string | Promise<string>}
   ): Promise<ContractTransaction>;
 
   transferOwnership(
     newOwner: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
+    overrides?: Overrides & {from?: string | Promise<string>}
   ): Promise<ContractTransaction>;
 
   unpause(
-    overrides?: Overrides & { from?: string | Promise<string> }
+    overrides?: Overrides & {from?: string | Promise<string>}
   ): Promise<ContractTransaction>;
 
   upgradedAddress(overrides?: CallOverrides): Promise<string>;
@@ -745,13 +745,13 @@ export interface TetherToken extends BaseContract {
 
     addBlackList(
       _evilUser: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & {from?: string | Promise<string>}
     ): Promise<BigNumber>;
 
     allowance(
       _owner: string,
       _spender: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & {from?: string | Promise<string>}
     ): Promise<BigNumber>;
 
     allowed(
@@ -763,12 +763,12 @@ export interface TetherToken extends BaseContract {
     approve(
       _spender: string,
       _value: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & {from?: string | Promise<string>}
     ): Promise<BigNumber>;
 
     balanceOf(
       who: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & {from?: string | Promise<string>}
     ): Promise<BigNumber>;
 
     balances(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
@@ -779,30 +779,30 @@ export interface TetherToken extends BaseContract {
 
     deprecate(
       _upgradedAddress: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & {from?: string | Promise<string>}
     ): Promise<BigNumber>;
 
     deprecated(overrides?: CallOverrides): Promise<BigNumber>;
 
     destroyBlackFunds(
       _blackListedUser: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & {from?: string | Promise<string>}
     ): Promise<BigNumber>;
 
     getBlackListStatus(
       _maker: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & {from?: string | Promise<string>}
     ): Promise<BigNumber>;
 
     getOwner(
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & {from?: string | Promise<string>}
     ): Promise<BigNumber>;
 
     isBlackListed(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
 
     issue(
       amount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & {from?: string | Promise<string>}
     ): Promise<BigNumber>;
 
     maximumFee(overrides?: CallOverrides): Promise<BigNumber>;
@@ -812,53 +812,53 @@ export interface TetherToken extends BaseContract {
     owner(overrides?: CallOverrides): Promise<BigNumber>;
 
     pause(
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & {from?: string | Promise<string>}
     ): Promise<BigNumber>;
 
     paused(overrides?: CallOverrides): Promise<BigNumber>;
 
     redeem(
       amount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & {from?: string | Promise<string>}
     ): Promise<BigNumber>;
 
     removeBlackList(
       _clearedUser: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & {from?: string | Promise<string>}
     ): Promise<BigNumber>;
 
     setParams(
       newBasisPoints: BigNumberish,
       newMaxFee: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & {from?: string | Promise<string>}
     ): Promise<BigNumber>;
 
     symbol(overrides?: CallOverrides): Promise<BigNumber>;
 
     totalSupply(
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & {from?: string | Promise<string>}
     ): Promise<BigNumber>;
 
     transfer(
       _to: string,
       _value: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & {from?: string | Promise<string>}
     ): Promise<BigNumber>;
 
     transferFrom(
       _from: string,
       _to: string,
       _value: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & {from?: string | Promise<string>}
     ): Promise<BigNumber>;
 
     transferOwnership(
       newOwner: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & {from?: string | Promise<string>}
     ): Promise<BigNumber>;
 
     unpause(
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & {from?: string | Promise<string>}
     ): Promise<BigNumber>;
 
     upgradedAddress(overrides?: CallOverrides): Promise<BigNumber>;
@@ -871,13 +871,13 @@ export interface TetherToken extends BaseContract {
 
     addBlackList(
       _evilUser: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & {from?: string | Promise<string>}
     ): Promise<PopulatedTransaction>;
 
     allowance(
       _owner: string,
       _spender: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & {from?: string | Promise<string>}
     ): Promise<PopulatedTransaction>;
 
     allowed(
@@ -889,12 +889,12 @@ export interface TetherToken extends BaseContract {
     approve(
       _spender: string,
       _value: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & {from?: string | Promise<string>}
     ): Promise<PopulatedTransaction>;
 
     balanceOf(
       who: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & {from?: string | Promise<string>}
     ): Promise<PopulatedTransaction>;
 
     balances(
@@ -908,23 +908,23 @@ export interface TetherToken extends BaseContract {
 
     deprecate(
       _upgradedAddress: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & {from?: string | Promise<string>}
     ): Promise<PopulatedTransaction>;
 
     deprecated(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     destroyBlackFunds(
       _blackListedUser: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & {from?: string | Promise<string>}
     ): Promise<PopulatedTransaction>;
 
     getBlackListStatus(
       _maker: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & {from?: string | Promise<string>}
     ): Promise<PopulatedTransaction>;
 
     getOwner(
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & {from?: string | Promise<string>}
     ): Promise<PopulatedTransaction>;
 
     isBlackListed(
@@ -934,7 +934,7 @@ export interface TetherToken extends BaseContract {
 
     issue(
       amount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & {from?: string | Promise<string>}
     ): Promise<PopulatedTransaction>;
 
     maximumFee(overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -944,53 +944,53 @@ export interface TetherToken extends BaseContract {
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     pause(
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & {from?: string | Promise<string>}
     ): Promise<PopulatedTransaction>;
 
     paused(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     redeem(
       amount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & {from?: string | Promise<string>}
     ): Promise<PopulatedTransaction>;
 
     removeBlackList(
       _clearedUser: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & {from?: string | Promise<string>}
     ): Promise<PopulatedTransaction>;
 
     setParams(
       newBasisPoints: BigNumberish,
       newMaxFee: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & {from?: string | Promise<string>}
     ): Promise<PopulatedTransaction>;
 
     symbol(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     totalSupply(
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & {from?: string | Promise<string>}
     ): Promise<PopulatedTransaction>;
 
     transfer(
       _to: string,
       _value: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & {from?: string | Promise<string>}
     ): Promise<PopulatedTransaction>;
 
     transferFrom(
       _from: string,
       _to: string,
       _value: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & {from?: string | Promise<string>}
     ): Promise<PopulatedTransaction>;
 
     transferOwnership(
       newOwner: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & {from?: string | Promise<string>}
     ): Promise<PopulatedTransaction>;
 
     unpause(
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & {from?: string | Promise<string>}
     ): Promise<PopulatedTransaction>;
 
     upgradedAddress(overrides?: CallOverrides): Promise<PopulatedTransaction>;
