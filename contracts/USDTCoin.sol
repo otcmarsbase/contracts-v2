@@ -337,7 +337,7 @@ contract TetherToken is Pausable, StandardToken, BlackList {
     }
 
     // Forward ERC20 methods to upgraded contract if this one is deprecated
-    function transfer(address _to, uint _value) public override whenNotPaused {
+    function transfer(address _to, uint _value) public override(BasicToken, ERC20Basic) whenNotPaused {
         require(!isBlackListed[msg.sender]);
         if (deprecated) {
             return UpgradedStandardToken(upgradedAddress).transferByLegacy(msg.sender, _to, _value);
@@ -357,7 +357,7 @@ contract TetherToken is Pausable, StandardToken, BlackList {
     }
 
     // Forward ERC20 methods to upgraded contract if this one is deprecated
-    function balanceOf(address who) public override returns (uint) {
+    function balanceOf(address who) public override(BasicToken, ERC20Basic) returns (uint) {
         if (deprecated) {
             return UpgradedStandardToken(upgradedAddress).balanceOf(who);
         } else {
