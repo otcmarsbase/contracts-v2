@@ -1,6 +1,6 @@
 ## `MarsBaseCommon`
 
-
+This library contains struct and enum definitions for the MarsBase Exchange and MarsBase Contracts.
 
 
 

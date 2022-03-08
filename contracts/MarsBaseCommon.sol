@@ -1,6 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.4.22 <0.9.0;
 
+/// @title MarsBase Common
+/// @author Sam Sheffres
+/// @notice This library contains struct and enum definitions for the MarsBase Exchange and MarsBase Contracts.
 library MarsBaseCommon {
 
   enum OfferType {
@@ -14,6 +17,8 @@ library MarsBaseCommon {
     LimitedTimeMinimumChunkedDeadlinePurchase
   }
 
+  /// @dev Offers is a simple offer type, that does the exchange immediately in all cases.
+  /// @dev Minimum Offers can hold tokens until certain criteria are met.
   enum ContractType {
     Offers,
     MinimumOffers
@@ -30,6 +35,9 @@ library MarsBaseCommon {
     uint256 minimumSize;
   }
 
+/// @notice Primary Offer Data Structure
+/// @notice Primary Offer Data Structure
+/// @notice smallestChunkSize - Smallest amount that may be purchased in one transaction
   struct MBOffer {
     bool active;
     OfferType offerType;
