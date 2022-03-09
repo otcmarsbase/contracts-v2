@@ -58,7 +58,7 @@ module.exports = {
         mnemonic: mnemonic,
       },
       url: `https://rinkeby.infura.io/v3/` + infuraId,
-      chainId: 3,       // Ropsten's id
+      chainId: 4,       // Ropsten's id
       gas: "auto",        // Ropsten has a lower block limit than mainnet
     },
     // Useful for private networks

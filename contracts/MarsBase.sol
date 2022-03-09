@@ -149,11 +149,6 @@ library MarsBase {
     require(offer.offerer == msg.sender, "S2");
     require(tokenBob.length == amountBob.length, "M5");
 
-    for (uint256 index = 0; index < tokenBob.length; index++) {
-      require(tokenBob[index] != address(0), "T0");
-      require(amountBob[index] > 0, "M6");
-    }
-
     require(offer.capabilities[0] == true, "S4");
 
     require(offerParameters.smallestChunkSize <= offer.amountAlice, "M1");
@@ -311,7 +306,9 @@ library MarsBase {
     offer.minimumOrderAmountsAlice = minimumOrderAmountsAlice;
     offer.minimumOrderTokens = minimumOrderTokens;
 
-    require(IERC20(acceptedTokenBob).transferFrom(msg.sender, address(this), partialAmountBob), "T2a");
+    if (msg.value == 0) {
+      require(IERC20(acceptedTokenBob).transferFrom(msg.sender, address(this), partialAmountBob), "T2a");
+    }
 
     return offer;
   }
