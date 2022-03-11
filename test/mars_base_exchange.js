@@ -6,7 +6,8 @@ const USDTCoin = artifacts.require("TetherToken");
 const TestToken = artifacts.require("TestToken");
 const EPICCoin = artifacts.require("EPICCoin");
 const assert = require('assert/strict');
-const BigNumber = require('bignumber.js');
+const { default: BigNumber } = require('bignumber.js');
+const ethers = require('ethers');
 
 /*
  * uncomment accounts to access the test accounts made available by the
@@ -22,13 +23,13 @@ contract("MarsBaseExchange", async function (accounts) {
     } catch {}
     dex = await MarsBaseExchange.new();
     testToken = await TestToken.new();
-    usdt = await USDTCoin.new(BigNumber(10000000000000000000000000000).toFixed(), "Tether", "USDT", 18);
+    usdt = await USDTCoin.new(ethers.utils.parseEther("10000000"), "Tether", "USDT", 18);
     epicCoin = await EPICCoin.new();
     userAddress = accounts[0];
 
-    approvalAmount = new BigNumber(100000000000000000000000);
-    amountAlice = new BigNumber(50000000000000000000);
-    amountBob = [new BigNumber(10000000000000000000), new BigNumber(20000000000000000000), new BigNumber(20000000000000000000)];
+    approvalAmount = ethers.utils.parseEther("1000000");;
+    amountAlice = ethers.utils.parseEther("50");;
+    amountBob = [ethers.utils.parseEther("10"), ethers.utils.parseEther("20"), ethers.utils.parseEther("20")];
     // Approve the contract to move our tokens
     await testToken.approve(dex.address, approvalAmount);
     await usdt.approve(dex.address, approvalAmount);
@@ -48,7 +49,7 @@ contract("MarsBaseExchange", async function (accounts) {
     // Define Constants
     const feeAlice = 10;
     const feeBob = 20;
-    const smallestChunkSize = new BigNumber(1000000000000000000);
+    const smallestChunkSize = ethers.utils.parseEther("1");
     const deadline = 0;
 
     // Create Offer
@@ -82,7 +83,7 @@ contract("MarsBaseExchange", async function (accounts) {
   it("has offer deadlines", async function () {
     const feeAlice = 10;
     const feeBob = 20;
-    const smallestChunkSize = new BigNumber(1000000000000000000);
+    const smallestChunkSize = ethers.utils.parseEther("1");
     const deadline = Date.now() + 10000;
 
     // Create Offer
@@ -101,7 +102,7 @@ contract("MarsBaseExchange", async function (accounts) {
   // it("can cancel all expired orders", async function () {
   //   const feeAlice = 10;
   //   const feeBob = 20;
-  //   const smallestChunkSize = new BigNumber(1000000000000000000);
+  //   const smallestChunkSize = ethers.utils.parseEther("1");
   //   const deadline = Date.now() + 10;
   //   const mockedExpireTime = deadline + 11;
 
@@ -133,7 +134,7 @@ contract("MarsBaseExchange", async function (accounts) {
 
     const feeAlice = 10;
     const feeBob = 20;
-    const smallestChunkSize = new BigNumber(1000000000000000000);
+    const smallestChunkSize = ethers.utils.parseEther("1");
     const deadline = 0;
 
     // Create Offer
@@ -150,11 +151,11 @@ contract("MarsBaseExchange", async function (accounts) {
 
   it("should calculate a price where amountAlice is stronger", async function () {
     // Define Constants
-    const amountAlice = new BigNumber(5000000000000000000);
-    const amountBob = new BigNumber(1000000000000000000);
+    const amountAlice = ethers.utils.parseEther("5")
+    const amountBob = ethers.utils.parseEther("1");
     const feeAlice = 10;
     const feeBob = 20;
-    const buyAmount = new BigNumber(1000000000000000000);
+    const buyAmount = ethers.utils.parseEther("1");
     const expectedAmount = (buyAmount * amountBob) / (amountAlice);
 
     let price = await dex.price(buyAmount, amountAlice, amountBob);
@@ -164,11 +165,11 @@ contract("MarsBaseExchange", async function (accounts) {
 
   it("should calculate a price where amountAlice is weaker", async function () {
     // Define Constants
-    const amountAlice = new BigNumber(1000000000000000000);
-    const amountBob = new BigNumber(5000000000000000000);
+    const amountAlice = ethers.utils.parseEther("1");
+    const amountBob = ethers.utils.parseEther("5")
     const feeAlice = 10;
     const feeBob = 20;
-    const buyAmount = new BigNumber(1000000000000000000);
+    const buyAmount = ethers.utils.parseEther("1");
     const expectedAmount = (buyAmount * amountBob) / amountAlice;
 
     let price = await dex.price(buyAmount, amountAlice, amountBob);
@@ -179,7 +180,7 @@ contract("MarsBaseExchange", async function (accounts) {
   it("should cancel an order if it's allowed", async function () {
     const feeAlice = 10;
     const feeBob = 20;
-    const smallestChunkSize = new BigNumber(1000000000000000000);
+    const smallestChunkSize = ethers.utils.parseEther("1");
     const deadline = 0;
 
     // Get users balance and total supply of TestToken
@@ -222,7 +223,7 @@ contract("MarsBaseExchange", async function (accounts) {
   it("should not cancel an order if its disabled", async function () {
     const feeAlice = 10;
     const feeBob = 20;
-    const smallestChunkSize = new BigNumber(1000000000000000000);
+    const smallestChunkSize = ethers.utils.parseEther("1");
     const deadline = 0;
 
     // Get users balance and total supply of TestToken
@@ -397,7 +398,7 @@ contract("MarsBaseExchange", async function (accounts) {
   it("should accept part of an order", async function () {
     const feeAlice = 10;
     const feeBob = 20;
-    const smallestChunkSize = new BigNumber(100000000000000);
+    const smallestChunkSize = ethers.utils.parseEther("1")
     const deadline = 0;
     const conversionnRate = amountAlice / amountBob[1];
     const amountAfterFeeAlice = smallestChunkSize * (1000 - feeAlice) / 1000;
@@ -438,7 +439,7 @@ contract("MarsBaseExchange", async function (accounts) {
   it("should accept part of an order for native ether", async function () {
     const feeAlice = 10;
     const feeBob = 20;
-    const smallestChunkSize = new BigNumber(100000000000000);
+    const smallestChunkSize = ethers.utils.parseEther("1")
     const deadline = 0;
     const conversionnRate = amountAlice / amountBob[1];
     const amountAfterFeeAlice = smallestChunkSize * (1000 - feeAlice) / 1000;
@@ -477,11 +478,11 @@ contract("MarsBaseExchange", async function (accounts) {
   });
 
   it("should allow price changes if allowed", async function () {
-    const changedAmountsBob = [new BigNumber(2000000000000000000)];
+    const changedAmountsBob = [ethers.utils.parseEther("20")];
     const changedTokensBob = [tokensBob[1]]
     const feeAlice = 10;
     const feeBob = 20;
-    const smallestChunkSize = new BigNumber(1000000000000000000);
+    const smallestChunkSize = ethers.utils.parseEther("1");
     const deadline = 0;
     const conversionnRate = amountAlice / amountBob[0];
     const amountAfterFeeAlice = smallestChunkSize * (1000 - feeAlice) / 1000;
@@ -528,7 +529,7 @@ contract("MarsBaseExchange", async function (accounts) {
   it("should reject price changes if its disabled", async function () {
     const feeAlice = 10;
     const feeBob = 20;
-    const smallestChunkSize = new BigNumber(1000000000000000000);
+    const smallestChunkSize = ethers.utils.parseEther("1");
     const deadline = 0;
     const conversionnRate = amountAlice / amountBob[0];
     const amountAfterFeeAlice = smallestChunkSize * (1000 - feeAlice) / 1000;
@@ -560,7 +561,7 @@ contract("MarsBaseExchange", async function (accounts) {
   it("should allow minimum chunk size changes", async function () {
     const feeAlice = 10;
     const feeBob = 20;
-    const smallestChunkSize = new BigNumber(1000000000000000000);
+    const smallestChunkSize = ethers.utils.parseEther("1");
     const changedSmallestChunkSize = 1;
     const deadline = 0;
 
@@ -607,7 +608,7 @@ contract("MarsBaseExchange", async function (accounts) {
   it("should close the order if all of an order is requested for part of an order", async function () {
     const feeAlice = 10;
     const feeBob = 20;
-    const smallestChunkSize = new BigNumber(1000000000000000000);
+    const smallestChunkSize = ethers.utils.parseEther("1");
     const deadline = 0;
 
     // Create the offer
@@ -645,7 +646,7 @@ contract("MarsBaseExchange", async function (accounts) {
   it("should close the order if all of an order is requested for part of an order with native ether", async function () {
     const feeAlice = 10;
     const feeBob = 20;
-    const smallestChunkSize = new BigNumber(1000000000000000000);
+    const smallestChunkSize = ethers.utils.parseEther("1");
     const deadline = 0;
 
     // Create the offer
@@ -683,8 +684,8 @@ contract("MarsBaseExchange", async function (accounts) {
   it("should hold tokens if the order minimum is not reached", async function () {
     const feeAlice = 10;
     const feeBob = 20;
-    const smallestChunkSize = new BigNumber(1000000000000000000);
-    const minimumSale = new BigNumber(2000000000000000000);
+    const smallestChunkSize = ethers.utils.parseEther("1");
+    const minimumSale = ethers.utils.parseEther("20");
     const deadline = 0;
 
     // Create the offer
@@ -728,8 +729,8 @@ contract("MarsBaseExchange", async function (accounts) {
   it("should hold native ether if the order minimum is not reached", async function () {
     const feeAlice = 10;
     const feeBob = 20;
-    const smallestChunkSize = new BigNumber(1000000000000000000);
-    const minimumSale = new BigNumber(2000000000000000000);
+    const smallestChunkSize = ethers.utils.parseEther("1");
+    const minimumSale = ethers.utils.parseEther("20");
     const deadline = 0;
 
     // Create the offer
@@ -773,8 +774,8 @@ contract("MarsBaseExchange", async function (accounts) {
   it("should send tokens if the order minimum is reached", async function () {
     const feeAlice = 10;
     const feeBob = 20;
-    const smallestChunkSize = new BigNumber(1000000000000000000);
-    const minimumSale = new BigNumber(2000000000000000000);
+    const smallestChunkSize = ethers.utils.parseEther("1");
+    const minimumSale = ethers.utils.parseEther("20");
     const deadline = 0;
 
     // Create the offer
@@ -816,8 +817,8 @@ contract("MarsBaseExchange", async function (accounts) {
   it("should send ether if the order minimum is reached", async function () {
     const feeAlice = 10;
     const feeBob = 20;
-    const smallestChunkSize = new BigNumber(1000000000000000000);
-    const minimumSale = new BigNumber(2000000000000000000);
+    const smallestChunkSize = ethers.utils.parseEther("1");
+    const minimumSale = ethers.utils.parseEther("20");
     const deadline = 0;
 
     // Create the offer
@@ -859,8 +860,8 @@ contract("MarsBaseExchange", async function (accounts) {
   it("should return tokens if the order minimum is not reached and offer is cancelled", async function () {
     const feeAlice = 10;
     const feeBob = 20;
-    const smallestChunkSize = new BigNumber(10000000000000000);
-    const minimumSale = new BigNumber(2000000000000000000);
+    const smallestChunkSize = ethers.utils.parseEther("1")
+    const minimumSale = ethers.utils.parseEther("20");
     const deadline = 0;
 
     // Create the offer
@@ -917,8 +918,8 @@ contract("MarsBaseExchange", async function (accounts) {
   it("should return ether if the order minimum is not reached and offer is cancelled", async function () {
     const feeAlice = 10;
     const feeBob = 20;
-    const smallestChunkSize = new BigNumber(10000000000000000);
-    const minimumSale = new BigNumber(2000000000000000000);
+    const smallestChunkSize = ethers.utils.parseEther("1")
+    const minimumSale = ethers.utils.parseEther("20");
     const deadline = 0;
 
     // Create the offer
@@ -938,7 +939,7 @@ contract("MarsBaseExchange", async function (accounts) {
     // Get the offer again, this time after it's been cancelled.
     let acceptedOffer = await dex.getOffer(0);
 
-    const conversionnRate = amountAlice / amountBob[2] * 2000;
+    const conversionnRate = amountAlice / amountBob[2] * 20;
 
     // Ensure everything adds up
     assert.equal(acceptedOffer.active, true);
@@ -952,7 +953,7 @@ contract("MarsBaseExchange", async function (accounts) {
     assert.equal(acceptedOffer.deadline, '0');
     assert.equal(acceptedOffer.minimumOrderAddresses[0], userAddress);
     assert.equal(acceptedOffer.minimumOrderAmountsBob[0], smallestChunkSize.toString());
-    assert.equal(acceptedOffer.minimumOrderAmountsAlice[0], (smallestChunkSize * conversionnRate).toString());
+    assert.equal(acceptedOffer.minimumOrderAmountsAlice[0], new BigNumber((smallestChunkSize * conversionnRate)).toFixed());
     assert.equal(acceptedOffer.minimumOrderTokens[0], tokensBob[2]);
 
     await dex.cancelOffer(0);
@@ -975,8 +976,8 @@ contract("MarsBaseExchange", async function (accounts) {
   it("should return tokens if the buyer cancels", async function () {
     const feeAlice = 10;
     const feeBob = 20;
-    const smallestChunkSize = new BigNumber(1000000000000000000);
-    const minimumSale = new BigNumber(2000000000000000000);
+    const smallestChunkSize = ethers.utils.parseEther("1");
+    const minimumSale = ethers.utils.parseEther("20");
     const deadline = 0;
 
     // Create the offer
@@ -1031,8 +1032,8 @@ contract("MarsBaseExchange", async function (accounts) {
   it("should return ether if the buyer cancels", async function () {
     const feeAlice = 10;
     const feeBob = 20;
-    const smallestChunkSize = new BigNumber(1000000000000000000);
-    const minimumSale = new BigNumber(2000000000000000000);
+    const smallestChunkSize = ethers.utils.parseEther("1");
+    const minimumSale = ethers.utils.parseEther("20");
     const deadline = 0;
 
     // Create the offer
