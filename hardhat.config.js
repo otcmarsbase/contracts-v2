@@ -21,7 +21,7 @@ module.exports = {
     }
   },
   contractSizer: {
-    disambiguatePaths: false,
+    disambiguatePaths: true,
     runOnCompile: true,
   },
   typechain: {

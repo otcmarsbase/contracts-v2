@@ -1,10 +1,9 @@
 const MarsBaseExchange = artifacts.require("MarsBaseExchange");
 const MarsBase = artifacts.require("MarsBase");
-const MarsBaseMinimumOffer = artifacts.require("MarsBase");
-const MarsBaseOffer = artifacts.require("MarsBaseExchange");
 const USDTCoin = artifacts.require("TetherToken");
 const TestToken = artifacts.require("TestToken");
 const EPICCoin = artifacts.require("EPICCoin");
+
 const assert = require('assert/strict');
 const { default: BigNumber } = require('bignumber.js');
 const ethers = require('ethers');
