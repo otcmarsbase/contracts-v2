@@ -1,30 +1,35 @@
-const MarsBaseExchange = artifacts.require("MarsBaseExchange");
-const MarsBase = artifacts.require("MarsBase");
-const USDTCoin = artifacts.require("TetherToken");
-const TestToken = artifacts.require("TestToken");
-const EPICCoin = artifacts.require("EPICCoin");
-
 const assert = require('assert/strict');
 const { default: BigNumber } = require('bignumber.js');
-const ethers = require('ethers');
+const { expect } = require("chai");
+const { ethers } = require("hardhat");
 
 /*
  * uncomment accounts to access the test accounts made available by the
  * Ethereum client
  * See docs: https://www.trufflesuite.com/docs/truffle/testing/writing-tests-in-javascript
  */
-contract("MarsBaseExchange", async function (accounts) {
+contract("MarsBaseExchange", async function () {
 
   beforeEach(async function() {
-    m = await MarsBase.new();
-    try {
-      MarsBaseExchange.link(m);
-    } catch {}
-    dex = await MarsBaseExchange.new();
-    testToken = await TestToken.new();
-    usdt = await USDTCoin.new(ethers.utils.parseEther("10000000"), "Tether", "USDT", 18);
-    epicCoin = await EPICCoin.new();
-    userAddress = accounts[0];
+    const accounts = await ethers.getSigners();
+    
+    const MarsBase = await await ethers.getContractFactory("MarsBase");
+    m = await MarsBase.deploy();
+
+    const MarsBaseExchange = await ethers.getContractFactory("MarsBaseExchange", {
+      libraries: {
+        MarsBase: m.address
+      }
+    });
+    const USDTCoin = await ethers.getContractFactory("TetherToken");
+    const TestToken = await ethers.getContractFactory("TestToken");
+    const EPICCoin = await ethers.getContractFactory("EPICCoin");
+
+    dex = await MarsBaseExchange.deploy();
+    testToken = await TestToken.deploy();
+    usdt = await USDTCoin.deploy(ethers.utils.parseEther("10000000"), "Tether", "USDT", 18);
+    epicCoin = await EPICCoin.deploy();
+    userAddress = accounts[0].address;
 
     approvalAmount = ethers.utils.parseEther("1000000");;
     amountAlice = ethers.utils.parseEther("50");;
@@ -91,9 +96,9 @@ contract("MarsBaseExchange", async function (accounts) {
     // Get the offer and ensure it's all set correctly
     let offer = await dex.getOffer(0);
 
-    assert.equal(offer.offerType, '3');
+    assert.equal(offer.offerType, 3);
     assert.equal(offer.active, true);
-    assert.equal(deadline.toString(), offer.deadline);
+    assert.equal(deadline.toString(), offer.deadline.toString());
 
     return;
   });
@@ -111,7 +116,7 @@ contract("MarsBaseExchange", async function (accounts) {
   //   // Get the offer and ensure it's all set correctly
   //   let offer = await dex.getOffer(0);
 
-  //   assert.equal(offer.offerType, '3');
+  //   assert.equal(offer.offerType, 3);
   //   assert.equal(offer.active, true);
   //   assert.equal(deadline.toString(), offer.deadline);
 
@@ -124,7 +129,7 @@ contract("MarsBaseExchange", async function (accounts) {
   //   let cancelledOffer = await dex.getOffer(0);
 
   //   assert.equal(cancelledOffer.active, false);
-  //   assert.equal(cancelledOffer.deadline, '0');
+  //   assert.equal(cancelledOffer.deadline.toString(), '0');
 
   //   return;
   // });
@@ -141,9 +146,9 @@ contract("MarsBaseExchange", async function (accounts) {
     // Get the offer and ensure it's all set correctly
     let offer = await dex.getOffer(0);
 
-    assert.equal(offer.offerType, '2');
+    assert.equal(offer.offerType, 2);
     assert.equal(offer.active, true);
-    assert.equal(deadline.toString(), offer.deadline);
+    assert.equal(deadline.toString(), offer.deadline.toString());
 
     return;
   });
@@ -198,7 +203,7 @@ contract("MarsBaseExchange", async function (accounts) {
 
     // Ensure the offerType has been correctly calculated
     // 2 is a chunked purchase
-    assert.equal(offer.offerType, '2');
+    assert.equal(offer.offerType, 2);
 
     // Cancel the offer, thus returning everything to its initial state
     await dex.cancelOffer(0);
@@ -241,7 +246,7 @@ contract("MarsBaseExchange", async function (accounts) {
 
     // Ensure the offerType has been correctly calculated
     // 2 is a chunked purchase
-    assert.equal(offer.offerType, '2');
+    assert.equal(offer.offerType, 2);
 
     // Cancel the offer, thus returning everything to its initial state
     assert.rejects(dex.cancelOffer(0, 2));
@@ -277,7 +282,7 @@ contract("MarsBaseExchange", async function (accounts) {
 
     // Ensure the offerType has been correctly calculated
     // 0 is Full Purchase
-    assert.equal(offer.offerType, '0');
+    assert.equal(offer.offerType, 0);
 
     // Cancel the offer, thus returning everything to its initial state
     await dex.acceptOffer(0, tokensBob[1], amountBob[1]);
@@ -293,7 +298,7 @@ contract("MarsBaseExchange", async function (accounts) {
     assert.equal(acceptedOffer.tokenBob.length, 0);
     assert.equal(acceptedOffer.offerer, "0x0000000000000000000000000000000000000000");
     assert.equal(acceptedOffer.payoutAddress, "0x0000000000000000000000000000000000000000");
-    assert.equal(acceptedOffer.deadline, deadline.toString());
+    assert.equal(acceptedOffer.deadline.toString(), deadline.toString());
 
     return;
     
@@ -327,7 +332,7 @@ contract("MarsBaseExchange", async function (accounts) {
 
     // Ensure the offerType has been correctly calculated
     // 0 is Full Purchase
-    assert.equal(offer.offerType, '0');
+    assert.equal(offer.offerType, 0);
 
     // Cancel the offer, thus returning everything to its initial state
     await dex.acceptOffer(0, tokensBob[2], amountBob[2], {value: smallestChunkSize});
@@ -343,7 +348,7 @@ contract("MarsBaseExchange", async function (accounts) {
     assert.equal(acceptedOffer.tokenBob.length, 0);
     assert.equal(acceptedOffer.offerer, "0x0000000000000000000000000000000000000000");
     assert.equal(acceptedOffer.payoutAddress, "0x0000000000000000000000000000000000000000");
-    assert.equal(acceptedOffer.deadline, deadline.toString());
+    assert.equal(acceptedOffer.deadline.toString(), deadline.toString());
 
     return;
     
@@ -365,7 +370,7 @@ contract("MarsBaseExchange", async function (accounts) {
 
     // Ensure the offerType has been correctly calculated
     // 0 is Full Purchase
-    assert.equal(offer.offerType, '0');
+    assert.equal(offer.offerType, 0);
 
     // Cancel the offer, thus returning everything to its initial state
     await dex.acceptOffer(0, tokensBob[1], amountBob[1]);
@@ -381,12 +386,12 @@ contract("MarsBaseExchange", async function (accounts) {
     assert.equal(acceptedOffer.tokenBob.length, 0);
     assert.equal(acceptedOffer.offerer, "0x0000000000000000000000000000000000000000");
     assert.equal(acceptedOffer.payoutAddress, "0x0000000000000000000000000000000000000000");
-    assert.equal(acceptedOffer.deadline, deadline.toString());
+    assert.equal(acceptedOffer.deadline.toString(), deadline.toString());
 
     // Ensure that only the second offer is open
     let offers = await dex.getAllOffers();
     assert.equal(offers.length, 2);
-    assert.equal(offers[0].offerId, "1");
+    assert.equal(offers[0].offerId.toString(), "1");
     assert.equal(offers[0].active, true);
     assert.equal(offers[1].active, false);
 
@@ -412,7 +417,7 @@ contract("MarsBaseExchange", async function (accounts) {
 
     // Ensure the offerType has been correctly calculated
     // 0 is Full Purchase
-    assert.equal(offer.offerType, '2');
+    assert.equal(offer.offerType, 2);
 
     // Cancel the offer, thus returning everything to its initial state
     await dex.acceptOffer(0, tokensBob[1], smallestChunkSize);
@@ -429,7 +434,7 @@ contract("MarsBaseExchange", async function (accounts) {
     assert.equal(acceptedOffer.tokenBob.length, 3);
     assert.equal(acceptedOffer.offerer, userAddress);
     assert.equal(acceptedOffer.payoutAddress, userAddress);
-    assert.equal(acceptedOffer.deadline, '0');
+    assert.equal(acceptedOffer.deadline.toString(), '0');
 
     return;
     
@@ -453,7 +458,7 @@ contract("MarsBaseExchange", async function (accounts) {
 
     // Ensure the offerType has been correctly calculated
     // 0 is Full Purchase
-    assert.equal(offer.offerType, '2');
+    assert.equal(offer.offerType, 2);
 
     // Cancel the offer, thus returning everything to its initial state
     await dex.acceptOffer(0, tokensBob[1], smallestChunkSize, {value: smallestChunkSize});
@@ -470,7 +475,7 @@ contract("MarsBaseExchange", async function (accounts) {
     assert.equal(acceptedOffer.tokenBob.length, 3);
     assert.equal(acceptedOffer.offerer, userAddress);
     assert.equal(acceptedOffer.payoutAddress, userAddress);
-    assert.equal(acceptedOffer.deadline, '0');
+    assert.equal(acceptedOffer.deadline.toString(), '0');
 
     return;
     
@@ -496,7 +501,7 @@ contract("MarsBaseExchange", async function (accounts) {
 
     // Ensure the offerType has been correctly calculated
     // 0 is Full Purchase
-    assert.equal(offer.offerType, '2');
+    assert.equal(offer.offerType, 2);
 
     // Ensure it's got all the right info
     assert.equal(offer.active, true);
@@ -519,7 +524,7 @@ contract("MarsBaseExchange", async function (accounts) {
     assert.equal(acceptedOffer.tokenBob.length, 1);
     assert.equal(acceptedOffer.offerer, userAddress);
     assert.equal(acceptedOffer.payoutAddress, userAddress);
-    assert.equal(acceptedOffer.deadline, '0');
+    assert.equal(acceptedOffer.deadline.toString(), '0');
 
     return;
     
@@ -543,7 +548,7 @@ contract("MarsBaseExchange", async function (accounts) {
 
     // Ensure the offerType has been correctly calculated
     // 0 is Full Purchase
-    assert.equal(offer.offerType, '2');
+    assert.equal(offer.offerType, 2);
 
     // Ensure it's got all the right info
     assert.equal(offer.active, true);
@@ -573,14 +578,14 @@ contract("MarsBaseExchange", async function (accounts) {
 
     // Ensure the offerType has been correctly calculated
     // 0 is Full Purchase
-    assert.equal(offer.offerType, '2');
+    assert.equal(offer.offerType, 2);
 
     // Ensure it's got all the right info
     assert.equal(offer.active, true);
     assert.equal(offer.amountBob.length, 3);
     assert.equal(offer.tokenAlice, testToken.address);
     assert.equal(offer.tokenBob.length, 3);
-    assert.equal(offer.smallestChunkSize, smallestChunkSize.toString());
+    assert.equal(offer.smallestChunkSize.toString(), smallestChunkSize.toString());
 
     // Cancel the offer, thus returning everything to its initial state
     await dex.changeOfferParams(0, tokensBob, tokensBob, {feeAlice: feeAlice, feeBob: feeBob, smallestChunkSize: changedSmallestChunkSize, deadline: deadline, cancelEnabled: true, modifyEnabled: true, minimumSize: 0, holdTokens: false});
@@ -595,10 +600,10 @@ contract("MarsBaseExchange", async function (accounts) {
     assert.equal(acceptedOffer.amountBob.length, 3);
     assert.equal(acceptedOffer.tokenAlice, testToken.address);
     assert.equal(acceptedOffer.tokenBob.length, 3);
-    assert.equal(acceptedOffer.smallestChunkSize, changedSmallestChunkSize.toString());
+    assert.equal(acceptedOffer.smallestChunkSize.toString(), changedSmallestChunkSize.toString());
     assert.equal(acceptedOffer.offerer, userAddress);
     assert.equal(acceptedOffer.payoutAddress, userAddress);
-    assert.equal(acceptedOffer.deadline, '0');
+    assert.equal(acceptedOffer.deadline.toString(), '0');
 
     return;
     
@@ -619,7 +624,7 @@ contract("MarsBaseExchange", async function (accounts) {
 
     // Ensure the offerType has been correctly calculated
     // 0 is Full Purchase
-    assert.equal(offer.offerType, '2');
+    assert.equal(offer.offerType, 2);
 
     // Cancel the offer, thus returning everything to its initial state
     await dex.acceptOffer(0, tokensBob[1], amountBob[1]);
@@ -636,7 +641,7 @@ contract("MarsBaseExchange", async function (accounts) {
     assert.equal(acceptedOffer.tokenBob.length, 0);
     assert.equal(acceptedOffer.offerer, "0x0000000000000000000000000000000000000000");
     assert.equal(acceptedOffer.payoutAddress, "0x0000000000000000000000000000000000000000");
-    assert.equal(acceptedOffer.deadline, deadline.toString());
+    assert.equal(acceptedOffer.deadline.toString(), deadline.toString());
 
     return;
     
@@ -657,7 +662,7 @@ contract("MarsBaseExchange", async function (accounts) {
 
     // Ensure the offerType has been correctly calculated
     // 0 is Full Purchase
-    assert.equal(offer.offerType, '2');
+    assert.equal(offer.offerType, 2);
 
     // Cancel the offer, thus returning everything to its initial state
     await dex.acceptOffer(0, tokensBob[2], amountBob[2], {value: amountBob[2]});
@@ -674,7 +679,7 @@ contract("MarsBaseExchange", async function (accounts) {
     assert.equal(acceptedOffer.tokenBob.length, 0);
     assert.equal(acceptedOffer.offerer, "0x0000000000000000000000000000000000000000");
     assert.equal(acceptedOffer.payoutAddress, "0x0000000000000000000000000000000000000000");
-    assert.equal(acceptedOffer.deadline, deadline.toString());
+    assert.equal(acceptedOffer.deadline.toString(), deadline.toString());
 
     return;
     
@@ -696,7 +701,7 @@ contract("MarsBaseExchange", async function (accounts) {
 
     // Ensure the offerType has been correctly calculated
     // 3 is Chunked Order with Minimum and No Expiration Time
-    assert.equal(offer.offerType, '4');
+    assert.equal(offer.offerType, 4);
 
     // Accept part of the offer without going over the minimum
     await dex.acceptOffer(0, tokensBob[1], smallestChunkSize);
@@ -715,10 +720,10 @@ contract("MarsBaseExchange", async function (accounts) {
     assert.equal(acceptedOffer.tokenBob.length, 3);
     assert.equal(acceptedOffer.offerer, userAddress);
     assert.equal(acceptedOffer.payoutAddress, userAddress);
-    assert.equal(acceptedOffer.deadline, '0');
+    assert.equal(acceptedOffer.deadline.toString(), '0');
     assert.equal(acceptedOffer.minimumOrderAddresses[0], userAddress);
-    assert.equal(acceptedOffer.minimumOrderAmountsBob[0], smallestChunkSize.toString());
-    assert.equal(acceptedOffer.minimumOrderAmountsAlice[0], (smallestChunkSize * conversionnRate).toString());
+    assert.equal(acceptedOffer.minimumOrderAmountsBob[0].toString(), smallestChunkSize.toString());
+    assert.equal(acceptedOffer.minimumOrderAmountsAlice[0].toString(), (smallestChunkSize * conversionnRate).toString());
     assert.equal(acceptedOffer.minimumOrderTokens[0], tokensBob[1]);
 
     return;
@@ -741,7 +746,7 @@ contract("MarsBaseExchange", async function (accounts) {
 
     // Ensure the offerType has been correctly calculated
     // 3 is Chunked Order with Minimum and No Expiration Time
-    assert.equal(offer.offerType, '4');
+    assert.equal(offer.offerType, 4);
 
     // Accept part of the offer without going over the minimum
     await dex.acceptOffer(0, tokensBob[2], smallestChunkSize, {value: smallestChunkSize});
@@ -760,10 +765,10 @@ contract("MarsBaseExchange", async function (accounts) {
     assert.equal(acceptedOffer.tokenBob.length, 3);
     assert.equal(acceptedOffer.offerer, userAddress);
     assert.equal(acceptedOffer.payoutAddress, userAddress);
-    assert.equal(acceptedOffer.deadline, '0');
+    assert.equal(acceptedOffer.deadline.toString(), '0');
     assert.equal(acceptedOffer.minimumOrderAddresses[0], userAddress);
-    assert.equal(acceptedOffer.minimumOrderAmountsBob[0], smallestChunkSize.toString());
-    assert.equal(acceptedOffer.minimumOrderAmountsAlice[0], (smallestChunkSize * conversionnRate).toString());
+    assert.equal(acceptedOffer.minimumOrderAmountsBob[0].toString(), smallestChunkSize.toString());
+    assert.equal(acceptedOffer.minimumOrderAmountsAlice[0].toString(), (smallestChunkSize * conversionnRate).toString());
     assert.equal(acceptedOffer.minimumOrderTokens[0], tokensBob[2]);
 
     return;
@@ -786,7 +791,7 @@ contract("MarsBaseExchange", async function (accounts) {
 
     // Ensure the offerType has been correctly calculated
     // 3 is Chunked Order with Minimum and No Expiration Time
-    assert.equal(offer.offerType, '4');
+    assert.equal(offer.offerType, 4);
 
     // Accept part of the offer without going over the minimum
     await dex.acceptOffer(0, tokensBob[1], minimumSale);
@@ -803,7 +808,7 @@ contract("MarsBaseExchange", async function (accounts) {
     assert.equal(acceptedOffer.tokenBob.length, 3);
     assert.equal(acceptedOffer.offerer, userAddress);
     assert.equal(acceptedOffer.payoutAddress, userAddress);
-    assert.equal(acceptedOffer.deadline, '0');
+    assert.equal(acceptedOffer.deadline.toString(), '0');
     assert.equal(acceptedOffer.minimumOrderAddresses.length, 0);
     assert.equal(acceptedOffer.minimumOrderAmountsBob.length, 0);
     assert.equal(acceptedOffer.minimumOrderAmountsAlice.length, 0);
@@ -829,7 +834,7 @@ contract("MarsBaseExchange", async function (accounts) {
 
     // Ensure the offerType has been correctly calculated
     // 3 is Chunked Order with Minimum and No Expiration Time
-    assert.equal(offer.offerType, '4');
+    assert.equal(offer.offerType, 4);
 
     // Accept part of the offer without going over the minimum
     await dex.acceptOffer(0, tokensBob[2], minimumSale, {value: minimumSale});
@@ -846,7 +851,7 @@ contract("MarsBaseExchange", async function (accounts) {
     assert.equal(acceptedOffer.tokenBob.length, 3);
     assert.equal(acceptedOffer.offerer, userAddress);
     assert.equal(acceptedOffer.payoutAddress, userAddress);
-    assert.equal(acceptedOffer.deadline, '0');
+    assert.equal(acceptedOffer.deadline.toString(), '0');
     assert.equal(acceptedOffer.minimumOrderAddresses.length, 0);
     assert.equal(acceptedOffer.minimumOrderAmountsBob.length, 0);
     assert.equal(acceptedOffer.minimumOrderAmountsAlice.length, 0);
@@ -872,7 +877,7 @@ contract("MarsBaseExchange", async function (accounts) {
 
     // Ensure the offerType has been correctly calculated
     // 3 is Chunked Order with Minimum and No Expiration Time
-    assert.equal(offer.offerType, '4');
+    assert.equal(offer.offerType, 4);
 
     // Accept part of the offer without going over the minimum
     await dex.acceptOffer(0, tokensBob[1], smallestChunkSize);
@@ -891,10 +896,10 @@ contract("MarsBaseExchange", async function (accounts) {
     assert.equal(acceptedOffer.tokenBob.length, 3);
     assert.equal(acceptedOffer.offerer, userAddress);
     assert.equal(acceptedOffer.payoutAddress, userAddress);
-    assert.equal(acceptedOffer.deadline, '0');
+    assert.equal(acceptedOffer.deadline.toString(), '0');
     assert.equal(acceptedOffer.minimumOrderAddresses[0], userAddress);
-    assert.equal(acceptedOffer.minimumOrderAmountsBob[0], smallestChunkSize.toString());
-    assert.equal(acceptedOffer.minimumOrderAmountsAlice[0], (smallestChunkSize * conversionnRate).toString());
+    assert.equal(acceptedOffer.minimumOrderAmountsBob[0].toString(), smallestChunkSize.toString());
+    assert.equal(acceptedOffer.minimumOrderAmountsAlice[0].toString(), (smallestChunkSize * conversionnRate).toString());
     assert.equal(acceptedOffer.minimumOrderTokens[0], tokensBob[1]);
 
     await dex.cancelOffer(0);
@@ -930,7 +935,7 @@ contract("MarsBaseExchange", async function (accounts) {
 
     // Ensure the offerType has been correctly calculated
     // 3 is Chunked Order with Minimum and No Expiration Time
-    assert.equal(offer.offerType, '4');
+    assert.equal(offer.offerType, 4);
 
     // Accept part of the offer without going over the minimum
     await dex.acceptOffer(0, tokensBob[2], smallestChunkSize, {value: smallestChunkSize});
@@ -949,10 +954,10 @@ contract("MarsBaseExchange", async function (accounts) {
     assert.equal(acceptedOffer.tokenBob.length, 3);
     assert.equal(acceptedOffer.offerer, userAddress);
     assert.equal(acceptedOffer.payoutAddress, userAddress);
-    assert.equal(acceptedOffer.deadline, '0');
+    assert.equal(acceptedOffer.deadline.toString(), '0');
     assert.equal(acceptedOffer.minimumOrderAddresses[0], userAddress);
-    assert.equal(acceptedOffer.minimumOrderAmountsBob[0], smallestChunkSize.toString());
-    assert.equal(acceptedOffer.minimumOrderAmountsAlice[0], new BigNumber((smallestChunkSize * conversionnRate)).toFixed());
+    assert.equal(acceptedOffer.minimumOrderAmountsBob[0].toString(), smallestChunkSize.toString());
+    assert.equal(acceptedOffer.minimumOrderAmountsAlice[0].toString(), new BigNumber((smallestChunkSize * conversionnRate)).toFixed());
     assert.equal(acceptedOffer.minimumOrderTokens[0], tokensBob[2]);
 
     await dex.cancelOffer(0);
@@ -988,7 +993,7 @@ contract("MarsBaseExchange", async function (accounts) {
 
     // Ensure the offerType has been correctly calculated
     // 3 is Chunked Order with Minimum and No Expiration Time
-    assert.equal(offer.offerType, '4');
+    assert.equal(offer.offerType, 4);
 
     // Accept part of the offer without going over the minimum
     await dex.acceptOffer(0, tokensBob[1], smallestChunkSize);
@@ -1007,10 +1012,10 @@ contract("MarsBaseExchange", async function (accounts) {
     assert.equal(acceptedOffer.tokenBob.length, 3);
     assert.equal(acceptedOffer.offerer, userAddress);
     assert.equal(acceptedOffer.payoutAddress, userAddress);
-    assert.equal(acceptedOffer.deadline, '0');
+    assert.equal(acceptedOffer.deadline.toString(), '0');
     assert.equal(acceptedOffer.minimumOrderAddresses[0], userAddress);
-    assert.equal(acceptedOffer.minimumOrderAmountsBob[0], smallestChunkSize.toString());
-    assert.equal(acceptedOffer.minimumOrderAmountsAlice[0], (smallestChunkSize * conversionnRate).toString());
+    assert.equal(acceptedOffer.minimumOrderAmountsBob[0].toString(), smallestChunkSize.toString());
+    assert.equal(acceptedOffer.minimumOrderAmountsAlice[0].toString(), (smallestChunkSize * conversionnRate).toString());
     assert.equal(acceptedOffer.minimumOrderTokens[0], tokensBob[1]);
 
     await dex.cancelBid(0);
@@ -1019,8 +1024,8 @@ contract("MarsBaseExchange", async function (accounts) {
 
     // Ensure it's no longer active and the amount in is 0
     assert.equal(cancelledOffer.active, true);
-    assert.equal(cancelledOffer.amountRemaining, amountAlice.toString());
-    assert.equal(cancelledOffer.minimumOrderAmountsAlice[0], "0");
+    assert.equal(cancelledOffer.amountRemaining.toString(), amountAlice.toString());
+    assert.equal(cancelledOffer.minimumOrderAmountsAlice[0].toString(), "0");
     assert.equal(cancelledOffer.minimumOrderAmountsAlice.length, 1);
     assert.equal(cancelledOffer.minimumOrderAddresses[0], "0x0000000000000000000000000000000000000000");
 
@@ -1044,7 +1049,7 @@ contract("MarsBaseExchange", async function (accounts) {
 
     // Ensure the offerType has been correctly calculated
     // 3 is Chunked Order with Minimum and No Expiration Time
-    assert.equal(offer.offerType, '4');
+    assert.equal(offer.offerType, 4);
 
     // Accept part of the offer without going over the minimum
     await dex.acceptOffer(0, tokensBob[2], smallestChunkSize, {value: smallestChunkSize});
@@ -1063,10 +1068,10 @@ contract("MarsBaseExchange", async function (accounts) {
     assert.equal(acceptedOffer.tokenBob.length, 3);
     assert.equal(acceptedOffer.offerer, userAddress);
     assert.equal(acceptedOffer.payoutAddress, userAddress);
-    assert.equal(acceptedOffer.deadline, '0');
+    assert.equal(acceptedOffer.deadline.toString(), '0');
     assert.equal(acceptedOffer.minimumOrderAddresses[0], userAddress);
-    assert.equal(acceptedOffer.minimumOrderAmountsBob[0], smallestChunkSize.toString());
-    assert.equal(acceptedOffer.minimumOrderAmountsAlice[0], (smallestChunkSize * conversionnRate).toString());
+    assert.equal(acceptedOffer.minimumOrderAmountsBob[0].toString(), smallestChunkSize.toString());
+    assert.equal(acceptedOffer.minimumOrderAmountsAlice[0].toString(), (smallestChunkSize * conversionnRate).toString());
     assert.equal(acceptedOffer.minimumOrderTokens[0], tokensBob[2]);
 
     await dex.cancelBid(0);
@@ -1075,8 +1080,8 @@ contract("MarsBaseExchange", async function (accounts) {
 
     // Ensure it's no longer active and the amount in is 0
     assert.equal(cancelledOffer.active, true);
-    assert.equal(cancelledOffer.amountRemaining, amountAlice.toString());
-    assert.equal(cancelledOffer.minimumOrderAmountsAlice[0], "0");
+    assert.equal(cancelledOffer.amountRemaining.toString(), amountAlice.toString());
+    assert.equal(cancelledOffer.minimumOrderAmountsAlice[0].toString(), "0");
     assert.equal(cancelledOffer.minimumOrderAmountsAlice.length, 1);
     assert.equal(cancelledOffer.minimumOrderAddresses[0], "0x0000000000000000000000000000000000000000");
 

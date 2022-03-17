@@ -5,6 +5,7 @@ const fs = require('fs');
 const mnemonic = fs.readFileSync(".secret").toString().trim();
 const infuraId = fs.readFileSync(".infuraid").toString().trim();
 
+require("@nomiclabs/hardhat-waffle");
 require("@nomiclabs/hardhat-truffle5");
 require('@typechain/hardhat');
 require("hardhat-gas-reporter");
