@@ -31,6 +31,7 @@ contract MarsBaseExchange {
         uint256 offerId,
         address sender,
         uint256 blockTimestamp,
+        uint256 amountAlice,
         uint256 amountBob,
         address tokenAddress,
         MarsBaseCommon.OfferType offerType
@@ -235,6 +236,7 @@ contract MarsBaseExchange {
             offerId,
             msg.sender,
             block.timestamp,
+            offer.amountRemaining - offers[offerId].amountRemaining,
             amountBob,
             tokenBob,
             offerType

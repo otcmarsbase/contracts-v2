@@ -118,18 +118,6 @@ export declare namespace MarsBaseCommon {
   };
 }
 
-export declare namespace MarsBaseExchange {
-  export type MBAddressesStruct = {
-    offersContract: string;
-    minimumOffersContract: string;
-  };
-
-  export type MBAddressesStructOutput = [string, string] & {
-    offersContract: string;
-    minimumOffersContract: string;
-  };
-}
-
 export interface MarsBaseExchangeInterface extends utils.Interface {
   contractName: "MarsBaseExchange";
   functions: {
@@ -140,15 +128,12 @@ export interface MarsBaseExchangeInterface extends utils.Interface {
     "changeOfferParams(uint256,address[],uint256[],(bool,bool,bool,uint256,uint256,uint256,uint256,uint256))": FunctionFragment;
     "createOffer(address,address[],uint256,uint256[],(bool,bool,bool,uint256,uint256,uint256,uint256,uint256))": FunctionFragment;
     "getAllOffers()": FunctionFragment;
-    "getContractAddresses()": FunctionFragment;
     "getNextOfferId()": FunctionFragment;
     "getOffer(uint256)": FunctionFragment;
     "getOwner()": FunctionFragment;
     "offers(uint256)": FunctionFragment;
     "price(uint256,uint256,uint256)": FunctionFragment;
     "setCommissionAddress(address)": FunctionFragment;
-    "setContractAddresses((address,address))": FunctionFragment;
-    "setDexAddress(address)": FunctionFragment;
     "setMinimumFee(uint256)": FunctionFragment;
   };
 
@@ -192,10 +177,6 @@ export interface MarsBaseExchangeInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "getContractAddresses",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
     functionFragment: "getNextOfferId",
     values?: undefined
   ): string;
@@ -214,14 +195,6 @@ export interface MarsBaseExchangeInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "setCommissionAddress",
-    values: [string]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setContractAddresses",
-    values: [MarsBaseExchange.MBAddressesStruct]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setDexAddress",
     values: [string]
   ): string;
   encodeFunctionData(
@@ -255,10 +228,6 @@ export interface MarsBaseExchangeInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "getContractAddresses",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "getNextOfferId",
     data: BytesLike
   ): Result;
@@ -271,14 +240,6 @@ export interface MarsBaseExchangeInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "setContractAddresses",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setDexAddress",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "setMinimumFee",
     data: BytesLike
   ): Result;
@@ -286,7 +247,7 @@ export interface MarsBaseExchangeInterface extends utils.Interface {
   events: {
     "BidCancelled(uint256,address,uint256)": EventFragment;
     "Log(uint256)": EventFragment;
-    "OfferAccepted(uint256,address,uint256,uint256,address,uint8)": EventFragment;
+    "OfferAccepted(uint256,address,uint256,uint256,uint256,address,uint8)": EventFragment;
     "OfferCancelled(uint256,address,uint256)": EventFragment;
     "OfferCreated(uint256,address,uint256,tuple)": EventFragment;
     "OfferModified(uint256,address,uint256,tuple)": EventFragment;
@@ -312,11 +273,12 @@ export type LogEvent = TypedEvent<[BigNumber], {log: BigNumber}>;
 export type LogEventFilter = TypedEventFilter<LogEvent>;
 
 export type OfferAcceptedEvent = TypedEvent<
-  [BigNumber, string, BigNumber, BigNumber, string, number],
+  [BigNumber, string, BigNumber, BigNumber, BigNumber, string, number],
   {
     offerId: BigNumber;
     sender: string;
     blockTimestamp: BigNumber;
+    amountAlice: BigNumber;
     amountBob: BigNumber;
     tokenAddress: string;
     offerType: number;
@@ -426,10 +388,6 @@ export interface MarsBaseExchange extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[MarsBaseCommon.MBOfferStructOutput[]]>;
 
-    getContractAddresses(
-      overrides?: CallOverrides
-    ): Promise<[MarsBaseExchange.MBAddressesStructOutput]>;
-
     getNextOfferId(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     getOffer(
@@ -486,16 +444,6 @@ export interface MarsBaseExchange extends BaseContract {
       overrides?: Overrides & {from?: string | Promise<string>}
     ): Promise<ContractTransaction>;
 
-    setContractAddresses(
-      addresses: MarsBaseExchange.MBAddressesStruct,
-      overrides?: Overrides & {from?: string | Promise<string>}
-    ): Promise<ContractTransaction>;
-
-    setDexAddress(
-      dex: string,
-      overrides?: Overrides & {from?: string | Promise<string>}
-    ): Promise<ContractTransaction>;
-
     setMinimumFee(
       _minimumFee: BigNumberish,
       overrides?: Overrides & {from?: string | Promise<string>}
@@ -543,10 +491,6 @@ export interface MarsBaseExchange extends BaseContract {
   getAllOffers(
     overrides?: CallOverrides
   ): Promise<MarsBaseCommon.MBOfferStructOutput[]>;
-
-  getContractAddresses(
-    overrides?: CallOverrides
-  ): Promise<MarsBaseExchange.MBAddressesStructOutput>;
 
   getNextOfferId(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -604,16 +548,6 @@ export interface MarsBaseExchange extends BaseContract {
     overrides?: Overrides & {from?: string | Promise<string>}
   ): Promise<ContractTransaction>;
 
-  setContractAddresses(
-    addresses: MarsBaseExchange.MBAddressesStruct,
-    overrides?: Overrides & {from?: string | Promise<string>}
-  ): Promise<ContractTransaction>;
-
-  setDexAddress(
-    dex: string,
-    overrides?: Overrides & {from?: string | Promise<string>}
-  ): Promise<ContractTransaction>;
-
   setMinimumFee(
     _minimumFee: BigNumberish,
     overrides?: Overrides & {from?: string | Promise<string>}
@@ -656,10 +590,6 @@ export interface MarsBaseExchange extends BaseContract {
     getAllOffers(
       overrides?: CallOverrides
     ): Promise<MarsBaseCommon.MBOfferStructOutput[]>;
-
-    getContractAddresses(
-      overrides?: CallOverrides
-    ): Promise<MarsBaseExchange.MBAddressesStructOutput>;
 
     getNextOfferId(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -717,13 +647,6 @@ export interface MarsBaseExchange extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    setContractAddresses(
-      addresses: MarsBaseExchange.MBAddressesStruct,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    setDexAddress(dex: string, overrides?: CallOverrides): Promise<void>;
-
     setMinimumFee(
       _minimumFee: BigNumberish,
       overrides?: CallOverrides
@@ -745,10 +668,11 @@ export interface MarsBaseExchange extends BaseContract {
     "Log(uint256)"(log?: null): LogEventFilter;
     Log(log?: null): LogEventFilter;
 
-    "OfferAccepted(uint256,address,uint256,uint256,address,uint8)"(
+    "OfferAccepted(uint256,address,uint256,uint256,uint256,address,uint8)"(
       offerId?: null,
       sender?: null,
       blockTimestamp?: null,
+      amountAlice?: null,
       amountBob?: null,
       tokenAddress?: null,
       offerType?: null
@@ -757,6 +681,7 @@ export interface MarsBaseExchange extends BaseContract {
       offerId?: null,
       sender?: null,
       blockTimestamp?: null,
+      amountAlice?: null,
       amountBob?: null,
       tokenAddress?: null,
       offerType?: null
@@ -841,8 +766,6 @@ export interface MarsBaseExchange extends BaseContract {
 
     getAllOffers(overrides?: CallOverrides): Promise<BigNumber>;
 
-    getContractAddresses(overrides?: CallOverrides): Promise<BigNumber>;
-
     getNextOfferId(overrides?: CallOverrides): Promise<BigNumber>;
 
     getOffer(
@@ -863,16 +786,6 @@ export interface MarsBaseExchange extends BaseContract {
 
     setCommissionAddress(
       wallet: string,
-      overrides?: Overrides & {from?: string | Promise<string>}
-    ): Promise<BigNumber>;
-
-    setContractAddresses(
-      addresses: MarsBaseExchange.MBAddressesStruct,
-      overrides?: Overrides & {from?: string | Promise<string>}
-    ): Promise<BigNumber>;
-
-    setDexAddress(
-      dex: string,
       overrides?: Overrides & {from?: string | Promise<string>}
     ): Promise<BigNumber>;
 
@@ -923,10 +836,6 @@ export interface MarsBaseExchange extends BaseContract {
 
     getAllOffers(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    getContractAddresses(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     getNextOfferId(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     getOffer(
@@ -950,16 +859,6 @@ export interface MarsBaseExchange extends BaseContract {
 
     setCommissionAddress(
       wallet: string,
-      overrides?: Overrides & {from?: string | Promise<string>}
-    ): Promise<PopulatedTransaction>;
-
-    setContractAddresses(
-      addresses: MarsBaseExchange.MBAddressesStruct,
-      overrides?: Overrides & {from?: string | Promise<string>}
-    ): Promise<PopulatedTransaction>;
-
-    setDexAddress(
-      dex: string,
       overrides?: Overrides & {from?: string | Promise<string>}
     ): Promise<PopulatedTransaction>;
 
