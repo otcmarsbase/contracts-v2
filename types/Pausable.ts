@@ -12,9 +12,9 @@ import {
   Signer,
   utils,
 } from "ethers";
-import {FunctionFragment, Result, EventFragment} from "@ethersproject/abi";
-import {Listener, Provider} from "@ethersproject/providers";
-import {TypedEventFilter, TypedEvent, TypedListener, OnEvent} from "./common";
+import { FunctionFragment, Result, EventFragment } from "@ethersproject/abi";
+import { Listener, Provider } from "@ethersproject/providers";
+import { TypedEventFilter, TypedEvent, TypedListener, OnEvent } from "./common";
 
 export interface PausableInterface extends utils.Interface {
   contractName: "Pausable";
@@ -92,36 +92,36 @@ export interface Pausable extends BaseContract {
     owner(overrides?: CallOverrides): Promise<[string]>;
 
     pause(
-      overrides?: Overrides & {from?: string | Promise<string>}
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     paused(overrides?: CallOverrides): Promise<[boolean]>;
 
     transferOwnership(
       newOwner: string,
-      overrides?: Overrides & {from?: string | Promise<string>}
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     unpause(
-      overrides?: Overrides & {from?: string | Promise<string>}
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
   };
 
   owner(overrides?: CallOverrides): Promise<string>;
 
   pause(
-    overrides?: Overrides & {from?: string | Promise<string>}
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   paused(overrides?: CallOverrides): Promise<boolean>;
 
   transferOwnership(
     newOwner: string,
-    overrides?: Overrides & {from?: string | Promise<string>}
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   unpause(
-    overrides?: Overrides & {from?: string | Promise<string>}
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   callStatic: {
@@ -151,18 +151,18 @@ export interface Pausable extends BaseContract {
     owner(overrides?: CallOverrides): Promise<BigNumber>;
 
     pause(
-      overrides?: Overrides & {from?: string | Promise<string>}
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     paused(overrides?: CallOverrides): Promise<BigNumber>;
 
     transferOwnership(
       newOwner: string,
-      overrides?: Overrides & {from?: string | Promise<string>}
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     unpause(
-      overrides?: Overrides & {from?: string | Promise<string>}
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
   };
 
@@ -170,18 +170,18 @@ export interface Pausable extends BaseContract {
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     pause(
-      overrides?: Overrides & {from?: string | Promise<string>}
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     paused(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     transferOwnership(
       newOwner: string,
-      overrides?: Overrides & {from?: string | Promise<string>}
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     unpause(
-      overrides?: Overrides & {from?: string | Promise<string>}
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
   };
 }

@@ -2,9 +2,9 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import {Contract, Signer, utils} from "ethers";
-import {Provider} from "@ethersproject/providers";
-import type {ERC20Basic, ERC20BasicInterface} from "../ERC20Basic";
+import { Contract, Signer, utils } from "ethers";
+import { Provider } from "@ethersproject/providers";
+import type { ERC20Basic, ERC20BasicInterface } from "../ERC20Basic";
 
 const _abi = [
   {

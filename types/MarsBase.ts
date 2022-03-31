@@ -11,9 +11,9 @@ import {
   Signer,
   utils,
 } from "ethers";
-import {FunctionFragment, Result} from "@ethersproject/abi";
-import {Listener, Provider} from "@ethersproject/providers";
-import {TypedEventFilter, TypedEvent, TypedListener, OnEvent} from "./common";
+import { FunctionFragment, Result } from "@ethersproject/abi";
+import { Listener, Provider } from "@ethersproject/providers";
+import { TypedEventFilter, TypedEvent, TypedListener, OnEvent } from "./common";
 
 export declare namespace MarsBaseCommon {
   export type MBOfferStruct = {

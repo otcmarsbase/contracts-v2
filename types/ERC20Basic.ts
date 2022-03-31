@@ -13,9 +13,9 @@ import {
   Signer,
   utils,
 } from "ethers";
-import {FunctionFragment, Result, EventFragment} from "@ethersproject/abi";
-import {Listener, Provider} from "@ethersproject/providers";
-import {TypedEventFilter, TypedEvent, TypedListener, OnEvent} from "./common";
+import { FunctionFragment, Result, EventFragment } from "@ethersproject/abi";
+import { Listener, Provider } from "@ethersproject/providers";
+import { TypedEventFilter, TypedEvent, TypedListener, OnEvent } from "./common";
 
 export interface ERC20BasicInterface extends utils.Interface {
   contractName: "ERC20Basic";
@@ -60,7 +60,7 @@ export interface ERC20BasicInterface extends utils.Interface {
 
 export type TransferEvent = TypedEvent<
   [string, string, BigNumber],
-  {from: string; to: string; value: BigNumber}
+  { from: string; to: string; value: BigNumber }
 >;
 
 export type TransferEventFilter = TypedEventFilter<TransferEvent>;
@@ -97,17 +97,17 @@ export interface ERC20Basic extends BaseContract {
 
     balanceOf(
       who: string,
-      overrides?: Overrides & {from?: string | Promise<string>}
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     totalSupply(
-      overrides?: Overrides & {from?: string | Promise<string>}
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     transfer(
       to: string,
       value: BigNumberish,
-      overrides?: Overrides & {from?: string | Promise<string>}
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
   };
 
@@ -115,17 +115,17 @@ export interface ERC20Basic extends BaseContract {
 
   balanceOf(
     who: string,
-    overrides?: Overrides & {from?: string | Promise<string>}
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   totalSupply(
-    overrides?: Overrides & {from?: string | Promise<string>}
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   transfer(
     to: string,
     value: BigNumberish,
-    overrides?: Overrides & {from?: string | Promise<string>}
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   callStatic: {
@@ -160,17 +160,17 @@ export interface ERC20Basic extends BaseContract {
 
     balanceOf(
       who: string,
-      overrides?: Overrides & {from?: string | Promise<string>}
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     totalSupply(
-      overrides?: Overrides & {from?: string | Promise<string>}
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     transfer(
       to: string,
       value: BigNumberish,
-      overrides?: Overrides & {from?: string | Promise<string>}
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
   };
 
@@ -179,17 +179,17 @@ export interface ERC20Basic extends BaseContract {
 
     balanceOf(
       who: string,
-      overrides?: Overrides & {from?: string | Promise<string>}
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     totalSupply(
-      overrides?: Overrides & {from?: string | Promise<string>}
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     transfer(
       to: string,
       value: BigNumberish,
-      overrides?: Overrides & {from?: string | Promise<string>}
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
   };
 }

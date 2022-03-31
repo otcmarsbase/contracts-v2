@@ -13,9 +13,9 @@ import {
   Signer,
   utils,
 } from "ethers";
-import {FunctionFragment, Result, EventFragment} from "@ethersproject/abi";
-import {Listener, Provider} from "@ethersproject/providers";
-import {TypedEventFilter, TypedEvent, TypedListener, OnEvent} from "./common";
+import { FunctionFragment, Result, EventFragment } from "@ethersproject/abi";
+import { Listener, Provider } from "@ethersproject/providers";
+import { TypedEventFilter, TypedEvent, TypedListener, OnEvent } from "./common";
 
 export interface BlackListInterface extends utils.Interface {
   contractName: "BlackList";
@@ -142,26 +142,26 @@ export interface BlackListInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "Transfer"): EventFragment;
 }
 
-export type AddedBlackListEvent = TypedEvent<[string], {_user: string}>;
+export type AddedBlackListEvent = TypedEvent<[string], { _user: string }>;
 
 export type AddedBlackListEventFilter = TypedEventFilter<AddedBlackListEvent>;
 
 export type DestroyedBlackFundsEvent = TypedEvent<
   [string, BigNumber],
-  {_blackListedUser: string; _balance: BigNumber}
+  { _blackListedUser: string; _balance: BigNumber }
 >;
 
 export type DestroyedBlackFundsEventFilter =
   TypedEventFilter<DestroyedBlackFundsEvent>;
 
-export type RemovedBlackListEvent = TypedEvent<[string], {_user: string}>;
+export type RemovedBlackListEvent = TypedEvent<[string], { _user: string }>;
 
 export type RemovedBlackListEventFilter =
   TypedEventFilter<RemovedBlackListEvent>;
 
 export type TransferEvent = TypedEvent<
   [string, string, BigNumber],
-  {from: string; to: string; value: BigNumber}
+  { from: string; to: string; value: BigNumber }
 >;
 
 export type TransferEventFilter = TypedEventFilter<TransferEvent>;
@@ -198,12 +198,12 @@ export interface BlackList extends BaseContract {
 
     addBlackList(
       _evilUser: string,
-      overrides?: Overrides & {from?: string | Promise<string>}
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     balanceOf(
       _owner: string,
-      overrides?: Overrides & {from?: string | Promise<string>}
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     balances(arg0: string, overrides?: CallOverrides): Promise<[BigNumber]>;
@@ -212,16 +212,16 @@ export interface BlackList extends BaseContract {
 
     destroyBlackFunds(
       _blackListedUser: string,
-      overrides?: Overrides & {from?: string | Promise<string>}
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     getBlackListStatus(
       _maker: string,
-      overrides?: Overrides & {from?: string | Promise<string>}
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     getOwner(
-      overrides?: Overrides & {from?: string | Promise<string>}
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     isBlackListed(arg0: string, overrides?: CallOverrides): Promise<[boolean]>;
@@ -232,22 +232,22 @@ export interface BlackList extends BaseContract {
 
     removeBlackList(
       _clearedUser: string,
-      overrides?: Overrides & {from?: string | Promise<string>}
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     totalSupply(
-      overrides?: Overrides & {from?: string | Promise<string>}
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     transfer(
       _to: string,
       _value: BigNumberish,
-      overrides?: Overrides & {from?: string | Promise<string>}
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     transferOwnership(
       newOwner: string,
-      overrides?: Overrides & {from?: string | Promise<string>}
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
   };
 
@@ -255,12 +255,12 @@ export interface BlackList extends BaseContract {
 
   addBlackList(
     _evilUser: string,
-    overrides?: Overrides & {from?: string | Promise<string>}
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   balanceOf(
     _owner: string,
-    overrides?: Overrides & {from?: string | Promise<string>}
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   balances(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
@@ -269,16 +269,16 @@ export interface BlackList extends BaseContract {
 
   destroyBlackFunds(
     _blackListedUser: string,
-    overrides?: Overrides & {from?: string | Promise<string>}
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   getBlackListStatus(
     _maker: string,
-    overrides?: Overrides & {from?: string | Promise<string>}
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   getOwner(
-    overrides?: Overrides & {from?: string | Promise<string>}
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   isBlackListed(arg0: string, overrides?: CallOverrides): Promise<boolean>;
@@ -289,22 +289,22 @@ export interface BlackList extends BaseContract {
 
   removeBlackList(
     _clearedUser: string,
-    overrides?: Overrides & {from?: string | Promise<string>}
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   totalSupply(
-    overrides?: Overrides & {from?: string | Promise<string>}
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   transfer(
     _to: string,
     _value: BigNumberish,
-    overrides?: Overrides & {from?: string | Promise<string>}
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   transferOwnership(
     newOwner: string,
-    overrides?: Overrides & {from?: string | Promise<string>}
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   callStatic: {
@@ -388,12 +388,12 @@ export interface BlackList extends BaseContract {
 
     addBlackList(
       _evilUser: string,
-      overrides?: Overrides & {from?: string | Promise<string>}
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     balanceOf(
       _owner: string,
-      overrides?: Overrides & {from?: string | Promise<string>}
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     balances(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
@@ -402,16 +402,16 @@ export interface BlackList extends BaseContract {
 
     destroyBlackFunds(
       _blackListedUser: string,
-      overrides?: Overrides & {from?: string | Promise<string>}
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     getBlackListStatus(
       _maker: string,
-      overrides?: Overrides & {from?: string | Promise<string>}
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     getOwner(
-      overrides?: Overrides & {from?: string | Promise<string>}
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     isBlackListed(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
@@ -422,22 +422,22 @@ export interface BlackList extends BaseContract {
 
     removeBlackList(
       _clearedUser: string,
-      overrides?: Overrides & {from?: string | Promise<string>}
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     totalSupply(
-      overrides?: Overrides & {from?: string | Promise<string>}
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     transfer(
       _to: string,
       _value: BigNumberish,
-      overrides?: Overrides & {from?: string | Promise<string>}
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     transferOwnership(
       newOwner: string,
-      overrides?: Overrides & {from?: string | Promise<string>}
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
   };
 
@@ -446,12 +446,12 @@ export interface BlackList extends BaseContract {
 
     addBlackList(
       _evilUser: string,
-      overrides?: Overrides & {from?: string | Promise<string>}
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     balanceOf(
       _owner: string,
-      overrides?: Overrides & {from?: string | Promise<string>}
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     balances(
@@ -463,16 +463,16 @@ export interface BlackList extends BaseContract {
 
     destroyBlackFunds(
       _blackListedUser: string,
-      overrides?: Overrides & {from?: string | Promise<string>}
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     getBlackListStatus(
       _maker: string,
-      overrides?: Overrides & {from?: string | Promise<string>}
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     getOwner(
-      overrides?: Overrides & {from?: string | Promise<string>}
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     isBlackListed(
@@ -486,22 +486,22 @@ export interface BlackList extends BaseContract {
 
     removeBlackList(
       _clearedUser: string,
-      overrides?: Overrides & {from?: string | Promise<string>}
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     totalSupply(
-      overrides?: Overrides & {from?: string | Promise<string>}
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     transfer(
       _to: string,
       _value: BigNumberish,
-      overrides?: Overrides & {from?: string | Promise<string>}
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     transferOwnership(
       newOwner: string,
-      overrides?: Overrides & {from?: string | Promise<string>}
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
   };
 }

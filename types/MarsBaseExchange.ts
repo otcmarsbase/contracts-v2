@@ -14,9 +14,9 @@ import {
   Signer,
   utils,
 } from "ethers";
-import {FunctionFragment, Result, EventFragment} from "@ethersproject/abi";
-import {Listener, Provider} from "@ethersproject/providers";
-import {TypedEventFilter, TypedEvent, TypedListener, OnEvent} from "./common";
+import { FunctionFragment, Result, EventFragment } from "@ethersproject/abi";
+import { Listener, Provider } from "@ethersproject/providers";
+import { TypedEventFilter, TypedEvent, TypedListener, OnEvent } from "./common";
 
 export declare namespace MarsBaseCommon {
   export type MBOfferStruct = {
@@ -263,12 +263,12 @@ export interface MarsBaseExchangeInterface extends utils.Interface {
 
 export type BidCancelledEvent = TypedEvent<
   [BigNumber, string, BigNumber],
-  {offerId: BigNumber; sender: string; blockTimestamp: BigNumber}
+  { offerId: BigNumber; sender: string; blockTimestamp: BigNumber }
 >;
 
 export type BidCancelledEventFilter = TypedEventFilter<BidCancelledEvent>;
 
-export type LogEvent = TypedEvent<[BigNumber], {log: BigNumber}>;
+export type LogEvent = TypedEvent<[BigNumber], { log: BigNumber }>;
 
 export type LogEventFilter = TypedEventFilter<LogEvent>;
 
@@ -289,7 +289,7 @@ export type OfferAcceptedEventFilter = TypedEventFilter<OfferAcceptedEvent>;
 
 export type OfferCancelledEvent = TypedEvent<
   [BigNumber, string, BigNumber],
-  {offerId: BigNumber; sender: string; blockTimestamp: BigNumber}
+  { offerId: BigNumber; sender: string; blockTimestamp: BigNumber }
 >;
 
 export type OfferCancelledEventFilter = TypedEventFilter<OfferCancelledEvent>;
@@ -350,21 +350,21 @@ export interface MarsBaseExchange extends BaseContract {
       offerId: BigNumberish,
       tokenBob: string,
       amountBob: BigNumberish,
-      overrides?: PayableOverrides & {from?: string | Promise<string>}
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     cancelBid(
       offerId: BigNumberish,
-      overrides?: Overrides & {from?: string | Promise<string>}
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     cancelExpiredOffers(
-      overrides?: PayableOverrides & {from?: string | Promise<string>}
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     cancelOffer(
       offerId: BigNumberish,
-      overrides?: Overrides & {from?: string | Promise<string>}
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     changeOfferParams(
@@ -372,7 +372,7 @@ export interface MarsBaseExchange extends BaseContract {
       tokenBob: string[],
       amountBob: BigNumberish[],
       offerParameters: MarsBaseCommon.OfferParamsStruct,
-      overrides?: Overrides & {from?: string | Promise<string>}
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     createOffer(
@@ -381,7 +381,7 @@ export interface MarsBaseExchange extends BaseContract {
       amountAlice: BigNumberish,
       amountBob: BigNumberish[],
       offerParameters: MarsBaseCommon.OfferParamsStruct,
-      overrides?: PayableOverrides & {from?: string | Promise<string>}
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     getAllOffers(
@@ -441,12 +441,12 @@ export interface MarsBaseExchange extends BaseContract {
 
     setCommissionAddress(
       wallet: string,
-      overrides?: Overrides & {from?: string | Promise<string>}
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     setMinimumFee(
       _minimumFee: BigNumberish,
-      overrides?: Overrides & {from?: string | Promise<string>}
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
   };
 
@@ -454,21 +454,21 @@ export interface MarsBaseExchange extends BaseContract {
     offerId: BigNumberish,
     tokenBob: string,
     amountBob: BigNumberish,
-    overrides?: PayableOverrides & {from?: string | Promise<string>}
+    overrides?: PayableOverrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   cancelBid(
     offerId: BigNumberish,
-    overrides?: Overrides & {from?: string | Promise<string>}
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   cancelExpiredOffers(
-    overrides?: PayableOverrides & {from?: string | Promise<string>}
+    overrides?: PayableOverrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   cancelOffer(
     offerId: BigNumberish,
-    overrides?: Overrides & {from?: string | Promise<string>}
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   changeOfferParams(
@@ -476,7 +476,7 @@ export interface MarsBaseExchange extends BaseContract {
     tokenBob: string[],
     amountBob: BigNumberish[],
     offerParameters: MarsBaseCommon.OfferParamsStruct,
-    overrides?: Overrides & {from?: string | Promise<string>}
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   createOffer(
@@ -485,7 +485,7 @@ export interface MarsBaseExchange extends BaseContract {
     amountAlice: BigNumberish,
     amountBob: BigNumberish[],
     offerParameters: MarsBaseCommon.OfferParamsStruct,
-    overrides?: PayableOverrides & {from?: string | Promise<string>}
+    overrides?: PayableOverrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   getAllOffers(
@@ -545,12 +545,12 @@ export interface MarsBaseExchange extends BaseContract {
 
   setCommissionAddress(
     wallet: string,
-    overrides?: Overrides & {from?: string | Promise<string>}
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   setMinimumFee(
     _minimumFee: BigNumberish,
-    overrides?: Overrides & {from?: string | Promise<string>}
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   callStatic: {
@@ -730,21 +730,21 @@ export interface MarsBaseExchange extends BaseContract {
       offerId: BigNumberish,
       tokenBob: string,
       amountBob: BigNumberish,
-      overrides?: PayableOverrides & {from?: string | Promise<string>}
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     cancelBid(
       offerId: BigNumberish,
-      overrides?: Overrides & {from?: string | Promise<string>}
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     cancelExpiredOffers(
-      overrides?: PayableOverrides & {from?: string | Promise<string>}
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     cancelOffer(
       offerId: BigNumberish,
-      overrides?: Overrides & {from?: string | Promise<string>}
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     changeOfferParams(
@@ -752,7 +752,7 @@ export interface MarsBaseExchange extends BaseContract {
       tokenBob: string[],
       amountBob: BigNumberish[],
       offerParameters: MarsBaseCommon.OfferParamsStruct,
-      overrides?: Overrides & {from?: string | Promise<string>}
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     createOffer(
@@ -761,7 +761,7 @@ export interface MarsBaseExchange extends BaseContract {
       amountAlice: BigNumberish,
       amountBob: BigNumberish[],
       offerParameters: MarsBaseCommon.OfferParamsStruct,
-      overrides?: PayableOverrides & {from?: string | Promise<string>}
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     getAllOffers(overrides?: CallOverrides): Promise<BigNumber>;
@@ -786,12 +786,12 @@ export interface MarsBaseExchange extends BaseContract {
 
     setCommissionAddress(
       wallet: string,
-      overrides?: Overrides & {from?: string | Promise<string>}
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     setMinimumFee(
       _minimumFee: BigNumberish,
-      overrides?: Overrides & {from?: string | Promise<string>}
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
   };
 
@@ -800,21 +800,21 @@ export interface MarsBaseExchange extends BaseContract {
       offerId: BigNumberish,
       tokenBob: string,
       amountBob: BigNumberish,
-      overrides?: PayableOverrides & {from?: string | Promise<string>}
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     cancelBid(
       offerId: BigNumberish,
-      overrides?: Overrides & {from?: string | Promise<string>}
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     cancelExpiredOffers(
-      overrides?: PayableOverrides & {from?: string | Promise<string>}
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     cancelOffer(
       offerId: BigNumberish,
-      overrides?: Overrides & {from?: string | Promise<string>}
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     changeOfferParams(
@@ -822,7 +822,7 @@ export interface MarsBaseExchange extends BaseContract {
       tokenBob: string[],
       amountBob: BigNumberish[],
       offerParameters: MarsBaseCommon.OfferParamsStruct,
-      overrides?: Overrides & {from?: string | Promise<string>}
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     createOffer(
@@ -831,7 +831,7 @@ export interface MarsBaseExchange extends BaseContract {
       amountAlice: BigNumberish,
       amountBob: BigNumberish[],
       offerParameters: MarsBaseCommon.OfferParamsStruct,
-      overrides?: PayableOverrides & {from?: string | Promise<string>}
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     getAllOffers(overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -859,12 +859,12 @@ export interface MarsBaseExchange extends BaseContract {
 
     setCommissionAddress(
       wallet: string,
-      overrides?: Overrides & {from?: string | Promise<string>}
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     setMinimumFee(
       _minimumFee: BigNumberish,
-      overrides?: Overrides & {from?: string | Promise<string>}
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
   };
 }
