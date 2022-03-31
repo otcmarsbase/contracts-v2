@@ -29,6 +29,10 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IERC20__factory>;
     getContractFactory(
+      name: "DAI",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.DAI__factory>;
+    getContractFactory(
       name: "EPICCoin",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.EPICCoin__factory>;
@@ -44,6 +48,10 @@ declare module "hardhat/types/runtime" {
       name: "TestToken",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.TestToken__factory>;
+    getContractFactory(
+      name: "USDT",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.USDT__factory>;
     getContractFactory(
       name: "BasicToken",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -102,6 +110,11 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.IERC20>;
     getContractAt(
+      name: "DAI",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.DAI>;
+    getContractAt(
       name: "EPICCoin",
       address: string,
       signer?: ethers.Signer
@@ -121,6 +134,11 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.TestToken>;
+    getContractAt(
+      name: "USDT",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.USDT>;
     getContractAt(
       name: "BasicToken",
       address: string,

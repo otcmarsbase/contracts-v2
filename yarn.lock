@@ -7281,7 +7281,7 @@
   "resolved" "https://registry.npmjs.org/ethereum-protocol/-/ethereum-protocol-1.0.1.tgz"
   "version" "1.0.1"
 
-"ethereum-waffle@^3.2.0", "ethereum-waffle@^3.4.0":
+"ethereum-waffle@*", "ethereum-waffle@^3.2.0":
   "integrity" "sha512-ADBqZCkoSA5Isk486ntKJVjFEawIiC+3HxNqpJqONvh3YXBTNiRfXvJtGuAFLXPG91QaqkGqILEHANAo7j/olQ=="
   "resolved" "https://registry.npmjs.org/ethereum-waffle/-/ethereum-waffle-3.4.0.tgz"
   "version" "3.4.0"
