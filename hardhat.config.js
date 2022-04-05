@@ -4,9 +4,11 @@
 const fs = require('fs');
 const mnemonic = fs.readFileSync(".secret").toString().trim();
 const infuraId = fs.readFileSync(".infuraid").toString().trim();
+const etherscanKey = fs.readFileSync(".etherscan").toString().trim();
 
 require("@nomiclabs/hardhat-waffle");
 require("@nomiclabs/hardhat-truffle5");
+require("@nomiclabs/hardhat-etherscan");
 require('@typechain/hardhat');
 require("hardhat-gas-reporter");
 require('hardhat-contract-sizer');
@@ -20,6 +22,11 @@ module.exports = {
         runs: 1
       }
     }
+  },
+  etherscan: {
+    // Your API key for Etherscan
+    // Obtain one at https://etherscan.io/
+    apiKey: etherscanKey
   },
   contractSizer: {
     disambiguatePaths: true,

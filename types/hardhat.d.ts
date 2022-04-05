@@ -29,6 +29,10 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IERC20__factory>;
     getContractFactory(
+      name: "BAT",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.BAT__factory>;
+    getContractFactory(
       name: "DAI",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.DAI__factory>;
@@ -48,6 +52,10 @@ declare module "hardhat/types/runtime" {
       name: "TestToken",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.TestToken__factory>;
+    getContractFactory(
+      name: "USDC",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.USDC__factory>;
     getContractFactory(
       name: "USDT",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -110,6 +118,11 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.IERC20>;
     getContractAt(
+      name: "BAT",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.BAT>;
+    getContractAt(
       name: "DAI",
       address: string,
       signer?: ethers.Signer
@@ -134,6 +147,11 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.TestToken>;
+    getContractAt(
+      name: "USDC",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.USDC>;
     getContractAt(
       name: "USDT",
       address: string,
