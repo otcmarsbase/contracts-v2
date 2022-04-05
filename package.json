@@ -36,7 +36,7 @@
 		"web3": "^1.7.0"
 	},
 	"scripts": {
-		"init-secret": "touch .secret && touch .infuraid",
+		"init-secret": "touch .secret && touch .infuraid && touch .etherscan",
 		"build": "hardhat compile",
 		"test": "echo \"Error: no test specified\" && exit 1"
 	},
