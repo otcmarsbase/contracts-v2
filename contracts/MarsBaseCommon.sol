@@ -17,6 +17,18 @@ library MarsBaseCommon {
     LimitedTimeMinimumChunkedDeadlinePurchase
   }
 
+  enum OfferCloseReason {
+    Success,
+    CancelledBySeller,
+    DeadlinePassed
+  }
+
+  event OfferClosed(
+    uint256 offerId,
+    OfferCloseReason reason,
+    uint256 blockTimestamp
+);
+
   /// @dev Offers is a simple offer type, that does the exchange immediately in all cases.
   /// @dev Minimum Offers can hold tokens until certain criteria are met.
   enum ContractType {
