@@ -78,6 +78,33 @@ contract("MarsBaseExchange", async function () {
     return;
   });
 
+  it("should not create an offer with smallest chunk size larger than amount alice", async function () {
+    // Define Constants
+    const feeAlice = 10;
+    const feeBob = 20;
+    const smallestChunkSize = ethers.utils.parseEther("1000");
+    const deadline = 0;
+
+    // Create Offer
+    assert.rejects(dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, {feeAlice: feeAlice, feeBob: feeBob, smallestChunkSize: smallestChunkSize.toString().toString(), deadline: deadline, cancelEnabled: true, modifyEnabled: true, minimumSize: 0, holdTokens: false}));
+    
+    return;
+  });
+
+  it("should not create an offer with minimum size larger than amount alice", async function () {
+    // Define Constants
+    const feeAlice = 10;
+    const feeBob = 20;
+    const smallestChunkSize = ethers.utils.parseEther("1");
+    const minimumSizeOver = ethers.utils.parseEther("100000");
+    const deadline = 0;
+
+    // Create Offer
+    assert.rejects(dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, {feeAlice: feeAlice, feeBob: feeBob, smallestChunkSize: smallestChunkSize.toString().toString(), deadline: deadline, cancelEnabled: true, modifyEnabled: true, minimumSize: minimumSizeOver.toString(), holdTokens: false}));
+
+    return;
+  });
+
   it("is ownable and owned initially by contract deployer", async function () {
     let owner = await dex.getOwner();
 

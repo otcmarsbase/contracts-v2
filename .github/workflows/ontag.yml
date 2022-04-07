@@ -51,7 +51,7 @@ jobs:
       - name: Cleanup source code
         run: rm -rf ./contracts ./migrations ./test ./truffle-config.js ./hardhat.config.js ./.gitignore
       - name: Cleanup secrets
-        run: rm -rf ./.secret ./.infuraid
+        run: rm -rf ./.secret ./.infuraid ./.etherscan
         
       - name: NPM Publish
         uses: JS-DevTools/npm-publish@v1
