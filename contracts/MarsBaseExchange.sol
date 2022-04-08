@@ -44,6 +44,12 @@ contract MarsBaseExchange {
         uint256 blockTimestamp
     );
 
+    event OfferClosed(
+        uint256 offerId,
+        MarsBaseCommon.OfferCloseReason reason,
+        uint256 blockTimestamp
+    );
+
     /// Emitted when a buyer cancels their bid for a offer were tokens have not been exchanged yet and are still held by the contract.
     event BidCancelled(uint256 offerId, address sender, uint256 blockTimestamp);
 
@@ -177,6 +183,7 @@ contract MarsBaseExchange {
     function cancelOffer(uint256 offerId) public {
         offers[offerId] = MarsBase.cancelOffer(offers[offerId]);
         emit OfferCancelled(offerId, msg.sender, block.timestamp);
+        emit OfferClosed(offerId, MarsBaseCommon.OfferCloseReason.CancelledBySeller, block.timestamp);
     }
 
     /// Calculate the price for a given situarion
@@ -232,6 +239,10 @@ contract MarsBaseExchange {
             );
         }
 
+        if (offers[offerId].active == false) {
+            emit OfferClosed(offerId, MarsBaseCommon.OfferCloseReason.Success, block.timestamp);
+        }
+
         emit OfferAccepted(
             offerId,
             msg.sender,
@@ -284,8 +295,11 @@ contract MarsBaseExchange {
                 MarsBase.contractType(offers[index].offerType) == MarsBaseCommon.ContractType.Offers
             ) {
                 offers[index] = MarsBase.cancelExpiredOffer(offers[index]);
+                emit OfferClosed(index, MarsBaseCommon.OfferCloseReason.DeadlinePassed, block.timestamp);
             } else {
                 offers[index] = MarsBase.cancelExpiredMinimumOffer(offers[index]);
+                emit OfferClosed(index, MarsBaseCommon.OfferCloseReason.DeadlinePassed, block.timestamp);
+
             }
         }
     }

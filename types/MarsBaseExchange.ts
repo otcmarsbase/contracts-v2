@@ -249,6 +249,7 @@ export interface MarsBaseExchangeInterface extends utils.Interface {
     "Log(uint256)": EventFragment;
     "OfferAccepted(uint256,address,uint256,uint256,uint256,address,uint8)": EventFragment;
     "OfferCancelled(uint256,address,uint256)": EventFragment;
+    "OfferClosed(uint256,uint8,uint256)": EventFragment;
     "OfferCreated(uint256,address,uint256,tuple)": EventFragment;
     "OfferModified(uint256,address,uint256,tuple)": EventFragment;
   };
@@ -257,6 +258,7 @@ export interface MarsBaseExchangeInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "Log"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OfferAccepted"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OfferCancelled"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "OfferClosed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OfferCreated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OfferModified"): EventFragment;
 }
@@ -293,6 +295,13 @@ export type OfferCancelledEvent = TypedEvent<
 >;
 
 export type OfferCancelledEventFilter = TypedEventFilter<OfferCancelledEvent>;
+
+export type OfferClosedEvent = TypedEvent<
+  [BigNumber, number, BigNumber],
+  { offerId: BigNumber; reason: number; blockTimestamp: BigNumber }
+>;
+
+export type OfferClosedEventFilter = TypedEventFilter<OfferClosedEvent>;
 
 export type OfferCreatedEvent = TypedEvent<
   [BigNumber, string, BigNumber, MarsBaseCommon.MBOfferStructOutput],
@@ -697,6 +706,17 @@ export interface MarsBaseExchange extends BaseContract {
       sender?: null,
       blockTimestamp?: null
     ): OfferCancelledEventFilter;
+
+    "OfferClosed(uint256,uint8,uint256)"(
+      offerId?: null,
+      reason?: null,
+      blockTimestamp?: null
+    ): OfferClosedEventFilter;
+    OfferClosed(
+      offerId?: null,
+      reason?: null,
+      blockTimestamp?: null
+    ): OfferClosedEventFilter;
 
     "OfferCreated(uint256,address,uint256,tuple)"(
       offerId?: null,

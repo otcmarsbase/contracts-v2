@@ -206,7 +206,6 @@ library MarsBase {
     offer = payMinimumOffer(offer, tokensSold, acceptedTokenBob, amountAfterFeeAlice, amountAfterFeeBob, partialAmountAlice, partialAmountBob);
 
     if (offer.amountRemaining == 0 || (tokensSold >= offer.minimumSize && offer.capabilities[2] == true && offer.deadline < block.timestamp)) {
-      emit MarsBaseCommon.OfferClosed(offer.offerId, MarsBaseCommon.OfferCloseReason.Success, block.timestamp);
       delete offer;
     }
 
@@ -231,8 +230,6 @@ library MarsBase {
     }
 
     require(IERC20(offer.tokenAlice).transfer(offer.offerer, offer.amountAlice), "T1b");
-
-    emit MarsBaseCommon.OfferClosed(offer.offerId, MarsBaseCommon.OfferCloseReason.DeadlinePassed, block.timestamp);
 
     delete offer;
 
@@ -345,8 +342,6 @@ library MarsBase {
       require(IERC20(offer.tokenAlice).transfer(offer.offerer, offer.amountAlice), "T1b");
     }
 
-    emit MarsBaseCommon.OfferClosed(offer.offerId, MarsBaseCommon.OfferCloseReason.CancelledBySeller, block.timestamp);
-
     delete offer;
 
     return offer;
@@ -414,8 +409,6 @@ library MarsBase {
       require(success, "t1b");
       require(IERC20(offer.tokenAlice).transfer(msg.sender, amountAfterFeeAlice), "T1b");
     }
-    
-    emit MarsBaseCommon.OfferClosed(offer.offerId, MarsBaseCommon.OfferCloseReason.Success, block.timestamp);
 
     delete offer;
 
@@ -471,7 +464,6 @@ library MarsBase {
     offer.amountRemaining -= partialAmountAlice;
 
     if (offer.amountRemaining == 0) {
-      emit MarsBaseCommon.OfferClosed(offer.offerId, MarsBaseCommon.OfferCloseReason.Success, block.timestamp);
       delete offer;
     }
 
@@ -493,8 +485,6 @@ library MarsBase {
     } else {
       require(IERC20(offer.tokenAlice).transfer(offer.offerer, offer.amountRemaining), "T1b");
     }
-
-    emit MarsBaseCommon.OfferClosed(offer.offerId, MarsBaseCommon.OfferCloseReason.DeadlinePassed, block.timestamp);
 
     delete offer;
 
