@@ -137,7 +137,7 @@ library MarsBase {
 
     require(amountAlice >= offerParameters.smallestChunkSize, "M1");
     require(amountAlice >= offerParameters.minimumSize, "M13");
-    require(block.timestamp >= offerParameters.deadline, "M2");
+    require(block.timestamp < offerParameters.deadline || offerParameters.deadline == 0, "M2");
 
     if (tokenAlice != address(0)) {
       require(IERC20(offer.tokenAlice).transferFrom(msg.sender, address(this), amountAlice), "T1a");

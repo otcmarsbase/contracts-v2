@@ -78,6 +78,38 @@ contract("MarsBaseExchange", async function () {
     return;
   });
 
+  it("should not create an offer with a deadline in the past", async function () {
+    // Define Constants
+    const feeAlice = 10;
+    const feeBob = 20;
+    const smallestChunkSize = ethers.utils.parseEther("1000");
+    const deadline = 100;
+
+    // Create Offer
+    assert.rejects(dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, {feeAlice: feeAlice, feeBob: feeBob, smallestChunkSize: smallestChunkSize.toString().toString(), deadline: deadline, cancelEnabled: true, modifyEnabled: true, minimumSize: 0, holdTokens: false}));
+    
+    return;
+  });
+
+  it("allows no offer deadline to be set", async function () {
+    const feeAlice = 10;
+    const feeBob = 20;
+    const smallestChunkSize = ethers.utils.parseEther("1");
+    const deadline = 0;
+
+    // Create Offer
+    await dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, {feeAlice: feeAlice, feeBob: feeBob, smallestChunkSize: smallestChunkSize.toString(), deadline: deadline, cancelEnabled: true, modifyEnabled: true, minimumSize: 0, holdTokens: false});
+
+    // Get the offer and ensure it's all set correctly
+    let offer = await dex.getOffer(0);
+
+    assert.equal(offer.offerType, 2);
+    assert.equal(offer.active, true);
+    assert.equal(deadline.toString(), offer.deadline.toString());
+
+    return;
+  });
+
   it("should not create an offer with smallest chunk size larger than amount alice", async function () {
     // Define Constants
     const feeAlice = 10;
