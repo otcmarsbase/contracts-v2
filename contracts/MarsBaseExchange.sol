@@ -50,6 +50,8 @@ contract MarsBaseExchange {
         uint256 blockTimestamp
     );
 
+    event ContractMigrated();
+
     /// Emitted when a buyer cancels their bid for a offer were tokens have not been exchanged yet and are still held by the contract.
     event BidCancelled(uint256 offerId, address sender, uint256 blockTimestamp);
 
@@ -66,12 +68,15 @@ contract MarsBaseExchange {
 
     address commissionWallet;
 
+    bool locked;
+
     mapping(uint256 => MarsBaseCommon.MBOffer) public offers;
 
     /// Constructor sets owner and commission wallet to the contract creator initially.
     constructor() {
         owner = msg.sender;
         commissionWallet = msg.sender;
+        locked = false;
     }
 
     struct MBAddresses {
@@ -79,9 +84,14 @@ contract MarsBaseExchange {
         address minimumOffersContract;
     }
 
+    modifier unlocked {
+        require(locked == false, "S9");
+        _;
+    }
+
     /// Updates the address where the commisions are sent
     /// Can only be called by the owner
-    function setCommissionAddress(address wallet) public {
+    function setCommissionAddress(address wallet) unlocked public {
         require(msg.sender == owner, "S7");
         require(wallet != address(0), "T0");
 
@@ -92,10 +102,16 @@ contract MarsBaseExchange {
     /// Can be only called by the owner
     /// Is in the format of an integer, with a maximum of 1000.
     /// For example, 1% fee is 10, 100% is 1000 and 0.1% is 1.
-    function setMinimumFee(uint256 _minimumFee) public {
+    function setMinimumFee(uint256 _minimumFee) unlocked public {
         require(msg.sender == owner, "S7");
 
         minimumFee = _minimumFee;
+    }
+
+    function setNextOfferId(uint256 _nextOfferId) unlocked public {
+        require(msg.sender == owner, "S7");
+
+        nextOfferId = _nextOfferId;
     }
 
     /// Gets an offer by its id
@@ -154,7 +170,7 @@ contract MarsBaseExchange {
         uint256 amountAlice,
         uint256[] calldata amountBob,
         MarsBaseCommon.OfferParams calldata offerParameters
-    ) public payable {
+    ) unlocked public payable {
         require(
             offerParameters.feeAlice + offerParameters.feeBob >= minimumFee,
             "M0"
@@ -180,7 +196,7 @@ contract MarsBaseExchange {
 
     /// Cancels the offer at the provided ID
     /// Must be the offer creator.
-    function cancelOffer(uint256 offerId) public {
+    function cancelOffer(uint256 offerId) unlocked public {
         offers[offerId] = MarsBase.cancelOffer(offers[offerId]);
         emit OfferCancelled(offerId, msg.sender, block.timestamp);
         emit OfferClosed(offerId, MarsBaseCommon.OfferCloseReason.CancelledBySeller, block.timestamp);
@@ -203,7 +219,7 @@ contract MarsBaseExchange {
         uint256 offerId,
         address tokenBob,
         uint256 amountBob
-    ) public payable {
+    ) unlocked public payable {
         MarsBaseCommon.MBOffer memory offer = offers[offerId];
         MarsBaseCommon.OfferType offerType = offer.offerType;
 
@@ -260,7 +276,7 @@ contract MarsBaseExchange {
         address[] calldata tokenBob,
         uint256[] calldata amountBob,
         MarsBaseCommon.OfferParams calldata offerParameters
-    ) public {
+    ) unlocked public {
         offers[offerId] = MarsBase.changeOfferParams(
             offers[offerId],
             tokenBob,
@@ -278,14 +294,14 @@ contract MarsBaseExchange {
 
     /// Allows the buyer to cancel his bid in situations where the exchange has not occured yet.
     /// This applys only to offers where minimumSize is greater than zero and the minimum has not been met.
-    function cancelBid(uint256 offerId) public {
+    function cancelBid(uint256 offerId) unlocked public {
         offers[offerId] = MarsBase.cancelBid(offers[offerId]);
 
         emit BidCancelled(offerId, msg.sender, block.timestamp);
     }
 
     /// A function callable by the contract owner to cancel all offers where the time has expired.
-    function cancelExpiredOffers() public payable {
+    function cancelExpiredOffers() unlocked public payable {
         require(msg.sender == owner, "S8");
 
         for (uint256 index = 0; index < nextOfferId; index++) {
@@ -302,5 +318,26 @@ contract MarsBaseExchange {
 
             }
         }
+    }
+
+    function migrateContract() unlocked public payable {
+        require(msg.sender == owner, "S8");
+
+        for (uint256 index = 0; index < nextOfferId; index++) {
+            if (
+                offers[index].active == true &&
+                MarsBase.contractType(offers[index].offerType) == MarsBaseCommon.ContractType.Offers
+            ) {
+                offers[index] = MarsBase.cancelExpiredOffer(offers[index]);
+                emit OfferClosed(index, MarsBaseCommon.OfferCloseReason.DeadlinePassed, block.timestamp);
+            } else if (offers[index].active == true) {
+                offers[index] = MarsBase.cancelExpiredMinimumOffer(offers[index]);
+                emit OfferClosed(index, MarsBaseCommon.OfferCloseReason.DeadlinePassed, block.timestamp);
+            }
+        }
+
+        locked = true;
+
+        emit ContractMigrated();
     }
 }

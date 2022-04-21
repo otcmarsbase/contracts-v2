@@ -31,9 +31,10 @@ contract("MarsBaseExchange", async function () {
     epicCoin = await EPICCoin.deploy();
     userAddress = accounts[0].address;
 
-    approvalAmount = ethers.utils.parseEther("1000000");;
+    approvalAmount = ethers.utils.parseEther("1000000");
     amountAlice = ethers.utils.parseEther("50");;
     amountBob = [ethers.utils.parseEther("10"), ethers.utils.parseEther("20"), ethers.utils.parseEther("20")];
+
     // Approve the contract to move our tokens
     await testToken.approve(dex.address, approvalAmount);
     await usdt.approve(dex.address, approvalAmount);
@@ -278,6 +279,53 @@ contract("MarsBaseExchange", async function () {
     assert.equal(cancelledOffer.tokenBob.length, 0);
     assert.equal(cancelledOffer.offerer, "0x0000000000000000000000000000000000000000");
     assert.equal(cancelledOffer.payoutAddress, "0x0000000000000000000000000000000000000000");
+
+    return;
+    
+  });
+
+  it("should cancel all offers and migrate", async function () {
+    const feeAlice = 10;
+    const feeBob = 20;
+    const smallestChunkSize = ethers.utils.parseEther("1");
+    const deadline = 0;
+
+    // Get users balance and total supply of TestToken
+    let initialUserTestTokenBalance = await testToken.balanceOf(userAddress);
+    const testTokenTotalSupply = await testToken.totalSupply();
+    
+    // Check that it's all assigned to us
+    assert.equal(initialUserTestTokenBalance.toString(), testTokenTotalSupply.toString());
+
+    // Create the offer
+    await dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, {feeAlice: feeAlice, feeBob: feeBob, smallestChunkSize: smallestChunkSize.toString(), deadline: deadline, cancelEnabled: true, modifyEnabled: true, minimumSize: 0, holdTokens: false});
+
+    // Ensure the offer is active
+    let offer = await dex.getOffer(0);
+    assert.equal(offer.active, true);
+
+    // Ensure the offerType has been correctly calculated
+    // 2 is a chunked purchase
+    assert.equal(offer.offerType, 2);
+
+    // Cancel the offer, thus returning everything to its initial state
+    await dex.migrateContract();
+
+    // Get the offer again, this time after it's been cancelled.
+    let cancelledOffer = await dex.getOffer(0);
+
+    // Ensure it's no longer active and the amount in is 0
+    assert.equal(cancelledOffer.active, false);
+    assert.equal(cancelledOffer.amountAlice.toString(), "0");
+    assert.equal(cancelledOffer.amountBob.length, 0);
+    assert.equal(cancelledOffer.tokenAlice, "0x0000000000000000000000000000000000000000");
+    assert.equal(cancelledOffer.tokenBob.length, 0);
+    assert.equal(cancelledOffer.offerer, "0x0000000000000000000000000000000000000000");
+    assert.equal(cancelledOffer.payoutAddress, "0x0000000000000000000000000000000000000000");
+
+    // Create the offer
+    assert.rejects(dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, {feeAlice: feeAlice, feeBob: feeBob, smallestChunkSize: smallestChunkSize.toString(), deadline: deadline, cancelEnabled: true, modifyEnabled: true, minimumSize: 0, holdTokens: false}));
+
 
     return;
     
@@ -773,7 +821,7 @@ contract("MarsBaseExchange", async function () {
     // Ensure everything adds up
     assert.equal(acceptedOffer.active, true);
     assert.equal(acceptedOffer.amountAlice.toString(), amountAlice.toString());
-    assert.equal(acceptedOffer.amountRemaining.toString(), (amountAlice - smallestChunkSize).toString());
+    assert.equal(acceptedOffer.amountRemaining.toString(), (amountAlice * (1000 - feeAlice - feeBob) / 1000 - smallestChunkSize).toString());
     assert.equal(acceptedOffer.amountBob.length, 3);
     assert.equal(acceptedOffer.tokenAlice, testToken.address);
     assert.equal(acceptedOffer.tokenBob.length, 3);
@@ -861,7 +909,7 @@ contract("MarsBaseExchange", async function () {
     // Ensure everything adds up
     assert.equal(acceptedOffer.active, true);
     assert.equal(acceptedOffer.amountAlice.toString(), amountAlice.toString());
-    assert.equal(acceptedOffer.amountRemaining.toString(), (amountAlice - (minimumSale)).toString());
+    assert.equal(acceptedOffer.amountRemaining.toString(), (amountAlice  * (1000 - feeAlice - feeBob) / 1000 - (minimumSale)).toString());
     assert.equal(acceptedOffer.amountBob.length, 3);
     assert.equal(acceptedOffer.tokenAlice, testToken.address);
     assert.equal(acceptedOffer.tokenBob.length, 3);
@@ -1096,7 +1144,7 @@ contract("MarsBaseExchange", async function () {
     const feeAlice = 10;
     const feeBob = 20;
     const smallestChunkSize = ethers.utils.parseEther("1");
-    const minimumSale = ethers.utils.parseEther("20");
+    const minimumSale = amountAlice;
     const deadline = 0;
 
     // Create the offer
@@ -1116,29 +1164,17 @@ contract("MarsBaseExchange", async function () {
     // Get the offer again, this time after it's been cancelled.
     let acceptedOffer = await dex.getOffer(0);
 
-    const conversionnRate = amountAlice / amountBob[2] * 20;
+    const conversionnRate = amountAlice / amountBob[2];
 
     // Ensure everything adds up
-    assert.equal(acceptedOffer.active, true);
-    assert.equal(acceptedOffer.amountAlice.toString(), amountAlice.toString());
-    assert.equal(acceptedOffer.amountRemaining.toString(), (amountAlice - smallestChunkSize).toString());
-    assert.equal(acceptedOffer.amountBob.length, 3);
-    assert.equal(acceptedOffer.tokenAlice, testToken.address);
-    assert.equal(acceptedOffer.tokenBob.length, 3);
-    assert.equal(acceptedOffer.offerer, userAddress);
-    assert.equal(acceptedOffer.payoutAddress, userAddress);
-    assert.equal(acceptedOffer.deadline.toString(), '0');
-    assert.equal(acceptedOffer.minimumOrderAddresses[0], userAddress);
-    assert.equal(acceptedOffer.minimumOrderAmountsBob[0].toString(), smallestChunkSize.toString());
-    assert.equal(acceptedOffer.minimumOrderAmountsAlice[0].toString(), (smallestChunkSize * conversionnRate).toString());
-    assert.equal(acceptedOffer.minimumOrderTokens[0], tokensBob[2]);
+    assert.equal(acceptedOffer.active, false);
 
     await dex.cancelBid(0);
 
     let cancelledOffer = await dex.getOffer(0);
 
     // Ensure it's no longer active and the amount in is 0
-    assert.equal(cancelledOffer.active, true);
+    assert.equal(cancelledOffer.active, false);
     assert.equal(cancelledOffer.amountRemaining.toString(), amountAlice.toString());
     assert.equal(cancelledOffer.minimumOrderAmountsAlice[0].toString(), "0");
     assert.equal(cancelledOffer.minimumOrderAmountsAlice.length, 1);

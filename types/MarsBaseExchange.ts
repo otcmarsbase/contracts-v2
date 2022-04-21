@@ -131,10 +131,12 @@ export interface MarsBaseExchangeInterface extends utils.Interface {
     "getNextOfferId()": FunctionFragment;
     "getOffer(uint256)": FunctionFragment;
     "getOwner()": FunctionFragment;
+    "migrateContract()": FunctionFragment;
     "offers(uint256)": FunctionFragment;
     "price(uint256,uint256,uint256)": FunctionFragment;
     "setCommissionAddress(address)": FunctionFragment;
     "setMinimumFee(uint256)": FunctionFragment;
+    "setNextOfferId(uint256)": FunctionFragment;
   };
 
   encodeFunctionData(
@@ -186,6 +188,10 @@ export interface MarsBaseExchangeInterface extends utils.Interface {
   ): string;
   encodeFunctionData(functionFragment: "getOwner", values?: undefined): string;
   encodeFunctionData(
+    functionFragment: "migrateContract",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "offers",
     values: [BigNumberish]
   ): string;
@@ -199,6 +205,10 @@ export interface MarsBaseExchangeInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "setMinimumFee",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setNextOfferId",
     values: [BigNumberish]
   ): string;
 
@@ -233,6 +243,10 @@ export interface MarsBaseExchangeInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "getOffer", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "getOwner", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "migrateContract",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "offers", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "price", data: BytesLike): Result;
   decodeFunctionResult(
@@ -243,9 +257,14 @@ export interface MarsBaseExchangeInterface extends utils.Interface {
     functionFragment: "setMinimumFee",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "setNextOfferId",
+    data: BytesLike
+  ): Result;
 
   events: {
     "BidCancelled(uint256,address,uint256)": EventFragment;
+    "ContractMigrated()": EventFragment;
     "Log(uint256)": EventFragment;
     "OfferAccepted(uint256,address,uint256,uint256,uint256,address,uint8)": EventFragment;
     "OfferCancelled(uint256,address,uint256)": EventFragment;
@@ -255,6 +274,7 @@ export interface MarsBaseExchangeInterface extends utils.Interface {
   };
 
   getEvent(nameOrSignatureOrTopic: "BidCancelled"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "ContractMigrated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Log"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OfferAccepted"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OfferCancelled"): EventFragment;
@@ -269,6 +289,11 @@ export type BidCancelledEvent = TypedEvent<
 >;
 
 export type BidCancelledEventFilter = TypedEventFilter<BidCancelledEvent>;
+
+export type ContractMigratedEvent = TypedEvent<[], {}>;
+
+export type ContractMigratedEventFilter =
+  TypedEventFilter<ContractMigratedEvent>;
 
 export type LogEvent = TypedEvent<[BigNumber], { log: BigNumber }>;
 
@@ -406,6 +431,10 @@ export interface MarsBaseExchange extends BaseContract {
 
     getOwner(overrides?: CallOverrides): Promise<[string]>;
 
+    migrateContract(
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
     offers(
       arg0: BigNumberish,
       overrides?: CallOverrides
@@ -455,6 +484,11 @@ export interface MarsBaseExchange extends BaseContract {
 
     setMinimumFee(
       _minimumFee: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    setNextOfferId(
+      _nextOfferId: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
   };
@@ -510,6 +544,10 @@ export interface MarsBaseExchange extends BaseContract {
 
   getOwner(overrides?: CallOverrides): Promise<string>;
 
+  migrateContract(
+    overrides?: PayableOverrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
   offers(
     arg0: BigNumberish,
     overrides?: CallOverrides
@@ -562,6 +600,11 @@ export interface MarsBaseExchange extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
+  setNextOfferId(
+    _nextOfferId: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
   callStatic: {
     acceptOffer(
       offerId: BigNumberish,
@@ -608,6 +651,8 @@ export interface MarsBaseExchange extends BaseContract {
     ): Promise<MarsBaseCommon.MBOfferStructOutput>;
 
     getOwner(overrides?: CallOverrides): Promise<string>;
+
+    migrateContract(overrides?: CallOverrides): Promise<void>;
 
     offers(
       arg0: BigNumberish,
@@ -660,6 +705,11 @@ export interface MarsBaseExchange extends BaseContract {
       _minimumFee: BigNumberish,
       overrides?: CallOverrides
     ): Promise<void>;
+
+    setNextOfferId(
+      _nextOfferId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
   };
 
   filters: {
@@ -673,6 +723,9 @@ export interface MarsBaseExchange extends BaseContract {
       sender?: null,
       blockTimestamp?: null
     ): BidCancelledEventFilter;
+
+    "ContractMigrated()"(): ContractMigratedEventFilter;
+    ContractMigrated(): ContractMigratedEventFilter;
 
     "Log(uint256)"(log?: null): LogEventFilter;
     Log(log?: null): LogEventFilter;
@@ -795,6 +848,10 @@ export interface MarsBaseExchange extends BaseContract {
 
     getOwner(overrides?: CallOverrides): Promise<BigNumber>;
 
+    migrateContract(
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
     offers(arg0: BigNumberish, overrides?: CallOverrides): Promise<BigNumber>;
 
     price(
@@ -811,6 +868,11 @@ export interface MarsBaseExchange extends BaseContract {
 
     setMinimumFee(
       _minimumFee: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    setNextOfferId(
+      _nextOfferId: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
   };
@@ -865,6 +927,10 @@ export interface MarsBaseExchange extends BaseContract {
 
     getOwner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
+    migrateContract(
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
     offers(
       arg0: BigNumberish,
       overrides?: CallOverrides
@@ -884,6 +950,11 @@ export interface MarsBaseExchange extends BaseContract {
 
     setMinimumFee(
       _minimumFee: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setNextOfferId(
+      _nextOfferId: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
   };

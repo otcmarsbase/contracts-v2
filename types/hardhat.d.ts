@@ -41,6 +41,10 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.EPICCoin__factory>;
     getContractFactory(
+      name: "LOOKS",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.LOOKS__factory>;
+    getContractFactory(
       name: "MarsBase",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.MarsBase__factory>;
@@ -132,6 +136,11 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.EPICCoin>;
+    getContractAt(
+      name: "LOOKS",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.LOOKS>;
     getContractAt(
       name: "MarsBase",
       address: string,

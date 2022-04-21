@@ -198,15 +198,15 @@ library MarsBase {
     require(partialAmountBob >= 0, "M6");
 
     require(partialAmountAlice >= offer.smallestChunkSize, "M1");
-    require(partialAmountAlice <= offer.amountRemaining, "M10");
+    // require(partialAmountAlice <= offer.amountRemaining, "M10");
     
-    offer.amountRemaining -= partialAmountBob;
+    offer.amountRemaining -= partialAmountAlice;
 
     uint256 tokensSold = offer.amountAlice - offer.amountRemaining;
 
     offer = payMinimumOffer(offer, tokensSold, acceptedTokenBob, amountAfterFeeAlice, amountAfterFeeBob, partialAmountAlice, partialAmountBob);
 
-    if (offer.amountRemaining == 0 || (tokensSold >= offer.minimumSize && offer.capabilities[2] == true && offer.deadline < block.timestamp)) {
+    if (offer.amountRemaining == 0) {
       delete offer;
     }
 
@@ -262,7 +262,12 @@ library MarsBase {
             require(IERC20(offer.tokenAlice).transfer(offer.minimumOrderAddresses[index], offer.minimumOrderAmountsBob[index] * (1000-offer.feeBob) / 1000), "T1b");
           }
         }
-    }
+      }
+
+      if (offer.amountRemaining > 0 && (((offer.amountRemaining * 1000) / (offer.amountAlice) <= 10) || offer.smallestChunkSize > offer.amountRemaining)) {
+        require(IERC20(offer.tokenAlice).transfer(offer.payoutAddress, offer.amountRemaining), "T1b");
+        offer.amountRemaining = 0;
+      }
 
     } else if (tokensSold < offer.minimumSize && offer.capabilities[2] == true && offer.offerType == MarsBaseCommon.OfferType.LimitedTimeMinimumChunkedDeadlinePurchase && offer.deadline < block.timestamp) {
       cancelExpiredMinimumOffer(offer);
