@@ -821,7 +821,7 @@ contract("MarsBaseExchange", async function () {
     // Ensure everything adds up
     assert.equal(acceptedOffer.active, true);
     assert.equal(acceptedOffer.amountAlice.toString(), amountAlice.toString());
-    assert.equal(acceptedOffer.amountRemaining.toString(), (amountAlice * (1000 - feeAlice - feeBob) / 1000 - smallestChunkSize).toString());
+    assert.equal(acceptedOffer.amountRemaining.toString(), (amountAlice - smallestChunkSize).toString());
     assert.equal(acceptedOffer.amountBob.length, 3);
     assert.equal(acceptedOffer.tokenAlice, testToken.address);
     assert.equal(acceptedOffer.tokenBob.length, 3);
@@ -909,7 +909,7 @@ contract("MarsBaseExchange", async function () {
     // Ensure everything adds up
     assert.equal(acceptedOffer.active, true);
     assert.equal(acceptedOffer.amountAlice.toString(), amountAlice.toString());
-    assert.equal(acceptedOffer.amountRemaining.toString(), (amountAlice  * (1000 - feeAlice - feeBob) / 1000 - (minimumSale)).toString());
+    assert.equal(acceptedOffer.amountRemaining.toString(), (amountAlice - minimumSale).toString());
     assert.equal(acceptedOffer.amountBob.length, 3);
     assert.equal(acceptedOffer.tokenAlice, testToken.address);
     assert.equal(acceptedOffer.tokenBob.length, 3);
@@ -1167,14 +1167,14 @@ contract("MarsBaseExchange", async function () {
     const conversionnRate = amountAlice / amountBob[2];
 
     // Ensure everything adds up
-    assert.equal(acceptedOffer.active, false);
+    assert.equal(acceptedOffer.active, true);
 
     await dex.cancelBid(0);
 
     let cancelledOffer = await dex.getOffer(0);
 
     // Ensure it's no longer active and the amount in is 0
-    assert.equal(cancelledOffer.active, false);
+    assert.equal(cancelledOffer.active, true);
     assert.equal(cancelledOffer.amountRemaining.toString(), amountAlice.toString());
     assert.equal(cancelledOffer.minimumOrderAmountsAlice[0].toString(), "0");
     assert.equal(cancelledOffer.minimumOrderAmountsAlice.length, 1);
