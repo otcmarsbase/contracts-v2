@@ -391,6 +391,10 @@ contract("MarsBaseExchange", async function () {
     // 0 is Full Purchase
     assert.equal(offer.offerType, 0);
 
+    let block = await ethers.provider.getBlock("latest");
+
+    let blockTimestamp = block.timestamp + 1;
+
     // Cancel the offer, thus returning everything to its initial state
     await dex.acceptOffer(0, tokensBob[1], amountBob[1]);
 

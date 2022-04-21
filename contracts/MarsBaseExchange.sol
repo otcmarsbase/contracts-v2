@@ -255,19 +255,19 @@ contract MarsBaseExchange {
             );
         }
 
-        if (offers[offerId].active == false) {
-            emit OfferClosed(offerId, MarsBaseCommon.OfferCloseReason.Success, block.timestamp);
-        }
-
         emit OfferAccepted(
             offerId,
             msg.sender,
             block.timestamp,
-            offer.amountRemaining - offers[offerId].amountRemaining,
+            offers[offerId].amountRemaining,
             amountBob,
             tokenBob,
             offerType
         );
+
+        if (offers[offerId].active == false) {
+            emit OfferClosed(offerId, MarsBaseCommon.OfferCloseReason.Success, block.timestamp);
+        }
     }
 
     /// Allows the offer creator to set the offer parameters after creation.
