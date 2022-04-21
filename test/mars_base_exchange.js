@@ -415,6 +415,63 @@ contract("MarsBaseExchange", async function () {
     
   });
 
+  it("should withdraw commission for a token", async function () {
+    const feeAlice = 10;
+    const feeBob = 20;
+    const smallestChunkSize = 0;
+    const deadline = 0;
+    const amountAfterFeeAlice = amountAlice * (1000 - feeAlice) / 1000;
+    const amountAfterFeeBob = amountBob[1] * (1000 - feeBob) / 1000;
+
+    // Get users balance and total supply of TestToken and USDT
+    let initialUserTestTokenBalance = await testToken.balanceOf(userAddress);
+    const testTokenTotalSupply = await testToken.totalSupply();
+
+    let initialUserEpicCoinBalance = await epicCoin.balanceOf(userAddress);
+    const epicCoinTotalSupply = await epicCoin.totalSupply();
+
+    // Check that it's all assigned to us
+    assert.equal(initialUserTestTokenBalance.toString(), testTokenTotalSupply.toString());
+    assert.equal(initialUserEpicCoinBalance.toString(), epicCoinTotalSupply.toString());
+
+    // Create the offer
+    await dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, {feeAlice: feeAlice, feeBob: feeBob, smallestChunkSize: smallestChunkSize.toString(), deadline: deadline, cancelEnabled: true, modifyEnabled: true, minimumSize: 0, holdTokens: false});
+
+    // Ensure the offer is active
+    let offer = await dex.getOffer(0);
+    assert.equal(offer.active, true);
+
+    // Ensure the offerType has been correctly calculated
+    // 0 is Full Purchase
+    assert.equal(offer.offerType, 0);
+
+    let block = await ethers.provider.getBlock("latest");
+
+    let blockTimestamp = block.timestamp + 1;
+
+    // Cancel the offer, thus returning everything to its initial state
+    await dex.acceptOffer(0, tokensBob[1], amountBob[1]);
+
+    // Get the offer again, this time after it's been cancelled.
+    let acceptedOffer = await dex.getOffer(0);
+
+    // Ensure it's no longer active and the amount in/out is 0
+    assert.equal(acceptedOffer.active, false);
+    assert.equal(acceptedOffer.amountAlice.toString(), "0");
+    assert.equal(acceptedOffer.amountBob.length, 0);
+    assert.equal(acceptedOffer.tokenAlice, "0x0000000000000000000000000000000000000000");
+    assert.equal(acceptedOffer.tokenBob.length, 0);
+    assert.equal(acceptedOffer.offerer, "0x0000000000000000000000000000000000000000");
+    assert.equal(acceptedOffer.payoutAddress, "0x0000000000000000000000000000000000000000");
+    assert.equal(acceptedOffer.deadline.toString(), deadline.toString());
+
+    await dex.withdrawCommission(tokensBob[1], 10);
+    await dex.withdrawCommission(testToken.address, 10);
+
+    return;
+    
+  });
+
   it("should complete an order for native ether", async function () {
     const feeAlice = 10;
     const feeBob = 20;
@@ -460,6 +517,59 @@ contract("MarsBaseExchange", async function () {
     assert.equal(acceptedOffer.offerer, "0x0000000000000000000000000000000000000000");
     assert.equal(acceptedOffer.payoutAddress, "0x0000000000000000000000000000000000000000");
     assert.equal(acceptedOffer.deadline.toString(), deadline.toString());
+
+    return;
+    
+  });
+
+  it("should withdraw commission for native ether", async function () {
+    const feeAlice = 10;
+    const feeBob = 20;
+    const smallestChunkSize = 0;
+    const deadline = 0;
+    const amountAfterFeeAlice = amountAlice * (1000 - feeAlice) / 1000;
+    const amountAfterFeeBob = amountBob[1] * (1000 - feeBob) / 1000;
+
+    // Get users balance and total supply of TestToken and USDT
+    let initialUserTestTokenBalance = await testToken.balanceOf(userAddress);
+    const testTokenTotalSupply = await testToken.totalSupply();
+
+    let initialUserEpicCoinBalance = await epicCoin.balanceOf(userAddress);
+    const epicCoinTotalSupply = await epicCoin.totalSupply();
+
+    // Check that it's all assigned to us
+    assert.equal(initialUserTestTokenBalance.toString(), testTokenTotalSupply.toString());
+    assert.equal(initialUserEpicCoinBalance.toString(), epicCoinTotalSupply.toString());
+
+    // Create the offer
+    await dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, {feeAlice: feeAlice, feeBob: feeBob, smallestChunkSize: smallestChunkSize.toString(), deadline: deadline, cancelEnabled: true, modifyEnabled: true, minimumSize: 0, holdTokens: false});
+
+    // Ensure the offer is active
+    let offer = await dex.getOffer(0);
+    assert.equal(offer.active, true);
+
+    // Ensure the offerType has been correctly calculated
+    // 0 is Full Purchase
+    assert.equal(offer.offerType, 0);
+
+    // Cancel the offer, thus returning everything to its initial state
+    await dex.acceptOffer(0, tokensBob[2], amountBob[2], {value: smallestChunkSize});
+
+    // Get the offer again, this time after it's been cancelled.
+    let acceptedOffer = await dex.getOffer(0);
+
+    // Ensure it's no longer active and the amount in/out is 0
+    assert.equal(acceptedOffer.active, false);
+    assert.equal(acceptedOffer.amountAlice.toString(), "0");
+    assert.equal(acceptedOffer.amountBob.length, 0);
+    assert.equal(acceptedOffer.tokenAlice, "0x0000000000000000000000000000000000000000");
+    assert.equal(acceptedOffer.tokenBob.length, 0);
+    assert.equal(acceptedOffer.offerer, "0x0000000000000000000000000000000000000000");
+    assert.equal(acceptedOffer.payoutAddress, "0x0000000000000000000000000000000000000000");
+    assert.equal(acceptedOffer.deadline.toString(), deadline.toString());
+
+    await dex.withdrawCommission("0x0000000000000000000000000000000000000000", 1);
+    await dex.withdrawCommission(testToken.address, 10);
 
     return;
     

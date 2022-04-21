@@ -196,7 +196,7 @@ contract MarsBaseExchange {
 
     /// Cancels the offer at the provided ID
     /// Must be the offer creator.
-    function cancelOffer(uint256 offerId) unlocked public {
+    function cancelOffer(uint256 offerId) public {
         offers[offerId] = MarsBase.cancelOffer(offers[offerId]);
         emit OfferCancelled(offerId, msg.sender, block.timestamp);
         emit OfferClosed(offerId, MarsBaseCommon.OfferCloseReason.CancelledBySeller, block.timestamp);
@@ -294,14 +294,14 @@ contract MarsBaseExchange {
 
     /// Allows the buyer to cancel his bid in situations where the exchange has not occured yet.
     /// This applys only to offers where minimumSize is greater than zero and the minimum has not been met.
-    function cancelBid(uint256 offerId) unlocked public {
+    function cancelBid(uint256 offerId) public {
         offers[offerId] = MarsBase.cancelBid(offers[offerId]);
 
         emit BidCancelled(offerId, msg.sender, block.timestamp);
     }
 
     /// A function callable by the contract owner to cancel all offers where the time has expired.
-    function cancelExpiredOffers() unlocked public payable {
+    function cancelExpiredOffers() public payable {
         require(msg.sender == owner, "S8");
 
         for (uint256 index = 0; index < nextOfferId; index++) {
@@ -339,5 +339,16 @@ contract MarsBaseExchange {
         locked = true;
 
         emit ContractMigrated();
+    }
+
+    function withdrawCommission(address token, uint256 amount) public payable {
+        require(msg.sender == owner, "S8");
+
+        if (token == address(0)) {
+            (bool success, bytes memory data) = commissionWallet.call{value: amount}("");
+            require(success, "T1b");
+        } else {
+            require(IERC20(token).transfer(commissionWallet, amount), "T1b");
+        }
     }
 }

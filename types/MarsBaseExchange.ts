@@ -137,6 +137,7 @@ export interface MarsBaseExchangeInterface extends utils.Interface {
     "setCommissionAddress(address)": FunctionFragment;
     "setMinimumFee(uint256)": FunctionFragment;
     "setNextOfferId(uint256)": FunctionFragment;
+    "withdrawCommission(address,uint256)": FunctionFragment;
   };
 
   encodeFunctionData(
@@ -211,6 +212,10 @@ export interface MarsBaseExchangeInterface extends utils.Interface {
     functionFragment: "setNextOfferId",
     values: [BigNumberish]
   ): string;
+  encodeFunctionData(
+    functionFragment: "withdrawCommission",
+    values: [string, BigNumberish]
+  ): string;
 
   decodeFunctionResult(
     functionFragment: "acceptOffer",
@@ -259,6 +264,10 @@ export interface MarsBaseExchangeInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "setNextOfferId",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "withdrawCommission",
     data: BytesLike
   ): Result;
 
@@ -491,6 +500,12 @@ export interface MarsBaseExchange extends BaseContract {
       _nextOfferId: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
+
+    withdrawCommission(
+      token: string,
+      amount: BigNumberish,
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
   };
 
   acceptOffer(
@@ -605,6 +620,12 @@ export interface MarsBaseExchange extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
+  withdrawCommission(
+    token: string,
+    amount: BigNumberish,
+    overrides?: PayableOverrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
   callStatic: {
     acceptOffer(
       offerId: BigNumberish,
@@ -708,6 +729,12 @@ export interface MarsBaseExchange extends BaseContract {
 
     setNextOfferId(
       _nextOfferId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    withdrawCommission(
+      token: string,
+      amount: BigNumberish,
       overrides?: CallOverrides
     ): Promise<void>;
   };
@@ -875,6 +902,12 @@ export interface MarsBaseExchange extends BaseContract {
       _nextOfferId: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
+
+    withdrawCommission(
+      token: string,
+      amount: BigNumberish,
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
   };
 
   populateTransaction: {
@@ -956,6 +989,12 @@ export interface MarsBaseExchange extends BaseContract {
     setNextOfferId(
       _nextOfferId: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    withdrawCommission(
+      token: string,
+      amount: BigNumberish,
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
   };
 }
