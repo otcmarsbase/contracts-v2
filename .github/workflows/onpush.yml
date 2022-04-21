@@ -26,6 +26,9 @@ jobs:
         
       - name: Prepare hardhat build
         run: npm run init-secret
+      
+      - name: Run tests
+        run: npm run test
         
       - name: Build project
         run: npm run build
