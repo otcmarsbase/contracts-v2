@@ -264,8 +264,13 @@ library MarsBase {
         }
       }
 
+        delete offer.minimumOrderAddresses;
+        delete offer.minimumOrderAmountsBob;
+        delete offer.minimumOrderAmountsAlice;
+        delete offer.minimumOrderTokens;
+
       if (offer.amountRemaining > 0 && (((offer.amountRemaining * 1000) / (offer.amountAlice) <= 10) || offer.smallestChunkSize > offer.amountRemaining)) {
-        // require(IERC20(offer.tokenAlice).transfer(offer.payoutAddress, offer.amountRemaining), "T1b");
+        require(IERC20(offer.tokenAlice).transfer(offer.payoutAddress, offer.amountRemaining), "T1b");
         offer.amountRemaining = 0;
       }
 
@@ -299,8 +304,8 @@ library MarsBase {
     for (uint i = 0; i < count; i++) {
       if (count - 1 == i || count == 0) {
         minimumOrderAddresses[i] = msg.sender;
-        minimumOrderAmountsBob[i] = partialAmountBob;
-        minimumOrderAmountsAlice[i] = partialAmountAlice;
+        minimumOrderAmountsBob[i] = partialAmountAlice;
+        minimumOrderAmountsAlice[i] = partialAmountBob;
         minimumOrderTokens[i] = acceptedTokenBob;
       } else {
         minimumOrderAddresses[i] = offer.minimumOrderAddresses[i];
@@ -338,14 +343,14 @@ library MarsBase {
     } else {
       for (uint256 index = 0; index < offer.minimumOrderAddresses.length; index++) {
         if (offer.minimumOrderTokens[index] != address(0)) {
-          require(IERC20(offer.minimumOrderTokens[index]).transfer(offer.minimumOrderAddresses[index], offer.minimumOrderAmountsBob[index]), "T2b");
+          require(IERC20(offer.minimumOrderTokens[index]).transfer(offer.minimumOrderAddresses[index], offer.minimumOrderAmountsAlice[index]), "T2b");
         } else {
-          (bool success, bytes memory data) = offer.minimumOrderAddresses[index].call{value: offer.minimumOrderAmountsBob[index]}("");
+          (bool success, bytes memory data) = offer.minimumOrderAddresses[index].call{value: offer.minimumOrderAmountsAlice[index]}("");
           require(success, "t1b");
         }
       }
 
-      require(IERC20(offer.tokenAlice).transfer(offer.offerer, offer.amountAlice), "T1b");
+      require(IERC20(offer.tokenAlice).transfer(offer.offerer, offer.amountRemaining), "T1b");
     }
 
     delete offer;
@@ -468,6 +473,11 @@ library MarsBase {
     }
 
     offer.amountRemaining -= partialAmountAlice;
+
+    if (offer.amountRemaining > 0 && (((offer.amountRemaining * 1000) / (offer.amountAlice) <= 10) || offer.smallestChunkSize > offer.amountRemaining)) {
+      require(IERC20(offer.tokenAlice).transfer(offer.payoutAddress, offer.amountRemaining), "T1b");
+      offer.amountRemaining = 0;
+    }
 
     if (offer.amountRemaining == 0) {
       delete offer;
