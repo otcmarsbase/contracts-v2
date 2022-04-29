@@ -259,7 +259,7 @@ contract MarsBaseExchange {
             offerId,
             msg.sender,
             block.timestamp,
-            offers[offerId].amountRemaining,
+            offers[offerId].amountAlice - offers[offerId].amountRemaining,
             amountBob,
             tokenBob,
             offerType

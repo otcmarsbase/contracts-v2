@@ -183,9 +183,9 @@ library MarsBase {
       }
     }
 
-    if (acceptedTokenBob == address(0)) {
-      acceptedAmountBob = msg.value;
-    }
+    // if (acceptedTokenBob == address(0)) {
+    //   acceptedAmountBob = msg.value;
+    // }
 
     uint256 partialAmountAlice = price(amountBob, acceptedAmountBob, offer.amountAlice);
     uint256 partialAmountBob = price(partialAmountAlice, offer.amountAlice, acceptedAmountBob);
@@ -320,7 +320,7 @@ library MarsBase {
     offer.minimumOrderAmountsAlice = minimumOrderAmountsAlice;
     offer.minimumOrderTokens = minimumOrderTokens;
 
-    if (msg.value == 0) {
+    if (acceptedTokenBob != address(0)) {
       require(IERC20(acceptedTokenBob).transferFrom(msg.sender, address(this), partialAmountBob), "T2a");
     }
 
@@ -328,9 +328,9 @@ library MarsBase {
   }
 
   function cancelOffer(MarsBaseCommon.MBOffer memory offer) public returns (MarsBaseCommon.MBOffer memory) {
-    require(offer.capabilities[1] == true, "S1");
     require(msg.sender == offer.offerer, "S2");
     require(offer.active == true, "S0");
+    require(offer.capabilities[1] == true, "S1");
     require(offer.amountAlice > 0, "M3");
 
     if (contractType(offer.offerType) == MarsBaseCommon.ContractType.Offers) {
@@ -341,16 +341,32 @@ library MarsBase {
         require(IERC20(offer.tokenAlice).transfer(offer.offerer, offer.amountRemaining), "T1b");
       }
     } else {
-      for (uint256 index = 0; index < offer.minimumOrderAddresses.length; index++) {
-        if (offer.minimumOrderTokens[index] != address(0)) {
-          require(IERC20(offer.minimumOrderTokens[index]).transfer(offer.minimumOrderAddresses[index], offer.minimumOrderAmountsAlice[index]), "T2b");
-        } else {
-          (bool success, bytes memory data) = offer.minimumOrderAddresses[index].call{value: offer.minimumOrderAmountsAlice[index]}("");
-          require(success, "t1b");
+      if (offer.minimumOrderAddresses.length == 0 && offer.amountRemaining == offer.amountAlice) {
+        for (uint256 index = 0; index < offer.minimumOrderAddresses.length; index++) {
+          if (offer.minimumOrderTokens[index] != address(0)) {
+            require(IERC20(offer.minimumOrderTokens[index]).transfer(offer.minimumOrderAddresses[index], offer.minimumOrderAmountsBob[index]), "T2b");
+          } else {
+            (bool success, bytes memory data) = offer.minimumOrderAddresses[index].call{value: offer.minimumOrderAmountsBob[index]}("");
+            require(success, "t1b");
+          }
+        }
+
+        require(IERC20(offer.tokenAlice).transfer(offer.offerer, offer.amountAlice), "T1b");
+      } else {
+        for (uint256 index = 0; index < offer.minimumOrderAddresses.length; index++) {
+          if (offer.minimumOrderAmountsAlice[index] != 0) {
+            if (offer.minimumOrderTokens[index] != address(0)) {
+              require(IERC20(offer.tokenAlice).transfer(offer.payoutAddress, offer.minimumOrderAmountsAlice[index] * (1000-offer.feeAlice) / 1000), "T2b");
+              require(IERC20(offer.minimumOrderTokens[index]).transfer(offer.minimumOrderAddresses[index], offer.minimumOrderAmountsBob[index] * (1000-offer.feeBob) / 1000), "T1b");
+              // require(IERC20(offer.minimumOrderTokens[index]).transfer(commissionWallet, offer.minimumOrderAmountsBob[index] - (offer.minimumOrderAmountsBob[index] * (1000-offer.feeBob))), "T1a");
+            } else {
+              (bool success, bytes memory data) = offer.minimumOrderAddresses[index].call{value: offer.minimumOrderAmountsBob[index] * (1000-offer.feeAlice) / 1000}("");
+              require(success, "t1b");
+              require(IERC20(offer.tokenAlice).transfer(offer.minimumOrderAddresses[index], offer.minimumOrderAmountsAlice[index] * (1000-offer.feeBob) / 1000), "T1b");
+            }
+          }
         }
       }
-
-      require(IERC20(offer.tokenAlice).transfer(offer.offerer, offer.amountRemaining), "T1b");
     }
 
     delete offer;
@@ -360,7 +376,6 @@ library MarsBase {
 
 
   function cancelBid(MarsBaseCommon.MBOffer memory offer) public returns (MarsBaseCommon.MBOffer memory) {
-    require(msg.sender == offer.offerer, "S2");
     require(offer.active == true, "S0");
     require(offer.amountAlice > 0, "M3");
 

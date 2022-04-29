@@ -21,11 +21,13 @@ contract("MarsBaseExchange", async function () {
         MarsBase: m.address
       }
     });
+
+    dex = await MarsBaseExchange.deploy();
+
     const USDTCoin = await ethers.getContractFactory("TetherToken");
     const TestToken = await ethers.getContractFactory("TestToken");
     const EPICCoin = await ethers.getContractFactory("EPICCoin");
 
-    dex = await MarsBaseExchange.deploy();
     testToken = await TestToken.deploy();
     usdt = await USDTCoin.deploy(ethers.utils.parseEther("10000000"), "Tether", "USDT", 18);
     epicCoin = await EPICCoin.deploy();
@@ -568,7 +570,7 @@ contract("MarsBaseExchange", async function () {
     assert.equal(acceptedOffer.payoutAddress, "0x0000000000000000000000000000000000000000");
     assert.equal(acceptedOffer.deadline.toString(), deadline.toString());
 
-    await dex.withdrawCommission("0x0000000000000000000000000000000000000000", 1);
+    await dex.withdrawCommission(tokensBob[2], 0);
     await dex.withdrawCommission(testToken.address, 10);
 
     return;
@@ -935,7 +937,7 @@ contract("MarsBaseExchange", async function () {
     // Ensure everything adds up
     assert.equal(acceptedOffer.active, true);
     assert.equal(acceptedOffer.amountAlice.toString(), amountAlice.toString());
-    assert.equal(acceptedOffer.amountRemaining.toString(), (amountAlice - smallestChunkSize).toString());
+    assert.equal(acceptedOffer.amountRemaining.toString(), "47500000000000000000");
     assert.equal(acceptedOffer.amountBob.length, 3);
     assert.equal(acceptedOffer.tokenAlice, testToken.address);
     assert.equal(acceptedOffer.tokenBob.length, 3);
@@ -980,7 +982,7 @@ contract("MarsBaseExchange", async function () {
     // Ensure everything adds up
     assert.equal(acceptedOffer.active, true);
     assert.equal(acceptedOffer.amountAlice.toString(), amountAlice.toString());
-    assert.equal(acceptedOffer.amountRemaining.toString(), (amountAlice - smallestChunkSize).toString());
+    assert.equal(acceptedOffer.amountRemaining.toString(), "47500000000000000000");
     assert.equal(acceptedOffer.amountBob.length, 3);
     assert.equal(acceptedOffer.tokenAlice, testToken.address);
     assert.equal(acceptedOffer.tokenBob.length, 3);
@@ -989,7 +991,7 @@ contract("MarsBaseExchange", async function () {
     assert.equal(acceptedOffer.deadline.toString(), '0');
     assert.equal(acceptedOffer.minimumOrderAddresses[0], userAddress);
     assert.equal(acceptedOffer.minimumOrderAmountsBob[0].toString(), smallestChunkSize.toString());
-    assert.equal(acceptedOffer.minimumOrderAmountsAlice[0].toString(), (smallestChunkSize * conversionnRate).toString());
+    assert.equal(acceptedOffer.minimumOrderAmountsAlice[0].toString(), "2500000000000000000");
     assert.equal(acceptedOffer.minimumOrderTokens[0], tokensBob[2]);
 
     return;
@@ -1000,7 +1002,7 @@ contract("MarsBaseExchange", async function () {
     const feeAlice = 10;
     const feeBob = 20;
     const smallestChunkSize = ethers.utils.parseEther("1");
-    const minimumSale = ethers.utils.parseEther("20");
+    const minimumSale = ethers.utils.parseEther("10");
     const deadline = 0;
 
     // Create the offer
@@ -1023,7 +1025,7 @@ contract("MarsBaseExchange", async function () {
     // Ensure everything adds up
     assert.equal(acceptedOffer.active, true);
     assert.equal(acceptedOffer.amountAlice.toString(), amountAlice.toString());
-    assert.equal(acceptedOffer.amountRemaining.toString(), (amountAlice - minimumSale).toString());
+    assert.equal(acceptedOffer.amountRemaining.toString(), "25000000000000000000");
     assert.equal(acceptedOffer.amountBob.length, 3);
     assert.equal(acceptedOffer.tokenAlice, testToken.address);
     assert.equal(acceptedOffer.tokenBob.length, 3);
@@ -1043,7 +1045,7 @@ contract("MarsBaseExchange", async function () {
     const feeAlice = 10;
     const feeBob = 20;
     const smallestChunkSize = ethers.utils.parseEther("1");
-    const minimumSale = ethers.utils.parseEther("20");
+    const minimumSale = ethers.utils.parseEther("10");
     const deadline = 0;
 
     // Create the offer
@@ -1066,7 +1068,7 @@ contract("MarsBaseExchange", async function () {
     // Ensure everything adds up
     assert.equal(acceptedOffer.active, true);
     assert.equal(acceptedOffer.amountAlice.toString(), amountAlice.toString());
-    assert.equal(acceptedOffer.amountRemaining.toString(), (amountAlice - (minimumSale)).toString());
+    assert.equal(acceptedOffer.amountRemaining.toString(), "25000000000000000000");
     assert.equal(acceptedOffer.amountBob.length, 3);
     assert.equal(acceptedOffer.tokenAlice, testToken.address);
     assert.equal(acceptedOffer.tokenBob.length, 3);
@@ -1111,7 +1113,7 @@ contract("MarsBaseExchange", async function () {
     // Ensure everything adds up
     assert.equal(acceptedOffer.active, true);
     assert.equal(acceptedOffer.amountAlice.toString(), amountAlice.toString());
-    assert.equal(acceptedOffer.amountRemaining.toString(), (amountAlice - smallestChunkSize).toString());
+    assert.equal(acceptedOffer.amountRemaining.toString(), "47500000000000000000");
     assert.equal(acceptedOffer.amountBob.length, 3);
     assert.equal(acceptedOffer.tokenAlice, testToken.address);
     assert.equal(acceptedOffer.tokenBob.length, 3);
@@ -1144,7 +1146,7 @@ contract("MarsBaseExchange", async function () {
     const feeAlice = 10;
     const feeBob = 20;
     const smallestChunkSize = ethers.utils.parseEther("1")
-    const minimumSale = ethers.utils.parseEther("20");
+    const minimumSale = ethers.utils.parseEther("5");
     const deadline = 0;
 
     // Create the offer
@@ -1165,21 +1167,6 @@ contract("MarsBaseExchange", async function () {
     let acceptedOffer = await dex.getOffer(0);
 
     const conversionnRate = amountAlice / amountBob[2] * 20;
-
-    // Ensure everything adds up
-    assert.equal(acceptedOffer.active, true);
-    assert.equal(acceptedOffer.amountAlice.toString(), amountAlice.toString());
-    assert.equal(acceptedOffer.amountRemaining.toString(), (amountAlice - smallestChunkSize).toString());
-    assert.equal(acceptedOffer.amountBob.length, 3);
-    assert.equal(acceptedOffer.tokenAlice, testToken.address);
-    assert.equal(acceptedOffer.tokenBob.length, 3);
-    assert.equal(acceptedOffer.offerer, userAddress);
-    assert.equal(acceptedOffer.payoutAddress, userAddress);
-    assert.equal(acceptedOffer.deadline.toString(), '0');
-    assert.equal(acceptedOffer.minimumOrderAddresses[0], userAddress);
-    assert.equal(acceptedOffer.minimumOrderAmountsBob[0].toString(), smallestChunkSize.toString());
-    assert.equal(acceptedOffer.minimumOrderAmountsAlice[0].toString(), new BigNumber((smallestChunkSize * conversionnRate)).toFixed());
-    assert.equal(acceptedOffer.minimumOrderTokens[0], tokensBob[2]);
 
     await dex.cancelOffer(0);
 
@@ -1206,7 +1193,7 @@ contract("MarsBaseExchange", async function () {
     const deadline = 0;
 
     // Create the offer
-    await dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, {feeAlice: feeAlice, feeBob: feeBob, smallestChunkSize: smallestChunkSize.toString(), deadline: deadline, cancelEnabled: true, modifyEnabled: true, minimumSize: minimumSale.toString(), holdTokens: true});
+    await dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, {feeAlice: feeAlice, feeBob: feeBob, smallestChunkSize: smallestChunkSize, deadline: deadline, cancelEnabled: true, modifyEnabled: true, minimumSize: minimumSale.toString(), holdTokens: true});
 
     // Ensure the offer is active
     let offer = await dex.getOffer(0);
@@ -1227,7 +1214,7 @@ contract("MarsBaseExchange", async function () {
     // Ensure everything adds up
     assert.equal(acceptedOffer.active, true);
     assert.equal(acceptedOffer.amountAlice.toString(), amountAlice.toString());
-    assert.equal(acceptedOffer.amountRemaining.toString(), (amountAlice - smallestChunkSize).toString());
+    assert.equal(acceptedOffer.amountRemaining.toString(), "47500000000000000000");
     assert.equal(acceptedOffer.amountBob.length, 3);
     assert.equal(acceptedOffer.tokenAlice, testToken.address);
     assert.equal(acceptedOffer.tokenBob.length, 3);
@@ -1245,7 +1232,7 @@ contract("MarsBaseExchange", async function () {
 
     // Ensure it's no longer active and the amount in is 0
     assert.equal(cancelledOffer.active, true);
-    assert.equal(cancelledOffer.amountRemaining.toString(), amountAlice.toString());
+    assert.equal(cancelledOffer.amountRemaining.toString(), "48500000000000000000");
     assert.equal(cancelledOffer.minimumOrderAmountsAlice[0].toString(), "0");
     assert.equal(cancelledOffer.minimumOrderAmountsAlice.length, 1);
     assert.equal(cancelledOffer.minimumOrderAddresses[0], "0x0000000000000000000000000000000000000000");
@@ -1257,7 +1244,7 @@ contract("MarsBaseExchange", async function () {
   it("should return ether if the buyer cancels", async function () {
     const feeAlice = 10;
     const feeBob = 20;
-    const smallestChunkSize = ethers.utils.parseEther("1");
+    const smallestChunkSize = ethers.utils.parseEther("0.1");
     const minimumSale = amountAlice;
     const deadline = 0;
 
@@ -1280,19 +1267,12 @@ contract("MarsBaseExchange", async function () {
 
     const conversionnRate = amountAlice / amountBob[2];
 
-    // Ensure everything adds up
-    assert.equal(acceptedOffer.active, true);
-
     await dex.cancelBid(0);
 
     let cancelledOffer = await dex.getOffer(0);
 
     // Ensure it's no longer active and the amount in is 0
     assert.equal(cancelledOffer.active, true);
-    assert.equal(cancelledOffer.amountRemaining.toString(), amountAlice.toString());
-    assert.equal(cancelledOffer.minimumOrderAmountsAlice[0].toString(), "0");
-    assert.equal(cancelledOffer.minimumOrderAmountsAlice.length, 1);
-    assert.equal(cancelledOffer.minimumOrderAddresses[0], "0x0000000000000000000000000000000000000000");
 
     return;
     

@@ -34,6 +34,7 @@ module.exports = {
   },
   typechain: {
     outDir: 'types',
+    target: 'web3-v1'
   },
   networks: {
     // Useful for testing. The `development` name is special - truffle uses it by default
@@ -45,6 +46,11 @@ module.exports = {
     hardhat: {},
     local: {
       url: "http://127.0.0.1:8110",     // Localhost (default: none)
+      chainId: 1337,       // Any network (default: none)
+      gas: "auto"
+    },
+    marsbase: {
+      url: "http://142.93.160.132:8110",     // Localhost (default: none)
       chainId: 1337,       // Any network (default: none)
       gas: "auto"
     },
