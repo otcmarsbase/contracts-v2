@@ -72,6 +72,7 @@ export type OfferCreated = ContractEventLog<{
   blockTimestamp: string;
   offer: [
     boolean,
+    boolean,
     string,
     string,
     string,
@@ -96,6 +97,7 @@ export type OfferCreated = ContractEventLog<{
   1: string;
   2: string;
   3: [
+    boolean,
     boolean,
     string,
     string,
@@ -196,6 +198,7 @@ export interface MarsBaseExchange extends BaseContract {
     getAllOffers(): NonPayableTransactionObject<
       [
         boolean,
+        boolean,
         string,
         string,
         string,
@@ -225,6 +228,7 @@ export interface MarsBaseExchange extends BaseContract {
     ): NonPayableTransactionObject<
       [
         boolean,
+        boolean,
         string,
         string,
         string,
@@ -253,6 +257,7 @@ export interface MarsBaseExchange extends BaseContract {
 
     offers(arg0: number | string | BN): NonPayableTransactionObject<{
       active: boolean;
+      minimumMet: boolean;
       offerType: string;
       offerId: string;
       amountAlice: string;
@@ -266,7 +271,7 @@ export interface MarsBaseExchange extends BaseContract {
       payoutAddress: string;
       tokenAlice: string;
       0: boolean;
-      1: string;
+      1: boolean;
       2: string;
       3: string;
       4: string;
@@ -278,6 +283,7 @@ export interface MarsBaseExchange extends BaseContract {
       10: string;
       11: string;
       12: string;
+      13: string;
     }>;
 
     price(

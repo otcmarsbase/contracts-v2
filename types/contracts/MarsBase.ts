@@ -32,6 +32,7 @@ export interface MarsBase extends BaseContract {
     changeOfferParams(
       offer: [
         boolean,
+        boolean,
         number | string | BN,
         number | string | BN,
         number | string | BN,
@@ -66,6 +67,7 @@ export interface MarsBase extends BaseContract {
       ]
     ): NonPayableTransactionObject<
       [
+        boolean,
         boolean,
         string,
         string,
@@ -126,6 +128,7 @@ export interface MarsBase extends BaseContract {
     ): NonPayableTransactionObject<
       [
         boolean,
+        boolean,
         string,
         string,
         string,
@@ -156,6 +159,7 @@ export interface MarsBase extends BaseContract {
 
     setOfferProperties(
       offer: [
+        boolean,
         boolean,
         number | string | BN,
         number | string | BN,
@@ -189,6 +193,7 @@ export interface MarsBase extends BaseContract {
       ]
     ): NonPayableTransactionObject<
       [
+        boolean,
         boolean,
         string,
         string,

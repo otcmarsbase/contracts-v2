@@ -46,6 +46,7 @@ library MarsBaseCommon {
 /// @notice smallestChunkSize - Smallest amount that may be purchased in one transaction
   struct MBOffer {
     bool active;
+    bool minimumMet;
     OfferType offerType;
     uint256 offerId;
     uint256 amountAlice;
