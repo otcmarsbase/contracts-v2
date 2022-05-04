@@ -34,7 +34,7 @@ contract("MarsBaseExchange", async function () {
     userAddress = accounts[0].address;
 
     approvalAmount = ethers.utils.parseEther("1000000");
-    amountAlice = ethers.utils.parseEther("50");;
+    amountAlice = ethers.utils.parseEther("50");
     amountBob = [ethers.utils.parseEther("10"), ethers.utils.parseEther("20"), ethers.utils.parseEther("20")];
 
     // Approve the contract to move our tokens
@@ -77,6 +77,54 @@ contract("MarsBaseExchange", async function () {
     assert.equal(testToken.address, offer.tokenAlice);
     assert.equal(usdt.address, offer.tokenBob[0]);
     assert.equal(epicCoin.address, offer.tokenBob[1]);
+
+    return;
+  });
+
+  it("should have the correct allowance to close an offer after 50% purchase", async function () {
+    // Define Constants
+    const feeAlice = 5;
+    const feeBob = 5;
+    const smallestChunkSize = ethers.utils.parseEther("1");
+    const deadline = 0;
+
+    const USDT = await ethers.getContractFactory("USDT");
+    testToken2 = await USDT.deploy();
+    const BAT = await ethers.getContractFactory("BAT");
+    let bat = await BAT.deploy();
+
+    await testToken2.approve(dex.address, ethers.utils.parseEther("50"));
+
+    // Create Offer
+    await dex.createOffer(testToken2.address, [bat.address], ethers.utils.parseEther("50"), [ethers.utils.parseEther("80")], {feeAlice: feeAlice, feeBob: feeBob, smallestChunkSize: smallestChunkSize.toString(), deadline: deadline, cancelEnabled: true, modifyEnabled: true, minimumSize: ethers.utils.parseEther("40"), holdTokens: false});
+
+    usdtBalance = await testToken2.balanceOf(dex.address);
+    assert.equal(usdtBalance.toString(), ethers.utils.parseEther("50").toString());
+
+    await bat.approve(dex.address, ethers.utils.parseEther("30"));
+
+    await dex.acceptOffer(0, bat.address, ethers.utils.parseEther("30"));
+
+    batBalance = await bat.balanceOf(dex.address);
+
+    console.log(batBalance);
+    assert.equal(batBalance.toString(), ethers.utils.parseEther("30").toString());
+
+    let offer = await dex.getOffer(0);
+
+    assert.equal(offer.active, true);
+    assert.equal(offer.minimumOrderAddresses.length, 1);
+
+    await bat.approve(dex.address, ethers.utils.parseEther("40"));
+
+    await dex.acceptOffer(0, bat.address, ethers.utils.parseEther("40"));
+
+    batBalance = await bat.balanceOf(dex.address);
+    assert.equal(batBalance.toString(), ethers.utils.parseEther("0.15").toString());
+    
+    offer = await dex.getOffer(0);
+
+    assert.equal(offer.minimumOrderAddresses.length, 0);
 
     return;
   });
