@@ -254,8 +254,8 @@ library MarsBase {
       for (uint256 index = 0; index < offer.minimumOrderAddresses.length; index++) {
         if (offer.minimumOrderAmountsAlice[index] != 0) {
           if (offer.minimumOrderTokens[index] != address(0)) {
-            require(IERC20(offer.tokenAlice).transfer(offer.payoutAddress, offer.minimumOrderAmountsAlice[index] * (1000-offer.feeAlice) / 1000), "T2b");
-            require(IERC20(offer.minimumOrderTokens[index]).transfer(offer.minimumOrderAddresses[index], offer.minimumOrderAmountsBob[index] * (1000-offer.feeBob) / 1000), "T1b");
+            require(IERC20(offer.minimumOrderTokens[index]).transfer(offer.payoutAddress, offer.minimumOrderAmountsBob[index] * (1000-offer.feeBob) / 1000), "T2b");
+            require(IERC20(offer.tokenAlice).transfer(offer.minimumOrderAddresses[index], offer.minimumOrderAmountsAlice[index] * (1000-offer.feeAlice) / 1000), "T1b");
             // require(IERC20(offer.minimumOrderTokens[index]).transfer(commissionWallet, offer.minimumOrderAmountsBob[index] - (offer.minimumOrderAmountsBob[index] * (1000-offer.feeBob))), "T1a");
           } else {
             (bool success, bytes memory data) = offer.minimumOrderAddresses[index].call{value: offer.minimumOrderAmountsAlice[index] * (1000-offer.feeAlice) / 1000}("");
@@ -265,12 +265,12 @@ library MarsBase {
         }
 
         offer.minimumMet = true;
-
-        delete offer.minimumOrderAddresses;
-        delete offer.minimumOrderAmountsBob;
-        delete offer.minimumOrderAmountsAlice;
-        delete offer.minimumOrderTokens;
       }
+
+      delete offer.minimumOrderAddresses;
+      delete offer.minimumOrderAmountsBob;
+      delete offer.minimumOrderAmountsAlice;
+      delete offer.minimumOrderTokens;
 
       if (offer.amountRemaining > 0 && (((offer.amountRemaining * 1000) / (offer.amountAlice) <= 10) || offer.smallestChunkSize > offer.amountRemaining)) {
         // require(IERC20(offer.tokenAlice).transfer(offer.payoutAddress, offer.amountRemaining), "T1b");
