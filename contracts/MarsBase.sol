@@ -295,28 +295,26 @@ library MarsBase {
 
   function setMinimumOrderHold(MarsBaseCommon.MBOffer memory offer, address acceptedTokenBob, uint256 partialAmountAlice, uint256 partialAmountBob) private returns (MarsBaseCommon.MBOffer memory) {
     uint count = offer.minimumOrderAddresses.length;
-    if (count == 0) {
-      count++;
-    }
+    count++;
 
     address[] memory minimumOrderAddresses = new address[](count);
     uint256[] memory minimumOrderAmountsBob = new uint256[](count);
     uint256[] memory minimumOrderAmountsAlice = new uint256[](count);
     address[] memory minimumOrderTokens = new address[](count);
 
-    for (uint i = 0; i < count; i++) {
-      if (count - 1 == i || count == 0) {
-        minimumOrderAddresses[i] = msg.sender;
-        minimumOrderAmountsBob[i] = partialAmountBob;
-        minimumOrderAmountsAlice[i] = partialAmountAlice;
-        minimumOrderTokens[i] = acceptedTokenBob;
-      } else {
+    if (count > 1) {
+      for (uint i = 0; i < count - 1; i++) {
         minimumOrderAddresses[i] = offer.minimumOrderAddresses[i];
         minimumOrderAmountsBob[i] = offer.minimumOrderAmountsBob[i];
         minimumOrderAmountsAlice[i] = offer.minimumOrderAmountsAlice[i];
         minimumOrderTokens[i] = offer.minimumOrderTokens[i];
       }
     }
+
+    minimumOrderAddresses[count - 1] = msg.sender;
+    minimumOrderAmountsBob[count - 1] = partialAmountBob;
+    minimumOrderAmountsAlice[count - 1] = partialAmountAlice;
+    minimumOrderTokens[count - 1] = acceptedTokenBob;
 
     offer.minimumOrderAddresses = minimumOrderAddresses;
     offer.minimumOrderAmountsBob = minimumOrderAmountsBob;
