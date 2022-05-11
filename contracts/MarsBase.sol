@@ -352,7 +352,7 @@ library MarsBase {
           }
         }
 
-        require(IERC20(offer.tokenAlice).transfer(offer.offerer, offer.amountAlice), "T1b");
+        require(IERC20(offer.tokenAlice).transfer(offer.offerer, offer.amountRemaining), "T1b");
       } else {
         for (uint256 index = 0; index < offer.minimumOrderAddresses.length; index++) {
           if (offer.minimumOrderAmountsAlice[index] != 0) {
