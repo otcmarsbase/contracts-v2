@@ -13,6 +13,25 @@ require('@typechain/hardhat');
 require("hardhat-gas-reporter");
 require('hardhat-contract-sizer');
 
+task("deploy", "Deploys the contract").setAction(async () => {
+  const MarsBase = await await ethers.getContractFactory("MarsBase");
+
+  console.log("Deploying Contract Library...")
+  m = await MarsBase.deploy();
+
+  const MarsBaseExchange = await ethers.getContractFactory("MarsBaseExchange", {
+    libraries: {
+      MarsBase: m.address
+    }
+  });
+
+  console.log("Deploying Exchange Contract...")
+  dex = await MarsBaseExchange.deploy();
+
+  console.log("Address Marsbase Library: ", m.address);
+  console.log("Address Marsbase Exchange: ", dex.address);
+});
+
 module.exports = {
   solidity: {
     version: "0.8.13",
