@@ -459,7 +459,7 @@ describe("MAR-822", () =>
 			holdTokens: true,
 			feeAlice: 0,
 			feeBob: 0,
-			smallestChunkSize: "1",
+			smallestChunkSize: "1000000",
 			deadline: tomorrow(),
 			minimumSize: 0
 		})
