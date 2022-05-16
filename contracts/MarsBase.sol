@@ -490,7 +490,7 @@ library MarsBase {
 
     offer.amountRemaining -= partialAmountAlice;
 
-    if (offer.amountRemaining > 0 && (((offer.amountRemaining * 1000) / (offer.amountAlice) < 9) || offer.smallestChunkSize > offer.amountRemaining)) {
+    if (offer.amountRemaining > 0 && (((offer.amountRemaining * 1000) / (offer.amountAlice) < 10) || offer.smallestChunkSize > offer.amountRemaining)) {
       require(IERC20(offer.tokenAlice).transfer(offer.payoutAddress, offer.amountRemaining), "T1b");
       offer.amountRemaining = 0;
     }
