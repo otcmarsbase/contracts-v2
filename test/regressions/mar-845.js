@@ -80,10 +80,11 @@ describe("MAR-822", () =>
 		tx = await dex.connect(bob).acceptOffer(id, usdt.address, "6250000000000000000")
 		receipt = await tx.wait()
 		
+		console.log(receipt.events);
 		let closedEvent = receipt.events.find(x => x.event == "OfferClosed")
 		expect(closedEvent).to.not.be.undefined
 
-		let [offer] = await dex.getAllOffers()
+		let offer = await dex.getOffer(id)
 		expect(offer.active).false
 
 		// console.log(receipt.events)
@@ -278,7 +279,7 @@ describe("MAR-822", () =>
 		receipt = await tx.wait()
 
 		let [offer] = await dex.getAllOffers()
-		expect(offer.amountRemaining).to.equal(1)
+		expect(offer.amountRemaining).to.equal(0)
 		expect(await usdt.balanceOf(bob.address)).to.equal("2")
 		expect(await usdt.balanceOf(alice.address)).to.equal(new BigNumber("199000000000000000000").minus(2).toFixed())
 		expect(await bat.balanceOf(bob.address)).to.equal(new BigNumber("99500000000000000000").minus(1).toFixed())
@@ -345,10 +346,10 @@ describe("MAR-822", () =>
 		receipt = await tx.wait()
 
 		let [offer] = await dex.getAllOffers()
-		expect(offer.amountRemaining).to.equal(1)
+		expect(offer.amountRemaining).to.equal(0)
 		expect(await usdt.balanceOf(bob.address)).to.equal("2")
-		expect(await usdt.balanceOf(alice.address)).to.equal(new BigNumber("199000000000000000000").minus(2).toFixed())
-		expect(await bat.balanceOf(bob.address)).to.equal(new BigNumber("99500000000000000000").minus(1).toFixed())
+		expect(await usdt.balanceOf(alice.address)).to.equal(new BigNumber("200000000000000000000").minus(2).toFixed())
+		expect(await bat.balanceOf(bob.address)).to.equal(new BigNumber("100000000000000000000").minus(1).toFixed())
 		expect(await bat.balanceOf(alice.address)).to.equal("1")
 		expect(offer.active).false
 
@@ -477,8 +478,8 @@ describe("MAR-822", () =>
 		receipt = await tx.wait()
 
 		let [offer] = await dex.getAllOffers()
-		expect(offer.amountRemaining).to.equal(1)
-		expect(await bat.balanceOf(alice.address)).to.equal("0")
+		expect(offer.amountRemaining).to.equal(0)
+		expect(await bat.balanceOf(alice.address)).to.equal("1")
 		expect(await bat.balanceOf(bob.address)).to.equal("999999999")
 		expect(await usdt.balanceOf(bob.address)).to.equal("2")
 		expect(await usdt.balanceOf(alice.address)).to.equal("1999999998")

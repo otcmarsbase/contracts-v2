@@ -107,7 +107,6 @@ contract("MarsBaseExchange", async function () {
 
     batBalance = await bat.balanceOf(dex.address);
 
-    console.log(batBalance);
     assert.equal(batBalance.toString(), ethers.utils.parseEther("30").toString());
 
     let offer = await dex.getOffer(0);

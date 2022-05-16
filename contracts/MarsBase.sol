@@ -273,7 +273,7 @@ library MarsBase {
       delete offer.minimumOrderTokens;
 
       if (offer.amountRemaining > 0 && (((offer.amountRemaining * 1000) / (offer.amountAlice) <= 10) || offer.smallestChunkSize > offer.amountRemaining)) {
-        // require(IERC20(offer.tokenAlice).transfer(offer.payoutAddress, offer.amountRemaining), "T1b");
+        require(IERC20(offer.tokenAlice).transfer(offer.payoutAddress, offer.amountRemaining), "T1b");
         offer.amountRemaining = 0;
       }
 
@@ -472,7 +472,7 @@ library MarsBase {
     uint256 amountFeeDex = partialAmountBob - amountAfterFeeBob;
 
     require(amountAfterFeeBob >= 0, "M8");
-    require(amountFeeDex > 0, "M7");
+    require(amountFeeDex >= 0, "M7");
 
     // require(partialAmountAlice >= offer.smallestChunkSize, "M1");
     require(amountAfterFeeAlice <= offer.amountRemaining, "M10");
@@ -490,6 +490,11 @@ library MarsBase {
 
     offer.amountRemaining -= partialAmountAlice;
 
+    if (offer.amountRemaining > 0 && (((offer.amountRemaining * 1000) / (offer.amountAlice) < 9) || offer.smallestChunkSize > offer.amountRemaining)) {
+      require(IERC20(offer.tokenAlice).transfer(offer.payoutAddress, offer.amountRemaining), "T1b");
+      offer.amountRemaining = 0;
+    }
+    
     if (offer.amountRemaining == 0) {
       delete offer;
     }
