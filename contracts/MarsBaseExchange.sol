@@ -227,6 +227,8 @@ contract MarsBaseExchange {
             amountBob = msg.value;
         }
 
+        uint256 amountBeforePurchase = offer.amountRemaining;
+
         if (
             MarsBase.contractType(offerType) ==
             MarsBaseCommon.ContractType.Offers
@@ -259,7 +261,7 @@ contract MarsBaseExchange {
             offerId,
             msg.sender,
             block.timestamp,
-            offers[offerId].amountAlice - offers[offerId].amountRemaining,
+            amountBeforePurchase - offers[offerId].amountRemaining,
             amountBob,
             tokenBob,
             offerType
