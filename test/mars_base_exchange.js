@@ -464,6 +464,70 @@ contract("MarsBaseExchange", async function () {
     
   });
 
+  it("should not allow purchases less than smallestChunckSize a dynamic offer", async function () {
+    const feeAlice = 5;
+    const feeBob = 5;
+    const smallestChunkSize = 1000000;
+    const deadline = 0;
+    const amountAfterFeeAlice = amountAlice * (1000 - feeAlice) / 1000;
+    const amountAfterFeeBob = amountBob[1] * (1000 - feeBob) / 1000;
+
+    // Get users balance and total supply of TestToken and USDT
+    let initialUserTestTokenBalance = await testToken.balanceOf(userAddress);
+    const testTokenTotalSupply = await testToken.totalSupply();
+
+    let initialUserEpicCoinBalance = await epicCoin.balanceOf(userAddress);
+    const epicCoinTotalSupply = await epicCoin.totalSupply();
+
+    // Check that it's all assigned to us
+    assert.equal(initialUserTestTokenBalance.toString(), testTokenTotalSupply.toString());
+    assert.equal(initialUserEpicCoinBalance.toString(), epicCoinTotalSupply.toString());
+
+    // Create the offer
+    await dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, {feeAlice: feeAlice, feeBob: feeBob, smallestChunkSize: smallestChunkSize.toString(), deadline: deadline, cancelEnabled: true, modifyEnabled: true, minimumSize: 0, holdTokens: false});
+
+    // Ensure the offer is active
+    let offer = await dex.getOffer(0);
+    assert.equal(offer.active, true);
+
+    assert.rejects(dex.acceptOffer(0, tokensBob[1], 1));
+
+    return;
+    
+  });
+
+  it("should not allow purchases less than smallestChunckSize a static offer", async function () {
+    const feeAlice = 5;
+    const feeBob = 5;
+    const smallestChunkSize = 1000000;
+    const deadline = 0;
+    const amountAfterFeeAlice = amountAlice * (1000 - feeAlice) / 1000;
+    const amountAfterFeeBob = amountBob[1] * (1000 - feeBob) / 1000;
+
+    // Get users balance and total supply of TestToken and USDT
+    let initialUserTestTokenBalance = await testToken.balanceOf(userAddress);
+    const testTokenTotalSupply = await testToken.totalSupply();
+
+    let initialUserEpicCoinBalance = await epicCoin.balanceOf(userAddress);
+    const epicCoinTotalSupply = await epicCoin.totalSupply();
+
+    // Check that it's all assigned to us
+    assert.equal(initialUserTestTokenBalance.toString(), testTokenTotalSupply.toString());
+    assert.equal(initialUserEpicCoinBalance.toString(), epicCoinTotalSupply.toString());
+
+    // Create the offer
+    await dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, {feeAlice: feeAlice, feeBob: feeBob, smallestChunkSize: smallestChunkSize.toString(), deadline: deadline, cancelEnabled: true, modifyEnabled: true, minimumSize: smallestChunkSize.toString(), holdTokens: false});
+
+    // Ensure the offer is active
+    let offer = await dex.getOffer(0);
+    assert.equal(offer.active, true);
+
+    assert.rejects(dex.acceptOffer(0, tokensBob[1], 1));
+
+    return;
+    
+  });
+
   it("should withdraw commission for a token", async function () {
     const feeAlice = 10;
     const feeBob = 20;

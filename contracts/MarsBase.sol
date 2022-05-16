@@ -198,8 +198,8 @@ library MarsBase {
 
     require(partialAmountBob >= 0, "M6");
 
-    // require(partialAmountAlice >= offer.smallestChunkSize, "M1");
-    // require(partialAmountAlice <= offer.amountRemaining, "M10");
+    require(partialAmountAlice >= offer.smallestChunkSize, "M1");
+    require(partialAmountAlice <= offer.amountRemaining, "M10");
     
     offer.amountRemaining -= partialAmountAlice;
 
@@ -474,7 +474,7 @@ library MarsBase {
     require(amountAfterFeeBob >= 0, "M8");
     require(amountFeeDex >= 0, "M7");
 
-    // require(partialAmountAlice >= offer.smallestChunkSize, "M1");
+    require(partialAmountAlice >= offer.smallestChunkSize, "M1");
     require(amountAfterFeeAlice <= offer.amountRemaining, "M10");
 
     if (acceptedTokenBob != address(0)) {
