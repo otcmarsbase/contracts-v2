@@ -80,7 +80,6 @@ describe("MAR-822", () =>
 		tx = await dex.connect(bob).acceptOffer(id, usdt.address, "6250000000000000000")
 		receipt = await tx.wait()
 		
-		console.log(receipt.events);
 		let closedEvent = receipt.events.find(x => x.event == "OfferClosed")
 		expect(closedEvent).to.not.be.undefined
 
