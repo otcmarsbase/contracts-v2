@@ -31,10 +31,13 @@ contract MarsBaseExchange {
         uint256 offerId,
         address sender,
         uint256 blockTimestamp,
-        uint256 amountAlice,
-        uint256 amountBob,
-        address tokenAddress,
-        MarsBaseCommon.OfferType offerType
+        uint256 amountAliceReceived,
+        uint256 amountBobReceived,
+        address tokenAddressAlice,
+        address tokenAddressBob,
+        MarsBaseCommon.OfferType offerType,
+        uint256 feeAlice,
+        uint256 feeBob
     );
 
     /// Emitted when the offer is cancelled either by the creator or because of an unsuccessful auction
@@ -263,8 +266,11 @@ contract MarsBaseExchange {
             block.timestamp,
             amountBeforePurchase - offers[offerId].amountRemaining,
             amountBob,
+            offer.tokenAlice,
             tokenBob,
-            offerType
+            offerType,
+            offer.feeAlice,
+            offer.feeBob
         );
 
         if (offers[offerId].active == false) {

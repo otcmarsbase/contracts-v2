@@ -7,9 +7,9 @@ const ETH = "0x0000000000000000000000000000000000000000"
 
 const tomorrow = (now = Date.now()) => Math.floor(now / 1000 + 86400)
 
-describe("MAR-773", () => 
+describe("MAR-846", () => 
 {
-    it("should output an OfferAccepted event with the amount of tokens pucrhased for that bid", async () =>
+    it("should emit an OfferAccepted event with the proper parameters", async () =>
     {
         const [owner, alice, bob] = await ethers.getSigners()
 
@@ -65,6 +65,13 @@ describe("MAR-773", () =>
         receipt = await tx.wait()
         let acceptedEvent = receipt.events.find(x => x.event == "OfferAccepted");
 
+        console.log(acceptedEvent);
+
         expect(acceptedEvent.args.amountAliceReceived).to.equal("60000000000000000");
+        expect(acceptedEvent.args.amountBobReceived).to.equal("60000000000000000");
+        expect(acceptedEvent.args.feeAlice).to.equal("5");
+        expect(acceptedEvent.args.feeBob).to.equal("5");
+        expect(acceptedEvent.args.tokenAddressAlice).to.equal(bat.address);
+        expect(acceptedEvent.args.tokenAddressBob).to.equal(usdt.address);
     })
 });

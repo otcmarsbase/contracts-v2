@@ -38,10 +38,13 @@ export type OfferAccepted = ContractEventLog<{
   offerId: string;
   sender: string;
   blockTimestamp: string;
-  amountAlice: string;
-  amountBob: string;
-  tokenAddress: string;
+  amountAliceReceived: string;
+  amountBobReceived: string;
+  tokenAddressAlice: string;
+  tokenAddressBob: string;
   offerType: string;
+  feeAlice: string;
+  feeBob: string;
   0: string;
   1: string;
   2: string;
@@ -49,6 +52,9 @@ export type OfferAccepted = ContractEventLog<{
   4: string;
   5: string;
   6: string;
+  7: string;
+  8: string;
+  9: string;
 }>;
 export type OfferCancelled = ContractEventLog<{
   offerId: string;
