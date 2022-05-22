@@ -7,9 +7,9 @@ const ETH = "0x0000000000000000000000000000000000000000"
 
 const tomorrow = (now = Date.now()) => Math.floor(now / 1000 + 86400)
 
-describe("MAR-846", () => 
+describe("MAR-842", () => 
 {
-    it("should emit an OfferAccepted event with the proper parameters", async () =>
+    it("allow eth to be purchased for tokens with a static offer", async () =>
     {
         const [owner, alice, bob] = await ethers.getSigners()
 
@@ -31,16 +31,12 @@ describe("MAR-846", () =>
         
         // console.log(99)
         
-        const batAmount = "100000000000000000000"
+        const ethAmount = "100000000000000000000"
         const usdtAmount = "100000000000000000000"
-        await bat.transfer(alice.address, batAmount)
         await usdt.transfer(bob.address, usdtAmount)
         
-        // console.log(98)
-        await bat.connect(alice).approve(dex.address, batAmount)
-        
         // console.log(97)
-        let tx = await dex.connect(alice).createOffer(bat.address, [usdt.address], batAmount, [usdtAmount], {
+        let tx = await dex.connect(alice).createOffer(ETH, [usdt.address], ethAmount, [usdtAmount], {
             cancelEnabled: true,
             modifyEnabled: true,
             holdTokens: true,
@@ -49,7 +45,7 @@ describe("MAR-846", () =>
             smallestChunkSize: "0",
             deadline: tomorrow(),
             minimumSize: "1000000000000000000"
-        })
+        }, {value: ethAmount})
         // console.log(96)
         let receipt = await tx.wait()
         // console.log(95)
@@ -69,7 +65,7 @@ describe("MAR-846", () =>
         expect(acceptedEvent.args.amountBobReceived).to.equal("60000000000000000");
         expect(acceptedEvent.args.feeAlice).to.equal("5");
         expect(acceptedEvent.args.feeBob).to.equal("5");
-        expect(acceptedEvent.args.tokenAddressAlice).to.equal(bat.address);
+        expect(acceptedEvent.args.tokenAddressAlice).to.equal(ETH);
         expect(acceptedEvent.args.tokenAddressBob).to.equal(usdt.address);
     })
 });
