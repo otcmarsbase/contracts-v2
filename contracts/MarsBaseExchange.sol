@@ -230,8 +230,6 @@ contract MarsBaseExchange {
             amountBob = msg.value;
         }
 
-        uint256 amountBeforePurchase = offer.amountRemaining;
-
         if (
             MarsBase.contractType(offerType) ==
             MarsBaseCommon.ContractType.Offers
@@ -260,17 +258,19 @@ contract MarsBaseExchange {
             );
         }
 
+        uint256 amountTransacted = offer.amountRemaining - offers[offerId].amountRemaining;
+
         emit OfferAccepted(
             offerId,
             msg.sender,
             block.timestamp,
-            amountBeforePurchase - offers[offerId].amountRemaining,
+            amountTransacted,
             amountBob,
             offer.tokenAlice,
             tokenBob,
             offerType,
-            offer.feeAlice,
-            offer.feeBob
+            amountTransacted - (amountTransacted * (1000-offer.feeAlice) / 1000),
+            amountBob - (amountBob * (1000-offer.feeBob) / 1000)
         );
 
         if (offers[offerId].active == false) {

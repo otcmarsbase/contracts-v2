@@ -7,9 +7,9 @@ const ETH = "0x0000000000000000000000000000000000000000"
 
 const tomorrow = (now = Date.now()) => Math.floor(now / 1000 + 86400)
 
-describe("MAR-846", () => 
+describe("MAR-877", () => 
 {
-    it("should emit an OfferAccepted event with the proper parameters", async () =>
+    it("should emit an OfferAccepted event with actual fee amounts, not percents", async () =>
     {
         const [owner, alice, bob] = await ethers.getSigners()
 

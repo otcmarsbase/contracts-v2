@@ -63,8 +63,8 @@ describe("MAR-842", () =>
 
         expect(acceptedEvent.args.amountAliceReceived).to.equal("60000000000000000");
         expect(acceptedEvent.args.amountBobReceived).to.equal("60000000000000000");
-        expect(acceptedEvent.args.feeAlice).to.equal("5");
-        expect(acceptedEvent.args.feeBob).to.equal("5");
+        expect(acceptedEvent.args.feeAlice).to.equal("300000000000000");
+        expect(acceptedEvent.args.feeBob).to.equal("300000000000000");
         expect(acceptedEvent.args.tokenAddressAlice).to.equal(ETH);
         expect(acceptedEvent.args.tokenAddressBob).to.equal(usdt.address);
     })
