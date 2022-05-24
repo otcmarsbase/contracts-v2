@@ -56,3 +56,11 @@ jobs:
           github_token: ${{ env.MB_GITHUB_TOKEN }}
           github_repo: ${{ github.repository }}
           git_commit_sha: ${{ steps.git-commit-sha.outputs.sha }}
+      
+      - name: telegram notify
+        if: cancelled() == false
+        uses: xinthink/action-telegram@v1.1
+        with:
+          botToken: ${{ secrets.MB_TELEGRAM_BOT_TOKEN }}
+          chatId: ${{ env.TG_CHAT_ID }}
+          jobStatus: ${{ job.status }}
