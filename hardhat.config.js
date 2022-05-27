@@ -2,6 +2,7 @@
  * @type import('hardhat/config').HardhatUserConfig
  */
 const fs = require('fs');
+const { task } = require('hardhat/config');
 const mnemonic = fs.readFileSync(".secret").toString().trim();
 const infuraId = fs.readFileSync(".infuraid").toString().trim();
 const etherscanKey = fs.readFileSync(".etherscan").toString().trim();

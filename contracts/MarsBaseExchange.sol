@@ -17,6 +17,7 @@ contract MarsBaseExchange {
         uint256 blockTimestamp,
         MarsBaseCommon.MBOffer offer
     );
+
     /// Emitted when an offer has it's parameters or capabilities modified
     event OfferModified(
         uint256 offerId,

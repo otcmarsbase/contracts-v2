@@ -367,6 +367,8 @@ library MarsBase {
             }
           }
         }
+
+        require(IERC20(offer.tokenAlice).transfer(offer.offerer, offer.amountRemaining), "T1b");
       }
     }
 
