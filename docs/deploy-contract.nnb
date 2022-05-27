@@ -10,21 +10,28 @@
         {
             "language": "markdown",
             "source": [
-                "\n## How to deploy\n1. Make sure all `node_modules` dependencies are installed\n2. Set env variables in the `.env` file\n3. Run Hardhat deploy script\n4. Done 😊\n\n## Supported networks\n\n- `local`\n- `marsbase`\n- `rinkeby`\n- `mainnet`"
+                "\n### How to deploy\n1. Make sure all `node_modules` dependencies are installed\n2. Set env variables in the `.env` file\n3. Run Hardhat deploy script\n4. Done 😊\n\n### Supported networks\n\n- `local`\n- `marsbase`\n- `rinkeby`\n- `mainnet`"
             ],
             "outputs": []
         },
         {
             "language": "markdown",
             "source": [
-                "install deps\n\n```shell\nyarn\n```"
+                "## Deployment"
             ],
             "outputs": []
         },
         {
             "language": "markdown",
             "source": [
-                "deploy\n\n```shell\nyarn hardhat deploy --network marsbase\n```"
+                "### Install deps\n\n```shell\nyarn\n```"
+            ],
+            "outputs": []
+        },
+        {
+            "language": "markdown",
+            "source": [
+                "### Deploy contract\n\n```shell\nyarn hardhat deploy --network marsbase\n```"
             ],
             "outputs": []
         }
