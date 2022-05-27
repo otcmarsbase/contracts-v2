@@ -1,8 +1,5 @@
 node_modules/
 build/
-.secret
-.infuraid
-.etherscan
-.accounts
+.env
 artifacts/
 cache/

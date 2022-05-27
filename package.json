@@ -23,6 +23,7 @@
 		"@typechain/web3-v1": "^6.0.0",
 		"bignumber.js": "^9.0.2",
 		"chai": "^4.3.6",
+		"dotenv": "^16.0.1",
 		"ethereum-waffle": "^3.4.0",
 		"ethers": "^5.6.1",
 		"hardhat": "^2.8.3",

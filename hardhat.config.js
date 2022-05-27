@@ -1,16 +1,16 @@
 /**
  * @type import('hardhat/config').HardhatUserConfig
  */
-const fs = require('fs');
 const { task } = require('hardhat/config');
-const mnemonic = fs.readFileSync(".secret").toString().trim();
-const infuraId = fs.readFileSync(".infuraid").toString().trim();
-const etherscanKey = fs.readFileSync(".etherscan").toString().trim();
 
-let accounts = fs.readFileSync(".accounts").toString().trim().split("\n");
-if (accounts.length == 0 || accounts[0] == "") {
-  accounts = { mnemonic: mnemonic };
-}
+require("dotenv").config()
+
+const mnemonic = process.env.MNEMONIC
+const infuraId = process.env.INFURA_ID
+const etherscanKey = process.env.ETHERSCAN
+const privateKey = process.env.PRIVATE_KEY
+
+const accounts = mnemonic ? { mnemonic } : [ privateKey ]
 
 require("@nomiclabs/hardhat-waffle");
 require("@nomiclabs/hardhat-truffle5");
@@ -91,23 +91,19 @@ module.exports = {
     // Useful for deploying to a public network.
     // NB: It's important to wrap the provider as a function.
     ropsten: {
-      accounts: {
-        mnemonic: mnemonic,
-      },
+      accounts,
       url: `https://ropsten.infura.io/v3/` + infuraId,
       chainId: 3,       // Ropsten's id
       gas: "auto",        // Ropsten has a lower block limit than mainnet
     },
     rinkeby: {
-      accounts: {
-        mnemonic: mnemonic,
-      },
+      accounts,
       url: `https://rinkeby.infura.io/v3/` + infuraId,
       chainId: 4,       // Ropsten's id
       gas: "auto",        // Ropsten has a lower block limit than mainnet
     },
     mainnet: {
-      accounts: accounts,
+      accounts,
       url: `https://mainnet.infura.io/v3/` + infuraId,
       gas: "auto"
     },
