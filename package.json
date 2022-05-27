@@ -38,6 +38,7 @@
 	"scripts": {
 		"init-secret": "touch .secret && touch .infuraid && touch .etherscan",
 		"build": "hardhat compile",
+		"preinstall": "git config core.hooksPath .githooks",
 		"test": "hardhat test"
 	},
 	"author": "",
