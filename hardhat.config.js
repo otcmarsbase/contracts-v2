@@ -6,6 +6,11 @@ const mnemonic = fs.readFileSync(".secret").toString().trim();
 const infuraId = fs.readFileSync(".infuraid").toString().trim();
 const etherscanKey = fs.readFileSync(".etherscan").toString().trim();
 
+let accounts = fs.readFileSync(".accounts").toString().trim().split("\n");
+if (accounts.length == 0 || accounts[0] == "") {
+  accounts = { mnemonic: mnemonic };
+}
+
 require("@nomiclabs/hardhat-waffle");
 require("@nomiclabs/hardhat-truffle5");
 require("@nomiclabs/hardhat-etherscan");
@@ -99,6 +104,11 @@ module.exports = {
       url: `https://rinkeby.infura.io/v3/` + infuraId,
       chainId: 4,       // Ropsten's id
       gas: "auto",        // Ropsten has a lower block limit than mainnet
+    },
+    mainnet: {
+      accounts: accounts,
+      url: `https://mainnet.infura.io/v3/` + infuraId,
+      gas: "auto"
     },
     // Useful for private networks
     // private: {

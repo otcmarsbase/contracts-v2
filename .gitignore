@@ -3,5 +3,6 @@ build/
 .secret
 .infuraid
 .etherscan
+.accounts
 artifacts/
 cache/
