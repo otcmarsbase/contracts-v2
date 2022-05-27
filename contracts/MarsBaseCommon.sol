@@ -2,7 +2,7 @@
 pragma solidity >=0.4.22 <0.9.0;
 
 /// @title MarsBase Common
-/// @author Sam Sheffres
+/// @author dOTC Marsbase
 /// @notice This library contains struct and enum definitions for the MarsBase Exchange and MarsBase Contracts.
 library MarsBaseCommon {
 

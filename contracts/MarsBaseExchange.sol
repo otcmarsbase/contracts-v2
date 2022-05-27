@@ -7,7 +7,7 @@ import "./MarsBaseCommon.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 /// @title MarsBaseExchange
-/// @author Sam Sheffres
+/// @author dOTC Marsbase
 /// @notice This contract contains the public facing elements of the marsbase exchange. 
 contract MarsBaseExchange {
     /// Emitted when an offer is created
