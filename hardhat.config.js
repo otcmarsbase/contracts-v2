@@ -10,7 +10,7 @@ const infuraId = process.env.INFURA_ID
 const etherscanKey = process.env.ETHERSCAN
 const privateKey = process.env.PRIVATE_KEY
 
-const accounts = mnemonic ? { mnemonic } : [ privateKey ]
+const accounts = mnemonic ? { mnemonic } : privateKey ? [ privateKey ] : undefined
 
 require("@nomiclabs/hardhat-waffle");
 require("@nomiclabs/hardhat-truffle5");
