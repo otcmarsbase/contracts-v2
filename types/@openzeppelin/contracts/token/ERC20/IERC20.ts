@@ -61,13 +61,13 @@ export interface IERC20 extends BaseContract {
     totalSupply(): NonPayableTransactionObject<string>;
 
     transfer(
-      recipient: string,
+      to: string,
       amount: number | string | BN
     ): NonPayableTransactionObject<boolean>;
 
     transferFrom(
-      sender: string,
-      recipient: string,
+      from: string,
+      to: string,
       amount: number | string | BN
     ): NonPayableTransactionObject<boolean>;
   };
