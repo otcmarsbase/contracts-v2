@@ -25,7 +25,7 @@ async function deployLibrary()
 
 	console.log("Deploying Contract Library...")
 	let m = await MarsBase.deploy()
-	console.log(`Marsbase Library Deployed: ${m.address}`)
+	console.log(`Marsbase Library address: ${m.address}`)
 	return {
 		contract: m,
 		address: m.address,
@@ -40,21 +40,50 @@ async function deployExchange(libraryAddress)
 	});
 
 	console.log("Deploying Exchange Contract...")
-	let dex = await MarsBaseExchange.deploy();
-	console.log(`Marsbase Exchange Deployed: ${dex.address}`)
+	let dex = await MarsBaseExchange.deploy()
+	console.log(`Marsbase Exchange address: ${dex.address}`)
 	return {
 		contract: dex,
 		address: dex.address,
 	}
 }
 
+const weiToEth = (wei) => ethers.utils.formatEther(wei)
+
+const printDeployerInfo = async (print = true) =>
+{
+	const [deployer] = await ethers.getSigners()
+	const getEthBalance = async () => await deployer.getBalance()
+	const printEthBalance = async () => console.log(`Account balance: ${weiToEth(await getEthBalance())} ETH (on ${deployer.address})`)
+	if (print)
+	{
+		console.log(`Deploying with the account: ${deployer.address}`)
+		await printEthBalance()
+	}
+	return {
+		deployer,
+		getEthBalance,
+		printEthBalance,
+		balance: await getEthBalance(),
+	}
+}
+
 task("deploy-all", "Deploys both contracts").setAction(async () => {
+	const { printEthBalance, balance, getEthBalance } = await printDeployerInfo()
 	const { contract: library, address: libraryAddress } = await deployLibrary()
 	const { contract: exchange, address: exchangeAddress } = await deployExchange(libraryAddress)
+	await library.deployed()
+	await exchange.deployed()
+	await printEthBalance()
+	console.log(`gas spent: ${weiToEth(balance.sub(await getEthBalance()))}`)
 });
 task("deploy-lib", "Deploys Marsbase Library contract").setAction(async () =>
 {
+	const { printEthBalance, balance, getEthBalance } = await printDeployerInfo()
 	const { contract: library, address: libraryAddress } = await deployLibrary()
+	await library.deployed()
+	await printEthBalance()
+	console.log(`gas spent: ${weiToEth(balance.sub(await getEthBalance()))}`)
 })
 task("deploy-exchange", "Deploys Marsbase Exchange contract")
 	.addParam("library", "Marsbase Library contract")
@@ -62,7 +91,11 @@ task("deploy-exchange", "Deploys Marsbase Exchange contract")
 	{
 		let libraryAddress = web3.utils.toChecksumAddress(params.library)
 		console.log("deploying exchange with library: " + libraryAddress)
+		const { printEthBalance, balance, getEthBalance } = await printDeployerInfo()
 		const { contract: exchange, address: exchangeAddress } = await deployExchange(libraryAddress)
+		await exchange.deployed()
+		await printEthBalance()
+		console.log(`gas spent: ${weiToEth(balance.sub(await getEthBalance()))}`)
 	})
 
 module.exports = {
