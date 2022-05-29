@@ -4,11 +4,13 @@
 ### How to deploy
 1. Make sure all `node_modules` dependencies are installed
 2. Set env variables in the `.env` file
-3. Deploy library contract with Hardhat
-4. Deploy exchange contract with Hardhat
-5. Verify library contract code on Etherscan
-6. Verify exchange contract code on Etherscan
-7. Done 😊
+3. Cleanup previous builds if they exist
+4. Build & test contracts locally
+5. Deploy library contract with Hardhat
+6. Deploy exchange contract with Hardhat
+7. Verify library contract code on Etherscan
+8. Verify exchange contract code on Etherscan
+9. Done 😊
 
 ### Supported networks
 
@@ -25,13 +27,32 @@
 yarn
 ```
 
-### 3. Deploy Marsbase Library contract
+It's best to cleanup first, and to install with frozen lockfile:
+
+```shell
+rm -rf node_modules
+yarn --frozen-lockfile
+```
+
+### 3. Cleanup previous builds if they exist
+
+```shell
+rm -rf ./artifacts ./cache
+```
+
+### 4. Build & test contracts locally
+
+```shell
+yarn test
+```
+
+### 5. Deploy Marsbase Library contract
 
 ```shell
 yarn hardhat deploy-lib --network marsbase
 ```
 
-### 4. Deploy Marsbase Exchange contract
+### 6. Deploy Marsbase Exchange contract
 
 ```shell
 yarn hardhat deploy-exchange --library <LIBRARY_ADDRESS> --network marsbase
@@ -43,13 +64,13 @@ yarn hardhat deploy-exchange --library <LIBRARY_ADDRESS> --network marsbase
 yarn hardhat deploy-all --network marsbase
 ```
 
-### 5. Verify Marsbase Library source code on Etherscan
+### 7. Verify Marsbase Library source code on Etherscan
 
 ```shell
 yarn hardhat verify --contract contracts/MarsBase.sol:MarsBase --network mainnet <LIBRARY_ADDRESS>
 ```
 
-### 6. Verify Marsbase Exchange source code on Etherscan
+### 8. Verify Marsbase Exchange source code on Etherscan
 
 ```shell
 yarn hardhat verify --contract contracts/MarsBaseExchange.sol:MarsBaseExchange --network mainnet <EXCHANGE_ADDRESS> "<LIBRARY_ADDRESS>"

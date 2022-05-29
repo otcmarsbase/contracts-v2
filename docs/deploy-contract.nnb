@@ -10,7 +10,7 @@
         {
             "language": "markdown",
             "source": [
-                "\n### How to deploy\n1. Make sure all `node_modules` dependencies are installed\n2. Set env variables in the `.env` file\n3. Deploy library contract with Hardhat\n4. Deploy exchange contract with Hardhat\n5. Verify library contract code on Etherscan\n6. Verify exchange contract code on Etherscan\n7. Done 😊\n\n### Supported networks\n\n- `local`\n- `marsbase`\n- `rinkeby`\n- `mainnet`"
+                "\n### How to deploy\n1. Make sure all `node_modules` dependencies are installed\n2. Set env variables in the `.env` file\n3. Cleanup previous builds if they exist\n4. Build & test contracts locally\n5. Deploy library contract with Hardhat\n6. Deploy exchange contract with Hardhat\n7. Verify library contract code on Etherscan\n8. Verify exchange contract code on Etherscan\n9. Done 😊\n\n### Supported networks\n\n- `local`\n- `marsbase`\n- `rinkeby`\n- `mainnet`"
             ],
             "outputs": []
         },
@@ -24,21 +24,35 @@
         {
             "language": "markdown",
             "source": [
-                "### 1. Install deps\n\n```shell\nyarn\n```"
+                "### 1. Install deps\n\n```shell\nyarn\n```\n\nIt's best to cleanup first, and to install with frozen lockfile:\n\n```shell\nrm -rf node_modules\nyarn --frozen-lockfile\n```"
             ],
             "outputs": []
         },
         {
             "language": "markdown",
             "source": [
-                "### 3. Deploy Marsbase Library contract\n\n```shell\nyarn hardhat deploy-lib --network marsbase\n```"
+                "### 3. Cleanup previous builds if they exist\n\n```shell\nrm -rf ./artifacts ./cache\n```"
             ],
             "outputs": []
         },
         {
             "language": "markdown",
             "source": [
-                "### 4. Deploy Marsbase Exchange contract\n\n```shell\nyarn hardhat deploy-exchange --library <LIBRARY_ADDRESS> --network marsbase\n```"
+                "### 4. Build & test contracts locally\n\n```shell\nyarn test\n```"
+            ],
+            "outputs": []
+        },
+        {
+            "language": "markdown",
+            "source": [
+                "### 5. Deploy Marsbase Library contract\n\n```shell\nyarn hardhat deploy-lib --network marsbase\n```"
+            ],
+            "outputs": []
+        },
+        {
+            "language": "markdown",
+            "source": [
+                "### 6. Deploy Marsbase Exchange contract\n\n```shell\nyarn hardhat deploy-exchange --library <LIBRARY_ADDRESS> --network marsbase\n```"
             ],
             "outputs": []
         },
@@ -52,14 +66,14 @@
         {
             "language": "markdown",
             "source": [
-                "### 5. Verify Marsbase Library source code on Etherscan\n\n```shell\nyarn hardhat verify --contract contracts/MarsBase.sol:MarsBase --network mainnet <LIBRARY_ADDRESS>\n```"
+                "### 7. Verify Marsbase Library source code on Etherscan\n\n```shell\nyarn hardhat verify --contract contracts/MarsBase.sol:MarsBase --network mainnet <LIBRARY_ADDRESS>\n```"
             ],
             "outputs": []
         },
         {
             "language": "markdown",
             "source": [
-                "### 6. Verify Marsbase Exchange source code on Etherscan\n\n```shell\nyarn hardhat verify --contract contracts/MarsBaseExchange.sol:MarsBaseExchange --network mainnet <EXCHANGE_ADDRESS> \"<LIBRARY_ADDRESS>\"\n```"
+                "### 8. Verify Marsbase Exchange source code on Etherscan\n\n```shell\nyarn hardhat verify --contract contracts/MarsBaseExchange.sol:MarsBaseExchange --network mainnet <EXCHANGE_ADDRESS> \"<LIBRARY_ADDRESS>\"\n```"
             ],
             "outputs": []
         }
