@@ -39,6 +39,7 @@
 		"init-secret": "touch .secret && touch .infuraid && touch .etherscan",
 		"build": "hardhat compile",
 		"preinstall": "git config core.hooksPath .githooks",
+		"nnb2md": "node docs/convert-nnb.js docs",
 		"test": "hardhat test"
 	},
 	"author": "",
