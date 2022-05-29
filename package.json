@@ -43,5 +43,10 @@
 		"test": "hardhat test"
 	},
 	"author": "",
-	"license": "ISC"
+	"license": "ISC",
+	"engines": {
+		"npm": "please-use-yarn",
+		"yarn": ">= 1.22.0",
+		"node": ">= 16.0.0"
+	}
 }
