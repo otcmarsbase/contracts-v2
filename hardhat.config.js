@@ -19,24 +19,51 @@ require('@typechain/hardhat');
 require("hardhat-gas-reporter");
 require('hardhat-contract-sizer');
 
-task("deploy", "Deploys the contract").setAction(async () => {
-  const MarsBase = await await ethers.getContractFactory("MarsBase");
+async function deployLibrary()
+{
+	const MarsBase = await ethers.getContractFactory("MarsBase")
 
-  console.log("Deploying Contract Library...")
-  m = await MarsBase.deploy();
+	console.log("Deploying Contract Library...")
+	let m = await MarsBase.deploy()
+	console.log(`Marsbase Library Deployed: ${m.address}`)
+	return {
+		contract: m,
+		address: m.address,
+	}
+}
+async function deployExchange(libraryAddress)
+{
+	const MarsBaseExchange = await ethers.getContractFactory("MarsBaseExchange", {
+		libraries: {
+			MarsBase: libraryAddress
+		}
+	});
 
-  const MarsBaseExchange = await ethers.getContractFactory("MarsBaseExchange", {
-    libraries: {
-      MarsBase: m.address
-    }
-  });
+	console.log("Deploying Exchange Contract...")
+	let dex = await MarsBaseExchange.deploy();
+	console.log(`Marsbase Exchange Deployed: ${dex.address}`)
+	return {
+		contract: dex,
+		address: dex.address,
+	}
+}
 
-  console.log("Deploying Exchange Contract...")
-  dex = await MarsBaseExchange.deploy();
-
-  console.log("Address Marsbase Library: ", m.address);
-  console.log("Address Marsbase Exchange: ", dex.address);
+task("deploy-all", "Deploys both contracts").setAction(async () => {
+	const { contract: library, address: libraryAddress } = await deployLibrary()
+	const { contract: exchange, address: exchangeAddress } = await deployExchange(libraryAddress)
 });
+task("deploy-lib", "Deploys Marsbase Library contract").setAction(async () =>
+{
+	const { contract: library, address: libraryAddress } = await deployLibrary()
+})
+task("deploy-exchange", "Deploys Marsbase Exchange contract")
+	.addParam("library", "Marsbase Library contract")
+	.setAction(async params =>
+	{
+		let libraryAddress = web3.utils.toChecksumAddress(params.library)
+		console.log("deploying exchange with library: " + libraryAddress)
+		const { contract: exchange, address: exchangeAddress } = await deployExchange(libraryAddress)
+	})
 
 module.exports = {
   solidity: {
