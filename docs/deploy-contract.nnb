@@ -66,14 +66,14 @@
         {
             "language": "markdown",
             "source": [
-                "### 7. Verify Marsbase Library source code on Etherscan\n\n```shell\nyarn hardhat verify --contract contracts/MarsBase.sol:MarsBase --network mainnet <LIBRARY_ADDRESS>\n```"
+                "### 7. Verify Marsbase Library source code on Etherscan\n\n```shell\nyarn hardhat verify --network mainnet <LIBRARY_ADDRESS>\n```"
             ],
             "outputs": []
         },
         {
             "language": "markdown",
             "source": [
-                "### 8. Verify Marsbase Exchange source code on Etherscan\n\n```shell\nyarn hardhat verify --contract contracts/MarsBaseExchange.sol:MarsBaseExchange --network mainnet <EXCHANGE_ADDRESS> \"<LIBRARY_ADDRESS>\"\n```"
+                "### 8. Verify Marsbase Exchange source code on Etherscan\n\n```shell\nyarn hardhat verify --network mainnet <EXCHANGE_ADDRESS>\n```"
             ],
             "outputs": []
         }

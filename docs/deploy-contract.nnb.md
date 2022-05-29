@@ -67,11 +67,11 @@ yarn hardhat deploy-all --network marsbase
 ### 7. Verify Marsbase Library source code on Etherscan
 
 ```shell
-yarn hardhat verify --contract contracts/MarsBase.sol:MarsBase --network mainnet <LIBRARY_ADDRESS>
+yarn hardhat verify --network mainnet <LIBRARY_ADDRESS>
 ```
 
 ### 8. Verify Marsbase Exchange source code on Etherscan
 
 ```shell
-yarn hardhat verify --contract contracts/MarsBaseExchange.sol:MarsBaseExchange --network mainnet <EXCHANGE_ADDRESS> "<LIBRARY_ADDRESS>"
+yarn hardhat verify --network mainnet <EXCHANGE_ADDRESS>
 ```
