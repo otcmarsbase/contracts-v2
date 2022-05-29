@@ -77,13 +77,13 @@ export interface USDC extends BaseContract {
     totalSupply(): NonPayableTransactionObject<string>;
 
     transfer(
-      to: string,
+      recipient: string,
       amount: number | string | BN
     ): NonPayableTransactionObject<boolean>;
 
     transferFrom(
-      from: string,
-      to: string,
+      sender: string,
+      recipient: string,
       amount: number | string | BN
     ): NonPayableTransactionObject<boolean>;
   };
