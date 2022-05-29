@@ -10,7 +10,7 @@
         {
             "language": "markdown",
             "source": [
-                "\n### How to deploy\n1. Make sure all `node_modules` dependencies are installed\n2. Set env variables in the `.env` file\n3. Deploy library contract with Hardhat\n4. Deploy exchange contract with Hardhat\n5. Done 😊\n\n### Supported networks\n\n- `local`\n- `marsbase`\n- `rinkeby`\n- `mainnet`"
+                "\n### How to deploy\n1. Make sure all `node_modules` dependencies are installed\n2. Set env variables in the `.env` file\n3. Deploy library contract with Hardhat\n4. Deploy exchange contract with Hardhat\n5. Verify library contract code on Etherscan\n6. Verify exchange contract code on Etherscan\n7. Done 😊\n\n### Supported networks\n\n- `local`\n- `marsbase`\n- `rinkeby`\n- `mainnet`"
             ],
             "outputs": []
         },
@@ -24,21 +24,21 @@
         {
             "language": "markdown",
             "source": [
-                "### Install deps\n\n```shell\nyarn\n```"
+                "### 1. Install deps\n\n```shell\nyarn\n```"
             ],
             "outputs": []
         },
         {
             "language": "markdown",
             "source": [
-                "### Deploy Marsbase Library contract\n\n```shell\nyarn hardhat deploy-lib --network marsbase\n```"
+                "### 3. Deploy Marsbase Library contract\n\n```shell\nyarn hardhat deploy-lib --network marsbase\n```"
             ],
             "outputs": []
         },
         {
             "language": "markdown",
             "source": [
-                "### Deploy Marsbase Exchange contract\n\n```shell\nyarn hardhat deploy-exchange --library <LIBRARY_ADDRESS> --network marsbase\n```"
+                "### 4. Deploy Marsbase Exchange contract\n\n```shell\nyarn hardhat deploy-exchange --library <LIBRARY_ADDRESS> --network marsbase\n```"
             ],
             "outputs": []
         },
@@ -46,6 +46,20 @@
             "language": "markdown",
             "source": [
                 "### (optional) Deploy both contracts in one line\n\n```shell\nyarn hardhat deploy-all --network marsbase\n```"
+            ],
+            "outputs": []
+        },
+        {
+            "language": "markdown",
+            "source": [
+                "### 5. Verify Marsbase Library source code on Etherscan\n\n```shell\nyarn hardhat verify --contract contracts/MarsBase.sol:MarsBase --network mainnet <LIBRARY_ADDRESS>\n```"
+            ],
+            "outputs": []
+        },
+        {
+            "language": "markdown",
+            "source": [
+                "### 6. Verify Marsbase Exchange source code on Etherscan\n\n```shell\nyarn hardhat verify --contract contracts/MarsBaseExchange.sol:MarsBaseExchange --network mainnet <EXCHANGE_ADDRESS> \"<LIBRARY_ADDRESS>\"\n```"
             ],
             "outputs": []
         }
