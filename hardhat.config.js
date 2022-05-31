@@ -19,6 +19,41 @@ require('@typechain/hardhat');
 require("hardhat-gas-reporter");
 require('hardhat-contract-sizer');
 
+
+async function deployTestTokens(deployer, libraryAddress)
+{
+  const LOOKS = await ethers.getContractFactory("LOOKS");
+  const USDC = await ethers.getContractFactory("USDC");
+  const USDT = await ethers.getContractFactory("USDT");
+
+  console.log("Deploying Test Tokens...")
+  
+  let looks = await LOOKS.deploy();
+  let usdc = await USDC.deploy();
+  let usdt = await USDT.deploy();
+
+  console.log(`LOOKS Token address: ${looks.address}`);
+  console.log(`USDC Token address: ${usdc.address}`);
+  console.log(`USDT Token address: ${usdt.address}`);
+
+  await looks.deployed();
+  await usdc.deployed();
+  await usdt.deployed();
+
+  return [looks.address, usdc.address, usdt.address];
+}
+
+async function sendTestTokensToAccount(tokenAddress, account, amount)
+{
+  // Looks is used, but any ERC20 token would work
+  const TOKEN = await ethers.getContractFactory("LOOKS");
+  let token = TOKEN.attach(tokenAddress); 
+  
+  const tx = await token.transfer(account, amount);
+
+  return tx;
+}
+
 async function deployLibrary()
 {
 	const MarsBase = await ethers.getContractFactory("MarsBase")
@@ -77,6 +112,24 @@ task("deploy-all", "Deploys both contracts").setAction(async () => {
 	await printEthBalance()
 	console.log(`gas spent: ${weiToEth(balance.sub(await getEthBalance()))}`)
 });
+
+task("deploy-test-tokens", "Deploys Test Tokens").setAction(async () =>
+{
+  await deployTestTokens();
+  console.log("Test Tokens deployed!");
+})
+
+task('send-test-tokens', 'Sends test tokens to account')
+  .addParam("tokenAddress", "Token Address")
+  .addParam("to", "Address to send tokens to")
+  .addParam("amount", "Amount of tokens to send")
+  .setAction(async (params) => {
+
+    await sendTestTokensToAccount(params.tokenAddress, params.to, params.amount);
+    console.log("Test Tokens sent!");
+
+  });
+
 task("deploy-lib", "Deploys Marsbase Library contract").setAction(async () =>
 {
 	const { printEthBalance, balance, getEthBalance } = await printDeployerInfo()
@@ -85,6 +138,7 @@ task("deploy-lib", "Deploys Marsbase Library contract").setAction(async () =>
 	await printEthBalance()
 	console.log(`gas spent: ${weiToEth(balance.sub(await getEthBalance()))}`)
 })
+
 task("deploy-exchange", "Deploys Marsbase Exchange contract")
 	.addParam("library", "Marsbase Library contract")
 	.setAction(async params =>

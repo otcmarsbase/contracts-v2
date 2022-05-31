@@ -3,3 +3,8 @@ build/
 .env
 artifacts/
 cache/
+
+.accounts
+.etherscan
+.infuraid
+.secret
