@@ -125,8 +125,8 @@ task('send-test-tokens', 'Sends test tokens to account')
   .addParam("amount", "Amount of tokens to send")
   .setAction(async (params) => {
 
-    await sendTestTokensToAccount(params.tokenAddress, params.to, params.amount);
-    console.log("Test Tokens sent!");
+    let tx = await sendTestTokensToAccount(params.tokenAddress, params.to, params.amount);
+    console.log("Test Tokens sent! Transaction hash: ", tx.hash);
 
   });
 
@@ -221,6 +221,11 @@ module.exports = {
       url: `https://mainnet.infura.io/v3/` + infuraId,
       gas: "auto"
     },
+    bsctestnet: {
+      accounts,
+      url: `https://data-seed-prebsc-1-s1.binance.org:8545/`,
+      gas: "auto"
+    }
     // Useful for private networks
     // private: {
     // provider: () => new HDWalletProvider(mnemonic, `https://network.io`),
