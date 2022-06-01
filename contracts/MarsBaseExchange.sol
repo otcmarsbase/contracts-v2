@@ -99,7 +99,6 @@ contract MarsBaseExchange {
     /// Can only be called by the owner
     function setCommissionAddress(address wallet) unlocked public {
         require(msg.sender == owner, "S7");
-        require(wallet != address(0), "T0");
 
         commissionWallet = wallet;
     }
@@ -154,7 +153,7 @@ contract MarsBaseExchange {
     /// If no exchange contract is set the commission is sent to the commsiion wallet
     function swapCommission(uint256 amount, address token) internal {
 
-        if (commissionWallet == address(0) || amount == 0) {
+        if (amount == 0) {
             return;
         }
 
