@@ -153,6 +153,11 @@ contract MarsBaseExchange {
     /// Swaps commission for a token to USDT and sends it to the commission wallet
     /// If no exchange contract is set the commission is sent to the commsiion wallet
     function swapCommission(uint256 amount, address token) internal {
+
+        if (commissionWallet == address(0) || amount == 0) {
+            return;
+        }
+
         if (token != address(0)) {
             uint256 balance = IERC20(token).balanceOf(address(this));
 
