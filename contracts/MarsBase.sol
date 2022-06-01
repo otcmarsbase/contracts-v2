@@ -6,6 +6,8 @@ import "./MarsBaseCommon.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
+import "./interfaces/IMarsbaseSink.sol";
+
 library MarsBase {
   // MarsBaseCommon.OfferType as int
   /*
@@ -245,7 +247,7 @@ library MarsBase {
       if (acceptedTokenBob != address(0)) {
         require(IERC20(acceptedTokenBob).transferFrom(msg.sender, offer.payoutAddress, amountAfterFeeAlice), "T2a");
         require(IERC20(offer.tokenAlice).transfer(msg.sender, amountAfterFeeBob), "T5");
-        // require(IERC20(acceptedTokenBob).transferFrom(msg.sender, commissionWallet, partialAmountBob - amountAfterFeeBob), "T1a");
+        require(IERC20(acceptedTokenBob).transferFrom(msg.sender, address(this), partialAmountAlice - amountAfterFeeAlice), "T1a");
       } else {
         require(IERC20(offer.tokenAlice).transfer(msg.sender, amountAfterFeeBob), "T5");
         (bool success, bytes memory data) = offer.payoutAddress.call{value: amountAfterFeeAlice}("");
@@ -256,7 +258,7 @@ library MarsBase {
           if (offer.minimumOrderTokens[index] != address(0)) {
             require(IERC20(offer.minimumOrderTokens[index]).transfer(offer.payoutAddress, offer.minimumOrderAmountsBob[index] * (1000-offer.feeBob) / 1000), "T2b");
             require(IERC20(offer.tokenAlice).transfer(offer.minimumOrderAddresses[index], offer.minimumOrderAmountsAlice[index] * (1000-offer.feeAlice) / 1000), "T1b");
-            // require(IERC20(offer.minimumOrderTokens[index]).transfer(commissionWallet, offer.minimumOrderAmountsBob[index] - (offer.minimumOrderAmountsBob[index] * (1000-offer.feeBob))), "T1a");
+            // require(IERC20(offer.minimumOrderTokens[index]).transfer(address(this), offer.minimumOrderAmountsBob[index] - (offer.minimumOrderAmountsBob[index] * (1000-offer.feeBob))), "T1a");
           } else {
             (bool success, bytes memory data) = offer.minimumOrderAddresses[index].call{value: offer.minimumOrderAmountsBob[index] * (1000-offer.feeAlice) / 1000}("");
             require(success, "t1b");

@@ -6,6 +6,7 @@ import "./MarsBaseCommon.sol";
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
+
 /// @title MarsBaseExchange
 /// @author dOTC Marsbase
 /// @notice This contract contains the public facing elements of the marsbase exchange. 
@@ -71,6 +72,7 @@ contract MarsBaseExchange {
     uint256 minimumFee = 10;
 
     address commissionWallet;
+    address commissionExchanger;
 
     bool locked;
 
@@ -100,6 +102,15 @@ contract MarsBaseExchange {
         require(wallet != address(0), "T0");
 
         commissionWallet = wallet;
+    }
+
+    /// Updates the address where the commisions are exchanged
+    /// Can only be called by the owner
+    function setExchangerAddress(address exchangeContract) unlocked public {
+        require(msg.sender == owner, "S7");
+        require(exchangeContract != address(0), "T0");
+
+        commissionExchanger = exchangeContract;
     }
 
     /// Updates the minimum fee amount
@@ -139,6 +150,28 @@ contract MarsBaseExchange {
         return owner;
     }
 
+    /// Swaps commission for a token to USDT and sends it to the commission wallet
+    /// If no exchange contract is set the commission is sent to the commsiion wallet
+    function swapCommission(uint256 amount, address token) internal {
+        if (token != address(0)) {
+            uint256 balance = IERC20(token).balanceOf(address(this));
+
+            if (balance < amount) {
+               amount = balance;
+            }
+        }
+
+        if (commissionExchanger != address(0)) {
+            IERC20(token).approve(address(this), amount);
+            IMarsbaseSink(commissionExchanger).takeAndSwap(msg.sender, token, amount, commissionWallet);
+        } else {
+            if (token != address(0)) {
+                IERC20(token).transfer(commissionWallet, amount);
+            } else {
+                commissionWallet.call{value: amount};
+            }
+        }
+    }
 
     // Gets a list of all active offers
     function getAllOffers()
@@ -227,6 +260,8 @@ contract MarsBaseExchange {
         MarsBaseCommon.MBOffer memory offer = offers[offerId];
         MarsBaseCommon.OfferType offerType = offer.offerType;
 
+        bool shouldSwap = true;
+
         if (tokenBob == address(0)) {
             amountBob = msg.value;
         }
@@ -257,9 +292,18 @@ contract MarsBaseExchange {
                 tokenBob,
                 amountBob
             );
+
+            shouldSwap = offers[offerId].minimumMet;
         }
 
         uint256 amountTransacted = offer.amountRemaining - offers[offerId].amountRemaining;
+        uint256 feeAlice = amountTransacted - (amountTransacted * (1000-offer.feeAlice) / 1000);
+        uint256 feeBob = amountBob - (amountBob * (1000-offer.feeBob) / 1000);
+
+        if (shouldSwap == true) {
+            swapCommission(feeAlice, offer.tokenAlice);
+            swapCommission(feeBob, tokenBob);
+        }
 
         emit OfferAccepted(
             offerId,
@@ -270,8 +314,8 @@ contract MarsBaseExchange {
             offer.tokenAlice,
             tokenBob,
             offerType,
-            amountTransacted - (amountTransacted * (1000-offer.feeAlice) / 1000),
-            amountBob - (amountBob * (1000-offer.feeBob) / 1000)
+            feeAlice,
+            feeBob
         );
 
         if (offers[offerId].active == false) {
@@ -348,16 +392,5 @@ contract MarsBaseExchange {
         locked = true;
 
         emit ContractMigrated();
-    }
-
-    function withdrawCommission(address token, uint256 amount) public payable {
-        require(msg.sender == owner, "S8");
-
-        if (token == address(0)) {
-            (bool success, bytes memory data) = commissionWallet.call{value: amount}("");
-            require(success, "T1b");
-        } else {
-            require(IERC20(token).transfer(commissionWallet, amount), "T1b");
-        }
     }
 }

@@ -300,6 +300,10 @@ export interface MarsBaseExchange extends BaseContract {
 
     setCommissionAddress(wallet: string): NonPayableTransactionObject<void>;
 
+    setExchangerAddress(
+      exchangeContract: string
+    ): NonPayableTransactionObject<void>;
+
     setMinimumFee(
       _minimumFee: number | string | BN
     ): NonPayableTransactionObject<void>;
@@ -307,11 +311,6 @@ export interface MarsBaseExchange extends BaseContract {
     setNextOfferId(
       _nextOfferId: number | string | BN
     ): NonPayableTransactionObject<void>;
-
-    withdrawCommission(
-      token: string,
-      amount: number | string | BN
-    ): PayableTransactionObject<void>;
   };
   events: {
     BidCancelled(cb?: Callback<BidCancelled>): EventEmitter;

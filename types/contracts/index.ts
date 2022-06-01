@@ -3,6 +3,8 @@
 /* eslint-disable */
 import type * as usdtCoinSol from "./USDTCoin.sol";
 export type { usdtCoinSol };
+import type * as interfaces from "./interfaces";
+export type { interfaces };
 export type { BAT } from "./BAT";
 export type { BAT18 } from "./BAT18";
 export type { DAI } from "./DAI";
