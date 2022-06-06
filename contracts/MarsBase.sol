@@ -145,7 +145,8 @@ library MarsBase {
     if (tokenAlice != address(0)) {
       require(IERC20(offer.tokenAlice).transferFrom(msg.sender, address(this), amountAlice), "T1a");
     } else {
-      require(msg.value > 0, "T0");
+      require(msg.value > 0, "M3");
+      require(msg.value == offer.amountAlice, "T1a");
       offer.amountAlice = msg.value;
     }
 
