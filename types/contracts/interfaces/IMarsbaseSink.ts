@@ -29,7 +29,7 @@ export interface IMarsbaseSink extends BaseContract {
   ): IMarsbaseSink;
   clone(): IMarsbaseSink;
   methods: {
-    takeAndSwap(
+    liquidateToken(
       from: string,
       token: string,
       amount: number | string | BN,

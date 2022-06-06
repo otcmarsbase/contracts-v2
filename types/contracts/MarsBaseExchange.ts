@@ -184,6 +184,8 @@ export interface MarsBaseExchange extends BaseContract {
       ]
     ): NonPayableTransactionObject<void>;
 
+    changeOwner(newOwner: string): NonPayableTransactionObject<void>;
+
     createOffer(
       tokenAlice: string,
       tokenBob: string[],
