@@ -107,7 +107,6 @@ contract MarsBaseExchange {
     /// Can only be called by the owner
     function setExchangerAddress(address exchangeContract) unlocked public {
         require(msg.sender == owner, "S7");
-        require(exchangeContract != address(0), "T0");
 
         commissionExchanger = exchangeContract;
     }
