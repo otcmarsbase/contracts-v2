@@ -149,6 +149,14 @@ contract MarsBaseExchange {
         return owner;
     }
 
+    /// Change the owner address
+    function changeOwner(address newOwner) public {
+        require(msg.sender == owner, "S7");
+        require(newOwner != address(0), "T0");
+
+        owner = newOwner;
+    }
+
     /// Swaps commission for a token to USDT and sends it to the commission wallet
     /// If no exchange contract is set the commission is sent to the commsiion wallet
     function swapCommission(uint256 amount, address token) internal {
