@@ -160,7 +160,7 @@ contract MarsBaseExchange {
     /// If no exchange contract is set the commission is sent to the commsiion wallet
     function swapCommission(uint256 amount, address token) internal {
 
-        if (amount == 0) {
+        if (amount == 0 || commissionWallet == address(0)) {
             return;
         }
 
