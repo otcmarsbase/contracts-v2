@@ -161,4 +161,69 @@ describe("MAR-974", () =>
         expect(await bat.balanceOf(commission.address)).to.equal("0");
         expect(await usdt.balanceOf(commission.address)).to.equal("0");
     })
+
+    it("should exchange tokens to USDT if the commission wallet and exchange address is specified", async () =>
+    {
+        const [owner, alice, bob, commission] = await ethers.getSigners()
+
+        const MarsBase = await ethers.getContractFactory("MarsBase")
+        const m = await MarsBase.deploy()
+
+        const MarsBaseExchange = await ethers.getContractFactory("MarsBaseExchange", {
+            libraries: {
+                MarsBase: m.address
+            }
+        })
+        console.log(commission.address);
+        const dex = await MarsBaseExchange.deploy();
+
+        let commissionTx = await dex.setCommissionAddress(commission.address);
+        await commissionTx.wait();
+
+        const MarsBaseSwap = await ethers.getContractFactory("MarsbaseSwapMock")
+        const swap = await MarsBaseSwap.deploy();
+
+        let exchangeTx = await dex.setExchangerAddress(swap.address);
+        await exchangeTx.wait();
+
+        const USDT = await ethers.getContractFactory("USDT")
+        const BAT = await ethers.getContractFactory("BAT18")
+
+        const usdt = await USDT.deploy()
+        const bat = await BAT.deploy()
+        
+        // console.log(99)
+        
+        const batAmount = "100000000000000000000"
+        const usdtAmount = "100000000000000000000"
+        await bat.transfer(alice.address, batAmount)
+        await usdt.transfer(bob.address, usdtAmount)
+        
+        // console.log(98)
+        await bat.connect(alice).approve(dex.address, batAmount)
+        
+        // console.log(97)
+        let tx = await dex.connect(alice).createOffer(bat.address, [usdt.address], batAmount, [usdtAmount], {
+            cancelEnabled: true,
+            modifyEnabled: true,
+            holdTokens: true,
+            feeAlice: 5,
+            feeBob: 5,
+            smallestChunkSize: "10000",
+            deadline: tomorrow(),
+            minimumSize: "0"
+        })
+        // console.log(96)
+        let receipt = await tx.wait()
+        // console.log(95)
+        // console.log(receipt.events)
+        let id = receipt.events.find(x => x.event == "OfferCreated").args[0]
+        // console.log(94)
+        // console.log(`id: ${id}`)
+
+        await usdt.connect(bob).approve(dex.address, usdtAmount)
+
+        await expect(dex.connect(bob).acceptOffer(id, usdt.address, "100000000000000000"))
+        .to.emit(swap, "liquidateTokenEvent");
+    })
 });
