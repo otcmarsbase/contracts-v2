@@ -178,6 +178,8 @@ library MarsBase {
       offer.offerType == MarsBaseCommon.OfferType.LimitedTimeMinimumChunkedPurchase ||
       offer.offerType == MarsBaseCommon.OfferType.LimitedTimeMinimumChunkedDeadlinePurchase, "S5");
 
+    require(block.timestamp < offer.deadline || offer.deadline == 0, "M2");
+
     address acceptedTokenBob = address(0);
     uint256 acceptedAmountBob = 0;
     for (uint256 index = 0; index < offer.tokenBob.length; index++) {

@@ -189,6 +189,7 @@ module.exports = {
       gas: "auto"
     },
     marsbase: {
+      accounts,
       url: "http://142.93.160.132:8110",     // Localhost (default: none)
       chainId: 1337,       // Any network (default: none)
       gas: "auto"
