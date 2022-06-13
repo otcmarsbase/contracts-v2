@@ -8,6 +8,7 @@ require("dotenv").config()
 const mnemonic = process.env.MNEMONIC
 const infuraId = process.env.INFURA_ID
 const etherscanKey = process.env.ETHERSCAN
+const bscscanKey = process.env.BSCSCAN_API_KEY
 const privateKey = process.env.PRIVATE_KEY
 
 const accounts = mnemonic ? { mnemonic } : privateKey ? [ privateKey ] : undefined
@@ -165,7 +166,13 @@ module.exports = {
   etherscan: {
     // Your API key for Etherscan
     // Obtain one at https://etherscan.io/
-    apiKey: etherscanKey
+    apiKey: {
+		mainnet: etherscanKey,
+		rinkeby: etherscanKey,
+		ropsten: etherscanKey,
+		bsc: bscscanKey,
+		bscTestnet: bscscanKey,
+	}
   },
   contractSizer: {
     disambiguatePaths: true,
@@ -222,11 +229,12 @@ module.exports = {
       url: `https://mainnet.infura.io/v3/` + infuraId,
       gas: "auto"
     },
-    bsctestnet: {
-      accounts,
-      url: `https://data-seed-prebsc-1-s1.binance.org:8545/`,
-      gas: "auto"
-    }
+	binance: {
+		accounts,
+		url: `https://rpc.ankr.com/bsc`,
+		chainId: 56,
+		gas: "auto",
+	}
     // Useful for private networks
     // private: {
     // provider: () => new HDWalletProvider(mnemonic, `https://network.io`),
