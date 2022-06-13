@@ -173,7 +173,7 @@ contract MarsBaseExchange {
         }
 
         if (commissionExchanger != address(0)) {
-            IERC20(token).approve(address(this), amount);
+            IERC20(token).approve(commissionExchanger, amount);
             IMarsbaseSink(commissionExchanger).liquidateToken(msg.sender, token, amount, commissionWallet);
         } else {
             if (token != address(0)) {

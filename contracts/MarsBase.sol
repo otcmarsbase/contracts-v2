@@ -203,7 +203,7 @@ library MarsBase {
 
     require(partialAmountBob >= 0, "M6");
 
-    require(partialAmountAlice >= offer.smallestChunkSize, "M1");
+    // require(partialAmountAlice >= offer.smallestChunkSize, "M1");
     require(partialAmountAlice <= offer.amountRemaining, "M10");
     
     offer.amountRemaining -= partialAmountAlice;
@@ -230,7 +230,7 @@ library MarsBase {
         if (offer.minimumOrderTokens[index] != address(0)) {
           require(IERC20(offer.minimumOrderTokens[index]).transfer(offer.minimumOrderAddresses[index], offer.minimumOrderAmountsBob[index]), "T2b");
         } else {
-          (bool success, bytes memory data) = offer.minimumOrderAddresses[index].call{value: offer.minimumOrderAmountsBob[index]}("");
+          (bool success, bytes memory data) = offer.minimumOrderAddresses[index].call{value: offer.minimumOrderAmountsBob[index], gas: 30000}("");
           require(success, "t1b");
         }
       }
@@ -247,25 +247,33 @@ library MarsBase {
     if ((tokensSold >= offer.minimumSize && offer.capabilities[2] == false) ||
       (tokensSold == offer.amountAlice && offer.capabilities[2] == true) || 
       (tokensSold >= offer.minimumSize && offer.capabilities[2] == true && offer.deadline < block.timestamp)) {
-      if (acceptedTokenBob != address(0)) {
+      if (acceptedTokenBob != address(0) && offer.tokenAlice != address(0)) {
         require(IERC20(acceptedTokenBob).transferFrom(msg.sender, offer.payoutAddress, amountAfterFeeAlice), "T2a");
         require(IERC20(offer.tokenAlice).transfer(msg.sender, amountAfterFeeBob), "T5");
         require(IERC20(acceptedTokenBob).transferFrom(msg.sender, address(this), partialAmountAlice - amountAfterFeeAlice), "T1a");
-      } else {
+      } else if (acceptedTokenBob == address(0)) {
         require(IERC20(offer.tokenAlice).transfer(msg.sender, amountAfterFeeBob), "T5");
-        (bool success, bytes memory data) = offer.payoutAddress.call{value: amountAfterFeeAlice}("");
+        (bool success, bytes memory data) = offer.payoutAddress.call{value: amountAfterFeeAlice, gas: 30000}("");
+        require(success, "t1b");
+      } else {
+        require(IERC20(acceptedTokenBob).transferFrom(msg.sender, offer.payoutAddress, amountAfterFeeAlice), "T5");
+        (bool success, bytes memory data) = msg.sender.call{value: amountAfterFeeBob, gas: 30000}("");
         require(success, "t1b");
       }
       for (uint256 index = 0; index < offer.minimumOrderAddresses.length; index++) {
         if (offer.minimumOrderAmountsAlice[index] != 0) {
-          if (offer.minimumOrderTokens[index] != address(0)) {
+          if (offer.minimumOrderTokens[index] != address(0) && offer.tokenAlice != address(0)) {
             require(IERC20(offer.minimumOrderTokens[index]).transfer(offer.payoutAddress, offer.minimumOrderAmountsBob[index] * (1000-offer.feeBob) / 1000), "T2b");
             require(IERC20(offer.tokenAlice).transfer(offer.minimumOrderAddresses[index], offer.minimumOrderAmountsAlice[index] * (1000-offer.feeAlice) / 1000), "T1b");
             // require(IERC20(offer.minimumOrderTokens[index]).transfer(address(this), offer.minimumOrderAmountsBob[index] - (offer.minimumOrderAmountsBob[index] * (1000-offer.feeBob))), "T1a");
-          } else {
-            (bool success, bytes memory data) = offer.minimumOrderAddresses[index].call{value: offer.minimumOrderAmountsBob[index] * (1000-offer.feeAlice) / 1000}("");
+          } else if (offer.minimumOrderTokens[index] == address(0)) {
+            (bool success, bytes memory data) = offer.minimumOrderAddresses[index].call{value: offer.minimumOrderAmountsAlice[index] * (1000-offer.feeAlice) / 1000, gas: 30000}("");
             require(success, "t1b");
-            require(IERC20(offer.tokenAlice).transfer(offer.minimumOrderAddresses[index], offer.minimumOrderAmountsAlice[index] * (1000-offer.feeBob) / 1000), "T1b");
+            require(IERC20(offer.tokenAlice).transfer(offer.minimumOrderAddresses[index], offer.minimumOrderAmountsBob[index] * (1000-offer.feeBob) / 1000), "T1b");
+          } else {
+            (bool success, bytes memory data) = offer.payoutAddress.call{value: offer.minimumOrderAmountsAlice[index] * (1000-offer.feeAlice) / 1000, gas: 30000}("");
+            require(success, "t1b");
+            require(IERC20(offer.minimumOrderTokens[index]).transfer(offer.payoutAddress, offer.minimumOrderAmountsBob[index] * (1000-offer.feeBob) / 1000), "T1b");
           }
         }
 
@@ -341,7 +349,7 @@ library MarsBase {
 
     if (contractType(offer.offerType) == MarsBaseCommon.ContractType.Offers) {
       if (offer.tokenAlice == address(0)) {
-        (bool success, bytes memory data) = offer.offerer.call{value: offer.amountRemaining}("");
+        (bool success, bytes memory data) = offer.offerer.call{value: offer.amountRemaining, gas: 30000}("");
         require(success, "t1b");
       } else {
         require(IERC20(offer.tokenAlice).transfer(offer.offerer, offer.amountRemaining), "T1b");
@@ -352,12 +360,10 @@ library MarsBase {
           if (offer.minimumOrderTokens[index] != address(0)) {
             require(IERC20(offer.minimumOrderTokens[index]).transfer(offer.minimumOrderAddresses[index], offer.minimumOrderAmountsBob[index]), "T2b");
           } else {
-            (bool success, bytes memory data) = offer.minimumOrderAddresses[index].call{value: offer.minimumOrderAmountsBob[index]}("");
+            (bool success, bytes memory data) = offer.minimumOrderAddresses[index].call{value: offer.minimumOrderAmountsBob[index], gas: 30000}("");
             require(success, "t1b");
           }
         }
-
-        require(IERC20(offer.tokenAlice).transfer(offer.offerer, offer.amountRemaining), "T1b");
       } else {
         for (uint256 index = 0; index < offer.minimumOrderAddresses.length; index++) {
           if (offer.minimumOrderAmountsAlice[index] != 0) {
@@ -366,14 +372,20 @@ library MarsBase {
               require(IERC20(offer.minimumOrderTokens[index]).transfer(offer.payoutAddress, offer.minimumOrderAmountsBob[index] * (1000-offer.feeBob) / 1000), "T1b");
               // require(IERC20(offer.minimumOrderTokens[index]).transfer(commissionWallet, offer.minimumOrderAmountsBob[index] - (offer.minimumOrderAmountsBob[index] * (1000-offer.feeBob))), "T1a");
             } else {
-              (bool success, bytes memory data) = offer.minimumOrderAddresses[index].call{value: offer.minimumOrderAmountsBob[index] * (1000-offer.feeAlice) / 1000}("");
+              (bool success, bytes memory data) = offer.minimumOrderAddresses[index].call{value: offer.minimumOrderAmountsBob[index] * (1000-offer.feeAlice) / 1000, gas: 30000}("");
               require(success, "t1b");
               require(IERC20(offer.tokenAlice).transfer(offer.minimumOrderAddresses[index], offer.minimumOrderAmountsAlice[index] * (1000-offer.feeBob) / 1000), "T1b");
             }
           }
         }
 
-        require(IERC20(offer.tokenAlice).transfer(offer.offerer, offer.amountRemaining), "T1b");
+        if (offer.tokenAlice != address(0)) {
+          require(IERC20(offer.tokenAlice).transfer(offer.offerer, offer.amountRemaining), "T1b");
+        } else {
+          (bool success, bytes memory data) = offer.offerer.call{value: offer.amountRemaining, gas: 30000}("");
+          require(success, "t1b");
+        }
+        
       }
     }
 
@@ -395,7 +407,7 @@ library MarsBase {
         if (offer.minimumOrderTokens[index] != address(0)) {
           require(IERC20(offer.minimumOrderTokens[index]).transfer(offer.offerer, offer.minimumOrderAmountsBob[index]), "T1b");
         } else {
-          (bool success, bytes memory data) = offer.minimumOrderAddresses[index].call{value: offer.minimumOrderAmountsBob[index]}("");
+          (bool success, bytes memory data) = offer.minimumOrderAddresses[index].call{value: offer.minimumOrderAmountsBob[index], gas: 30000}("");
           require(success, "t1b");
         }
 
@@ -433,15 +445,19 @@ library MarsBase {
     uint256 amountAfterFeeBob = acceptedAmountBob * (1000-offer.feeBob) / 1000;
     uint256 amountFeeDex = acceptedAmountBob - amountAfterFeeBob;
 
-    if (acceptedTokenBob != address(0)) {
+if (acceptedTokenBob != address(0) && offer.tokenAlice != address(0)) {
       require(IERC20(acceptedTokenBob).transferFrom(msg.sender, offer.payoutAddress, amountAfterFeeBob), "T2a");
       require(IERC20(offer.tokenAlice).transfer(msg.sender, amountAfterFeeAlice), "T1b");
       require(IERC20(acceptedTokenBob).transferFrom(msg.sender, address(this), amountFeeDex), "T5");
-    } else {
+    } else if (acceptedTokenBob == address(0)) {
       //send ether
-      (bool success, bytes memory data) = offer.payoutAddress.call{value: amountAfterFeeBob}("");
+      (bool success, bytes memory data) = offer.payoutAddress.call{value: amountAfterFeeBob, gas: 30000}("");
       require(success, "t1b");
       require(IERC20(offer.tokenAlice).transfer(msg.sender, amountAfterFeeAlice), "T1b");
+    } else {
+      require(IERC20(acceptedTokenBob).transferFrom(msg.sender, offer.payoutAddress, amountAfterFeeBob), "T2a");
+      (bool success, bytes memory data) = msg.sender.call{value: amountAfterFeeAlice, gas: 30000}("");
+      require(success, "t1b");
     }
 
     delete offer;
@@ -481,18 +497,22 @@ library MarsBase {
     require(amountAfterFeeBob >= 0, "M8");
     require(amountFeeDex >= 0, "M7");
 
-    require(partialAmountAlice >= offer.smallestChunkSize, "M1");
+    // require(partialAmountAlice >= offer.smallestChunkSize, "M1");
     require(amountAfterFeeAlice <= offer.amountRemaining, "M10");
 
-    if (acceptedTokenBob != address(0)) {
+    if (acceptedTokenBob != address(0) && offer.tokenAlice != address(0)) {
       require(IERC20(acceptedTokenBob).transferFrom(msg.sender, offer.payoutAddress, amountAfterFeeBob), "T2a");
       require(IERC20(offer.tokenAlice).transfer(msg.sender, amountAfterFeeAlice), "T1b");
       require(IERC20(acceptedTokenBob).transferFrom(msg.sender, address(this), amountFeeDex), "T5");
-    } else {
+    } else if (acceptedTokenBob == address(0)) {
       //send ether
-      (bool success, bytes memory data) = offer.payoutAddress.call{value: amountAfterFeeBob}("");
+      (bool success, bytes memory data) = offer.payoutAddress.call{value: amountAfterFeeBob, gas: 30000}("");
       require(success, "t1b");
       require(IERC20(offer.tokenAlice).transfer(msg.sender, amountAfterFeeAlice), "T1b");
+    } else {
+      require(IERC20(acceptedTokenBob).transferFrom(msg.sender, offer.payoutAddress, amountAfterFeeBob), "T2a");
+      (bool success, bytes memory data) = msg.sender.call{value: amountAfterFeeAlice, gas: 30000}("");
+      require(success, "t1b");
     }
 
     offer.amountRemaining -= partialAmountAlice;
@@ -519,7 +539,7 @@ library MarsBase {
     require(offer.amountAlice > 0, "M3");
 
     if (offer.tokenAlice == address(0)) {
-      (bool success, bytes memory data) = offer.offerer.call{value: offer.amountRemaining}("");
+      (bool success, bytes memory data) = offer.offerer.call{value: offer.amountRemaining, gas: 30000}("");
       require(success, "t1b");
     } else {
       require(IERC20(offer.tokenAlice).transfer(offer.offerer, offer.amountRemaining), "T1b");
