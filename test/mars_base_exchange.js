@@ -484,8 +484,8 @@ contract("MarsBaseExchange", async function () {
   it("should complete an order for native ether", async function () {
     const feeAlice = 10;
     const feeBob = 20;
-    const smallestChunkSize = 0;
     const deadline = 0;
+    const smallestChunkSize = 0;
     const amountAfterFeeAlice = amountAlice * (1000 - feeAlice) / 1000;
     const amountAfterFeeBob = amountBob[1] * (1000 - feeBob) / 1000;
 
@@ -512,7 +512,7 @@ contract("MarsBaseExchange", async function () {
     assert.equal(offer.offerType, 0);
 
     // Cancel the offer, thus returning everything to its initial state
-    await dex.acceptOffer(0, tokensBob[2], amountBob[2], {value: smallestChunkSize});
+    await dex.acceptOffer(0, tokensBob[2], amountBob[2], {value: amountBob[2]});
 
     // Get the offer again, this time after it's been cancelled.
     let acceptedOffer = await dex.getOffer(0);

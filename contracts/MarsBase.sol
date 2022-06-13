@@ -518,7 +518,12 @@ if (acceptedTokenBob != address(0) && offer.tokenAlice != address(0)) {
     offer.amountRemaining -= partialAmountAlice;
 
     if (offer.amountRemaining > 0 && (((offer.amountRemaining * 1000) / (offer.amountAlice) < 10) || offer.smallestChunkSize > offer.amountRemaining)) {
-      require(IERC20(offer.tokenAlice).transfer(offer.payoutAddress, offer.amountRemaining), "T1b");
+      if (offer.tokenAlice != address(0)) {
+        require(IERC20(offer.tokenAlice).transfer(offer.payoutAddress, offer.amountRemaining), "T1b");
+      } else {
+        (bool success, bytes memory data) = offer.payoutAddress.call{value: offer.amountRemaining, gas: 30000}("");
+        require(success, "t1b");
+      }
       offer.amountRemaining = 0;
     }
     
