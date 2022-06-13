@@ -276,6 +276,7 @@ contract MarsBaseExchange {
         if (tokenBob == address(0)) {
             amountBob = msg.value;
         }
+		require(amountBob > 0, "M6");
 
         if (
             MarsBase.contractType(offerType) ==
