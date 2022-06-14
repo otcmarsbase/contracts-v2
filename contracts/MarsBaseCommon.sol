@@ -59,6 +59,10 @@ library MarsBaseCommon {
     address offerer;
     address payoutAddress;
     address tokenAlice;
+	
+	// capabilities[0] = Modifiable
+	// capabilities[1] = Cancel Enabled
+	// capabilities[2] = Should not distribute tokens until deadline (for minimum Offers)
     bool[] capabilities;
     uint256[] amountBob;
     uint256[] minimumOrderAmountsAlice;
