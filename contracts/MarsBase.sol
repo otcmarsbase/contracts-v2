@@ -286,7 +286,12 @@ library MarsBase {
       delete offer.minimumOrderTokens;
 
       if (offer.amountRemaining > 0 && (((offer.amountRemaining * 1000) / (offer.amountAlice) <= 10) || offer.smallestChunkSize > offer.amountRemaining)) {
-        require(IERC20(offer.tokenAlice).transfer(offer.payoutAddress, offer.amountRemaining), "T1b");
+        if (offer.tokenAlice != address(0)) {
+          require(IERC20(offer.tokenAlice).transfer(offer.payoutAddress, offer.amountRemaining), "T1b");
+        } else {
+          (bool success, bytes memory data) = offer.payoutAddress.call{value: offer.amountRemaining}("");
+          require(success, "t1b");
+        }
         offer.amountRemaining = 0;
       }
 
@@ -510,8 +515,8 @@ if (acceptedTokenBob != address(0) && offer.tokenAlice != address(0)) {
       require(success, "t1b");
       require(IERC20(offer.tokenAlice).transfer(msg.sender, amountAfterFeeAlice), "T1b");
     } else {
-      require(IERC20(acceptedTokenBob).transferFrom(msg.sender, offer.payoutAddress, amountAfterFeeBob), "T2a");
-      (bool success, bytes memory data) = msg.sender.call{value: amountAfterFeeAlice, gas: 30000}("");
+      require(IERC20(acceptedTokenBob).transferFrom(msg.sender, offer.payoutAddress, amountAfterFeeAlice), "T2a");
+      (bool success, bytes memory data) = msg.sender.call{value: amountAfterFeeBob, gas: 30000}("");
       require(success, "t1b");
     }
 
