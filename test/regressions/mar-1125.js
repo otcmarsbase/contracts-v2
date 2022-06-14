@@ -95,10 +95,13 @@ describe("MAR-1125", () =>
             smallestChunkSize: "2000000000000000",
             deadline: Math.floor((Date.now() / 1000) + (1655207697 - 1655121337)),
             minimumSize: "0"
-        })
+        }, {
+			value: "200000000000000000"
+		})
         let receipt = await txCreate.wait()
-        let id = receipt.events.find(x => x.event == "OfferCreated").args[0]
-		expect(id).equal(1)
+		let offerCreatedEvent = receipt.events.find(x => x.event == "OfferCreated")
+        let id = offerCreatedEvent.args[0]
+		expect(id).equal(0)
 
 		// console.log(`starting bid`)
 
