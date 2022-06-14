@@ -9,7 +9,7 @@ const tomorrow = (now = Date.now()) => Math.floor(now / 1000 + 86400)
 
 describe("MAR-1125", () => 
 {
-    it("should allow to buy ETH for tokens in a static offer", async () =>
+    it("should send back remaining ETH in a static offer after bid", async () =>
     {
         const [owner, alice, bob] = await ethers.getSigners()
 
