@@ -111,9 +111,9 @@ describe("MAR-1125", () =>
 		let txBid = await dex.connect(bob).acceptOffer(id, usdt.address, "15558151500000000000")
         let bidReceipt = await txBid.wait()
     })
-    it("should close ETH offer after 3 bids", async () =>
-    {
-        const [owner, alice, bob] = await ethers.getSigners()
+	async function prepareEnvironment()
+	{
+		const [owner, alice, bob, charlie, derek] = await ethers.getSigners()
 
         const MarsBase = await ethers.getContractFactory("MarsBase")
         const m = await MarsBase.deploy()
@@ -128,9 +128,16 @@ describe("MAR-1125", () =>
         const USDT = await ethers.getContractFactory("USDT")
 
         const usdt = await USDT.deploy()
-        
-        // console.log(99)
-
+		
+		return {
+			owner, alice, bob, charlie, derek,
+			MarsBase: m,
+			dex,
+			usdt,
+		}
+	}
+    it("should close ETH offer after 3 bids", async () =>
+    {
 		// MarsBaseCommon.MBOffer offer
 		const offer = {
 			// bool active
@@ -205,6 +212,8 @@ describe("MAR-1125", () =>
 			amountBob: "12965126249999997000",
 		}
 
+		let { owner, alice, bob, dex, usdt, MarsBase } = await prepareEnvironment()
+
 		let txCreate = await dex.connect(alice).createOffer(ETH, [usdt.address], offer.amountAlice, offer.amountBob, {
             modifyEnabled: offer.capabilities[0],
             cancelEnabled: offer.capabilities[1],
@@ -236,8 +245,24 @@ describe("MAR-1125", () =>
 		let txBid2 = await dex.connect(bob).acceptOffer(id, usdt.address, txParamsBob2.amountBob)
         let bidReceipt2 = await txBid2.wait()
 
+		// price(amountBob, acceptedAmountBob, offer.amountAlice)
+		// console.log("price: " + await MarsBase.price(txParamsBob1.amountBob, offer.amountBob[0], offer.amountAlice))
+
+		let amounts = [txParamsBob1, txParamsBob2, txParamsBob3].map(x => ethers.BigNumber.from(x.amountBob))
+		let sum = amounts.reduce((a, b) => a.add(b), ethers.BigNumber.from(0))
+
+		// console.log(`sold: ${amounts[0].add(amounts[1])}, total: ${sum}, offer size: ${offer.amountBob}`)
+		// console.log(`for bob ${sum} we get ${await MarsBase.price(sum, offer.amountBob[0], offer.amountAlice)} out of ${offer.amountAlice}`)
+		
+		let offerB = await dex.connect(bob).getOffer(id)
+		// console.log(offerB)
+
         await usdt.connect(bob).approve(dex.address, txParamsBob3.amountBob)
-		let txBid3 = await dex.connect(bob).acceptOffer(id, usdt.address, txParamsBob3.amountBob)
-        let bidReceipt3 = await txBid3.wait()
+		let txBid3 = dex.connect(bob).acceptOffer(id, usdt.address, txParamsBob3.amountBob)
+		await expect(txBid3).revertedWith("M10")
+
+		let amountBobWithoutOverflow = "12965126249999994000"
+		let txBid4 = await dex.connect(bob).acceptOffer(id, usdt.address, amountBobWithoutOverflow)
+		let bidReceipt4 = await txBid4.wait()
     })
 });
