@@ -495,6 +495,8 @@ if (acceptedTokenBob != address(0) && offer.tokenAlice != address(0)) {
     uint256 partialAmountAlice = price(amountBob, acceptedAmountBob, offer.amountAlice);
     uint256 partialAmountBob = price(partialAmountAlice, offer.amountAlice, acceptedAmountBob);
 
+	require(offer.amountRemaining >= partialAmountAlice, "M10");
+
     uint256 amountAfterFeeAlice = partialAmountAlice * (1000-offer.feeAlice) / 1000;
     uint256 amountAfterFeeBob = partialAmountBob * (1000-offer.feeBob) / 1000;
     uint256 amountFeeDex = partialAmountBob - amountAfterFeeBob;
@@ -520,11 +522,7 @@ if (acceptedTokenBob != address(0) && offer.tokenAlice != address(0)) {
       require(success, "t1b");
     }
 
-    if (offer.amountRemaining < partialAmountAlice) {
-      offer.amountRemaining = 0;
-    } else {
-      offer.amountRemaining -= partialAmountAlice;
-    }
+    offer.amountRemaining -= partialAmountAlice;
 
     if (offer.amountRemaining > 0 && (((offer.amountRemaining * 1000) / (offer.amountAlice) < 10) || offer.smallestChunkSize > offer.amountRemaining)) {
       if (offer.tokenAlice != address(0)) {
