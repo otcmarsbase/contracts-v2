@@ -520,7 +520,11 @@ if (acceptedTokenBob != address(0) && offer.tokenAlice != address(0)) {
       require(success, "t1b");
     }
 
-    offer.amountRemaining -= partialAmountAlice;
+    if (offer.amountRemaining < partialAmountAlice) {
+      offer.amountRemaining = 0;
+    } else {
+      offer.amountRemaining -= partialAmountAlice;
+    }
 
     if (offer.amountRemaining > 0 && (((offer.amountRemaining * 1000) / (offer.amountAlice) < 10) || offer.smallestChunkSize > offer.amountRemaining)) {
       if (offer.tokenAlice != address(0)) {
