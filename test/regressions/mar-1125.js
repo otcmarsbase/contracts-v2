@@ -2,6 +2,7 @@ const assert = require ('assert/strict')
 const BigNumber = require ('bignumber.js')
 const { expect } = require ("chai")
 const { ethers } = require ("hardhat")
+const { prepareEnvironment } = require("../utils")
 
 const ETH = "0x0000000000000000000000000000000000000000"
 
@@ -111,31 +112,6 @@ describe("MAR-1125", () =>
 		let txBid = await dex.connect(bob).acceptOffer(id, usdt.address, "15558151500000000000")
         let bidReceipt = await txBid.wait()
     })
-	async function prepareEnvironment()
-	{
-		const [owner, alice, bob, charlie, derek] = await ethers.getSigners()
-
-        const MarsBase = await ethers.getContractFactory("MarsBase")
-        const m = await MarsBase.deploy()
-
-        const MarsBaseExchange = await ethers.getContractFactory("MarsBaseExchange", {
-            libraries: {
-                MarsBase: m.address
-            }
-        })
-        const dex = await MarsBaseExchange.deploy()
-
-        const USDT = await ethers.getContractFactory("USDT")
-
-        const usdt = await USDT.deploy()
-		
-		return {
-			owner, alice, bob, charlie, derek,
-			MarsBase: m,
-			dex,
-			usdt,
-		}
-	}
     it("should close ETH offer after 3 bids", async () =>
     {
 		// MarsBaseCommon.MBOffer offer
