@@ -120,6 +120,9 @@ contract MarsBaseExchange {
 
         minimumFee = _minimumFee;
     }
+	function getMinimumFee() public view returns (uint256) {
+		return minimumFee;
+	}
 
     function setNextOfferId(uint256 _nextOfferId) unlocked public {
         require(msg.sender == owner, "S7");
