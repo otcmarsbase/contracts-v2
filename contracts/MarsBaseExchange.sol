@@ -408,4 +408,27 @@ contract MarsBaseExchange {
 
         emit ContractMigrated();
     }
+	function lockContract() unlocked public {
+		require(msg.sender == owner, "S8");
+
+        locked = true;
+
+		emit ContractMigrated();
+	}
+	function cancelOffers(uint256 from, uint256 to) public payable {
+		require(locked == true, "S10");
+
+		for (uint256 index = from; index < to; index++) {
+            if (
+                offers[index].active == true &&
+                MarsBase.contractType(offers[index].offerType) == MarsBaseCommon.ContractType.Offers
+            ) {
+                offers[index] = MarsBase.cancelExpiredOffer(offers[index]);
+                emit OfferClosed(index, MarsBaseCommon.OfferCloseReason.DeadlinePassed, block.timestamp);
+            } else if (offers[index].active == true) {
+                offers[index] = MarsBase.cancelExpiredMinimumOffer(offers[index]);
+                emit OfferClosed(index, MarsBaseCommon.OfferCloseReason.DeadlinePassed, block.timestamp);
+            }
+        }
+	}
 }

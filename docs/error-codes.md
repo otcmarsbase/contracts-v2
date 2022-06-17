@@ -40,3 +40,4 @@
 `S7` --- Invalid Permissions (not owner)
 `S8` --- Invalid Permissions (must be DEX)
 `S9` --- Contract locked
+`S10` --- Contract should be locked, but is not

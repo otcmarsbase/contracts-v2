@@ -168,6 +168,11 @@ export interface MarsBaseExchange extends BaseContract {
       offerId: number | string | BN
     ): NonPayableTransactionObject<void>;
 
+    cancelOffers(
+      from: number | string | BN,
+      to: number | string | BN
+    ): PayableTransactionObject<void>;
+
     changeOfferParams(
       offerId: number | string | BN,
       tokenBob: string[],
@@ -262,6 +267,8 @@ export interface MarsBaseExchange extends BaseContract {
     >;
 
     getOwner(): NonPayableTransactionObject<string>;
+
+    lockContract(): NonPayableTransactionObject<void>;
 
     migrateContract(): PayableTransactionObject<void>;
 
