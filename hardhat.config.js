@@ -20,6 +20,45 @@ require('@typechain/hardhat');
 require("hardhat-gas-reporter");
 require('hardhat-contract-sizer');
 
+async function lockContract(libraryAddress, exchangeAddress) {
+  const Library = await ethers.getContractFactory("MarsBase");
+  let library = Library.attach(libraryAddress);
+  const MarsBaseExchange = await ethers.getContractFactory("MarsBaseExchange", {
+		libraries: {
+			MarsBase: library.address
+		}
+	});
+
+  const exchange = await MarsBaseExchange.attach(exchangeAddress);
+
+  console.log(`Locking Contract at address ${exchange.address}`);
+
+  let tx = await exchange.migrateContract();
+  tx.wait();
+
+  console.log("Commission disabled!");
+}
+
+async function configureNewContract(libraryAddress, exchangeAddress, nextOfferId) {
+  const Library = await ethers.getContractFactory("MarsBase");
+  let library = Library.attach(libraryAddress);
+  const MarsBaseExchange = await ethers.getContractFactory("MarsBaseExchange", {
+		libraries: {
+			MarsBase: library.address
+		}
+	});
+
+  const exchange = await MarsBaseExchange.attach(exchangeAddress);
+
+  console.log(`Setting last offer ID to ${nextOfferId} on address ${exchange.address}`);
+
+  let tx = await exchange.setNextOfferId(nextOfferId);
+  tx.wait();
+
+  console.log("Contract Configured!");
+}
+
+
 async function disableCommission(libraryAddress, exchangeAddress) {
   const Library = await ethers.getContractFactory("MarsBase");
   let library = Library.attach(libraryAddress);
@@ -121,6 +160,21 @@ const printDeployerInfo = async (print = true) =>
 		balance: await getEthBalance(),
 	}
 }
+
+task("lock-contract", "Lock a deployed contract")
+  .addParam("libraryAddress", "Library Address")
+  .addParam("exchangeAddress", "Exchange Address")
+  .setAction(async (params) => {
+    await lockContract(params.libraryAddress, params.exchangeAddress);
+  });
+
+task("configure-contract", "Set Next Offer ID for new contract")
+  .addParam("libraryAddress", "Library Address")
+  .addParam("exchangeAddress", "Exchange Address")
+  .addParam("nextOfferId", "Next Offer ID")
+  .setAction(async (params) => {
+    await configureNewContract(params.libraryAddress, params.exchangeAddress, params.nextOfferId);
+  });
 
 task("disable-commission", "Disable the commission on the exchange contract")
   .addParam("libraryAddress", "Library Address")
