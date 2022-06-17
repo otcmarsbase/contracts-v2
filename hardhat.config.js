@@ -20,6 +20,24 @@ require('@typechain/hardhat');
 require("hardhat-gas-reporter");
 require('hardhat-contract-sizer');
 
+async function disableCommission(libraryAddress, exchangeAddress) {
+  const Library = await ethers.getContractFactory("MarsBase");
+  let library = Library.attach(libraryAddress);
+  const MarsBaseExchange = await ethers.getContractFactory("MarsBaseExchange", {
+		libraries: {
+			MarsBase: library.address
+		}
+	});
+
+  const exchange = await MarsBaseExchange.attach(exchangeAddress);
+
+  console.log(`Disabling commission for address ${exchange.address}`);
+
+  let tx = await exchange.setCommissionAddress(ethers.constants.AddressZero);
+  tx.wait();
+
+  console.log("Commission disabled!");
+}
 
 async function deployTestTokens(deployer, libraryAddress)
 {
@@ -103,6 +121,13 @@ const printDeployerInfo = async (print = true) =>
 		balance: await getEthBalance(),
 	}
 }
+
+task("disable-commission", "Disable the commission on the exchange contract")
+  .addParam("libraryAddress", "Library Address")
+  .addParam("exchangeAddress", "Exchange Address")
+  .setAction(async (params) => {
+    await disableCommission(params.libraryAddress, params.exchangeAddress);
+  });
 
 task("deploy-all", "Deploys both contracts").setAction(async () => {
 	const { printEthBalance, balance, getEthBalance } = await printDeployerInfo()
