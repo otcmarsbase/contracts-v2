@@ -69,7 +69,7 @@ contract MarsBaseExchange {
 
     uint256 nextOfferId;
 
-    uint256 minimumFee = 10;
+    uint256 minimumFee = 0;
 
     address commissionWallet;
     address commissionExchanger;
