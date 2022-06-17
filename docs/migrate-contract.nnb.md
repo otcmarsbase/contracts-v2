@@ -65,11 +65,6 @@ yarn hardhat set-next-offer-id \
 	--nextofferid <NEXT_OFFER_ID> \
 	--network marsbase
 ```
-yarn hardhat set-next-offer-id \
-	--library 0x6175D87cfC246B70fEc59d219dc5D55364B8dB0e \
-	--exchange 0x307db295E5A0D73df1Ed6D6b900899E983b77a58 \
-	--nextofferid 19 \
-	--network rinkeby
 
 ### 7. *`OLD`* Check that no tokens are left on the old contract
 

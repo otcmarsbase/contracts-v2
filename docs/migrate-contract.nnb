@@ -52,7 +52,7 @@
         {
             "language": "markdown",
             "source": [
-                "### 6. **`NEW`** Set next offer id on the new contract based on last offer id\n\n#### Get last offer id from the old contract\n\n`getNextOfferId` on Etherscan/Bscscan\n\n```\n<<< TODO: script >>>\n```\n\n#### Set new offer id on the new contract\n\n```\nyarn hardhat set-next-offer-id \\\n\t--library <LIBRARY_ADDRESS> \\\n\t--exchange <EXCHANGE_ADDRESS> \\\n\t--nextofferid <NEXT_OFFER_ID> \\\n\t--network marsbase\n```\nyarn hardhat set-next-offer-id \\\n\t--library 0x6175D87cfC246B70fEc59d219dc5D55364B8dB0e \\\n\t--exchange 0x307db295E5A0D73df1Ed6D6b900899E983b77a58 \\\n\t--nextofferid 19 \\\n\t--network rinkeby"
+                "### 6. **`NEW`** Set next offer id on the new contract based on last offer id\n\n#### Get last offer id from the old contract\n\n`getNextOfferId` on Etherscan/Bscscan\n\n```\n<<< TODO: script >>>\n```\n\n#### Set new offer id on the new contract\n\n```\nyarn hardhat set-next-offer-id \\\n\t--library <LIBRARY_ADDRESS> \\\n\t--exchange <EXCHANGE_ADDRESS> \\\n\t--nextofferid <NEXT_OFFER_ID> \\\n\t--network marsbase\n```"
             ],
             "outputs": []
         },
