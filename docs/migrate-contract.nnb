@@ -1,0 +1,67 @@
+{
+    "cells": [
+        {
+            "language": "markdown",
+            "source": [
+                "# Migrate contract"
+            ],
+            "outputs": []
+        },
+        {
+            "language": "markdown",
+            "source": [
+                "\n### How to migrate\n1. **`NEW`** [Deploy new contract](./deploy-contract.nnb)\n2. **`NEW`** Configure minimum fee size on the new contract (same as old contract)\n3. **`NEW`** Configure comission wallet on the new contract (same as old contract)\n4. **`NEW`** Configure comission exchanger on the new contract (same as old contract)\n5. *`OLD`* Stop all trading on the old contract\n6. **`NEW`** Set next offer id on the new contract based on last offer id\n7. *`OLD`* Check that no tokens are left on the old contract\n8. Done 😊"
+            ],
+            "outputs": []
+        },
+        {
+            "language": "markdown",
+            "source": [
+                "## Migration"
+            ],
+            "outputs": []
+        },
+        {
+            "language": "markdown",
+            "source": [
+                "### 1. **`NEW`** Deploy new contract\nSee [deploy-contract.nnb](./deploy-contract.nnb.md)"
+            ],
+            "outputs": []
+        },
+        {
+            "language": "markdown",
+            "source": [
+                "### 2. **`NEW`** Configure minimum fee size on the new contract (same as old contract)\n\nCheck old contract fee\n```\n<<< TODO >>>\n```\n\nSet new contract fee\n```\nyarn hardhat set-minimum-fee --library <LIBRARY_ADDRESS> --exchange <EXCHANGE_ADDRESS> --fee 0.5% --network marsbase\n```"
+            ],
+            "outputs": []
+        },
+        {
+            "language": "markdown",
+            "source": [
+                "### 3. **`NEW`** Configure comission wallet on the new contract (same as old contract)\n\n```\n<<< TODO >>>\n```\n\n### 4. **`NEW`** Configure comission exchanger on the new contract (same as old contract)\n\n```\n<<< TODO >>>\n```"
+            ],
+            "outputs": []
+        },
+        {
+            "language": "markdown",
+            "source": [
+                "### 5. *`OLD`* Stop all trading on the old contract\n\n```\nyarn hardhat lock-contract --library <LIBRARY_ADDRESS> --exchange <EXCHANGE_ADDRESS> --network marsbase\n```"
+            ],
+            "outputs": []
+        },
+        {
+            "language": "markdown",
+            "source": [
+                "### 6. **`NEW`** Set next offer id on the new contract based on last offer id\n\n#### Get last offer id from the old contract\n\n`getNextOfferId` on Etherscan/Bscscan\n\n```\n<<< TODO: script >>>\n```\n\n#### Set new offer id on the new contract\n\n```\nyarn hardhat set-next-offer-id \\\n\t--library <LIBRARY_ADDRESS> \\\n\t--exchange <EXCHANGE_ADDRESS> \\\n\t--nextofferid <NEXT_OFFER_ID> \\\n\t--network marsbase\n```\nyarn hardhat set-next-offer-id \\\n\t--library 0x6175D87cfC246B70fEc59d219dc5D55364B8dB0e \\\n\t--exchange 0x307db295E5A0D73df1Ed6D6b900899E983b77a58 \\\n\t--nextofferid 19 \\\n\t--network rinkeby"
+            ],
+            "outputs": []
+        },
+        {
+            "language": "markdown",
+            "source": [
+                "### 7. *`OLD`* Check that no tokens are left on the old contract\n\n```\n<<< TODO >>>\n```\n\n### 8. Done 😊"
+            ],
+            "outputs": []
+        }
+    ]
+}

@@ -10,7 +10,7 @@
         {
             "language": "markdown",
             "source": [
-                "\n### How to deploy\n1. Make sure all `node_modules` dependencies are installed\n2. Set env variables in the `.env` file\n3. Cleanup previous builds if they exist\n4. Build & test contracts locally\n5. Deploy library contract with Hardhat\n6. Deploy exchange contract with Hardhat\n7. Verify library contract code on Etherscan\n8. Verify exchange contract code on Etherscan\n9. Done 😊\n\n### Supported networks\n\n- `local`\n- `marsbase`\n- `rinkeby`\n- `mainnet`"
+                "\n### How to deploy\n1. Make sure all `node_modules` dependencies are installed\n2. Set env variables in the `.env` file\n3. Cleanup previous builds if they exist\n4. Build & test contracts locally\n5. Deploy library contract with Hardhat\n6. Deploy exchange contract with Hardhat\n7. Verify library contract code on Etherscan\n8. Verify exchange contract code on Etherscan\n9. Set minimum fee\n10. Done 😊\n\n### Supported networks\n\n- `local`\n- `marsbase`\n- `rinkeby`\n- `mainnet`"
             ],
             "outputs": []
         },
@@ -74,6 +74,13 @@
             "language": "markdown",
             "source": [
                 "### 8. Verify Marsbase Exchange source code on Etherscan\n\n```shell\nyarn hardhat verify --network mainnet <EXCHANGE_ADDRESS>\n```"
+            ],
+            "outputs": []
+        },
+        {
+            "language": "markdown",
+            "source": [
+                "### 9. Set minimum fee\n\n```\nyarn hardhat set-minimum-fee --library <LIBRARY_ADDRESS> --exchange <EXCHANGE_ADDRESS> --fee 0.5% --network marsbase\n```"
             ],
             "outputs": []
         }

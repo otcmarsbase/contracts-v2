@@ -1,6 +1,7 @@
 /**
  * @type import('hardhat/config').HardhatUserConfig
  */
+const { expect } = require('chai');
 const { task } = require('hardhat/config');
 
 require("dotenv").config()
@@ -34,12 +35,13 @@ async function lockContract(libraryAddress, exchangeAddress) {
   console.log(`Locking Contract at address ${exchange.address}`);
 
   let tx = await exchange.migrateContract();
-  tx.wait();
+  await tx.wait();
 
   console.log("Commission disabled!");
 }
 
 async function configureNewContract(libraryAddress, exchangeAddress, nextOfferId) {
+  console.log(`configureNewContract\n\tlibraryAddress=${libraryAddress}\n\texchangeAddress=${exchangeAddress}\n\tnextOfferId=${nextOfferId}`)
   const Library = await ethers.getContractFactory("MarsBase");
   let library = Library.attach(libraryAddress);
   const MarsBaseExchange = await ethers.getContractFactory("MarsBaseExchange", {
@@ -53,7 +55,7 @@ async function configureNewContract(libraryAddress, exchangeAddress, nextOfferId
   console.log(`Setting last offer ID to ${nextOfferId} on address ${exchange.address}`);
 
   let tx = await exchange.setNextOfferId(nextOfferId);
-  tx.wait();
+  await tx.wait();
 
   console.log("Contract Configured!");
 }
@@ -73,9 +75,34 @@ async function disableCommission(libraryAddress, exchangeAddress) {
   console.log(`Disabling commission for address ${exchange.address}`);
 
   let tx = await exchange.setCommissionAddress(ethers.constants.AddressZero);
-  tx.wait();
+  await tx.wait();
 
   console.log("Commission disabled!");
+}
+async function setMinimumFee(libraryAddress, exchangeAddress, amountInTenthsOfPercent) {
+  console.log(`setMinimumFee\nlibrary = ${libraryAddress}\nexchangeAddress = ${exchangeAddress}\nfeeTenths = ${amountInTenthsOfPercent}`)
+
+  expect(libraryAddress?.startsWith("0x"))
+  expect(exchangeAddress?.startsWith("0x"))
+
+  const Library = await ethers.getContractFactory("MarsBase");
+  let library = Library.attach(libraryAddress);
+  const MarsBaseExchange = await ethers.getContractFactory("MarsBaseExchange", {
+		libraries: {
+			MarsBase: library.address
+		}
+	});
+
+  const exchange = await MarsBaseExchange.attach(exchangeAddress);
+
+  let fee = parseInt(amountInTenthsOfPercent)/10
+  expect(fee).to.be.greaterThanOrEqual(0)
+  console.log(`Setting fee ${fee} for address ${exchange.address}`);
+
+  let tx = await exchange.setMinimumFee(amountInTenthsOfPercent);
+  await tx.wait();
+
+  console.log(`Fee set to ${fee}!`);
 }
 
 async function deployTestTokens(deployer, libraryAddress)
@@ -162,25 +189,46 @@ const printDeployerInfo = async (print = true) =>
 }
 
 task("lock-contract", "Lock a deployed contract")
-  .addParam("libraryAddress", "Library Address")
-  .addParam("exchangeAddress", "Exchange Address")
+  .addParam("library", "Library Address")
+  .addParam("exchange", "Exchange Address")
   .setAction(async (params) => {
-    await lockContract(params.libraryAddress, params.exchangeAddress);
+    await lockContract(params.library, params.exchange);
   });
 
-task("configure-contract", "Set Next Offer ID for new contract")
-  .addParam("libraryAddress", "Library Address")
-  .addParam("exchangeAddress", "Exchange Address")
-  .addParam("nextOfferId", "Next Offer ID")
+task("set-next-offer-id", "Set Next Offer ID for new contract")
+  .addParam("library", "Library Address")
+  .addParam("exchange", "Exchange Address")
+  .addParam("nextofferid", "Next Offer ID")
   .setAction(async (params) => {
-    await configureNewContract(params.libraryAddress, params.exchangeAddress, params.nextOfferId);
+	expect(typeof params.nextofferid == "string")
+	expect(parseInt(params.nextofferid) + "").equal(params.nextofferid)
+    await configureNewContract(params.library, params.exchange, params.nextofferid);
   });
 
 task("disable-commission", "Disable the commission on the exchange contract")
-  .addParam("libraryAddress", "Library Address")
-  .addParam("exchangeAddress", "Exchange Address")
+  .addParam("library", "Library Address")
+  .addParam("exchange", "Exchange Address")
   .setAction(async (params) => {
-    await disableCommission(params.libraryAddress, params.exchangeAddress);
+    await disableCommission(params.library, params.exchange);
+  });
+
+task("set-minimum-fee", "Set minimum fee size on the MarsbaseExchange contract")
+  .addParam("library", "Marsbase library contract address")
+  .addParam("exchange", "MarsbaseExchange contract address")
+  .addParam("fee", "Fee in percent (e.g. '0.5%')")
+  .setAction(async (params) => {
+	expect(typeof params.fee == "string")
+	expect(params.fee.endsWith("%"))
+
+	let feeStr = params.fee.split('%')[0]
+	let fee = parseFloat(feeStr)
+	expect(fee + "").equal(feeStr)
+	expect(fee).to.not.be.NaN
+	expect(fee).greaterThanOrEqual(0)
+	expect(fee).lessThan(100)
+	let feeInTenths = (fee * 10).toFixed(0)
+
+    await setMinimumFee(params.library, params.exchange, feeInTenths);
   });
 
 task("deploy-all", "Deploys both contracts").setAction(async () => {

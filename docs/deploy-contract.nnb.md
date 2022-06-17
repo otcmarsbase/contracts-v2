@@ -10,7 +10,8 @@
 6. Deploy exchange contract with Hardhat
 7. Verify library contract code on Etherscan
 8. Verify exchange contract code on Etherscan
-9. Done 😊
+9. Set minimum fee
+10. Done 😊
 
 ### Supported networks
 
@@ -74,4 +75,10 @@ yarn hardhat verify --network mainnet <LIBRARY_ADDRESS>
 
 ```shell
 yarn hardhat verify --network mainnet <EXCHANGE_ADDRESS>
+```
+
+### 9. Set minimum fee
+
+```
+yarn hardhat set-minimum-fee --library <LIBRARY_ADDRESS> --exchange <EXCHANGE_ADDRESS> --fee 0.5% --network marsbase
 ```
