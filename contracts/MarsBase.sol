@@ -178,7 +178,7 @@ library MarsBase {
       offer.offerType == MarsBaseCommon.OfferType.LimitedTimeMinimumChunkedPurchase ||
       offer.offerType == MarsBaseCommon.OfferType.LimitedTimeMinimumChunkedDeadlinePurchase, "S5");
 
-    require(block.timestamp < offer.deadline || offer.deadline == 0, "M2");
+    require((block.timestamp < offer.deadline) || (offer.deadline == 0), "M2");
 
     address acceptedTokenBob = address(0);
     uint256 acceptedAmountBob = 0;
@@ -188,6 +188,8 @@ library MarsBase {
         acceptedAmountBob = offer.amountBob[index];
       }
     }
+
+	require(acceptedAmountBob > 0, "M6b");
 
     // if (acceptedTokenBob == address(0)) {
     //   acceptedAmountBob = msg.value;

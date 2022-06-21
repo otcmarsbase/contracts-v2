@@ -20,6 +20,7 @@
 `M4` --- Minimum Order Amount for Bob is 0
 `M5` --- Amounts Bob and Tokens Bob must have the same length
 `M6` --- Amount Bob is 0
+`M6b` --- Token Bob not found in the offer
 `M7` --- Fee is 0
 `M8` --- Amount Bob after Fee is 0
 `M9` --- Amount Bob after Fee is 0
