@@ -40,7 +40,7 @@ async function createOfferTokenToken(contract, tokenAlice, amountAlice, tokenBob
 	}
 }
 
-describe.only("MAR-1228", () => 
+describe("MAR-1228", () => 
 {
     it("should create 50%+ bids in static offers", async () =>
     {
