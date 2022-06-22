@@ -35,9 +35,17 @@ contract MarsBaseExchange is IMarsbaseExchange
 	{
 		commissionWallet = wallet;
 	}
+	function getCommissionAddress() public view returns (address)
+	{
+		return commissionWallet;
+	}
 	function setExchangerAddress(address exchangeContract) onlyOwner public
 	{
-		require(false, "NI");
+		commissionExchanger = exchangeContract;
+	}
+	function getExchangerAddress() public view returns (address)
+	{
+		return commissionExchanger;
 	}
 	function setMinimumFee(uint256 _minimumFee) onlyOwner public
 	{

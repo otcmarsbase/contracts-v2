@@ -234,6 +234,10 @@ export interface MarsBaseExchange extends BaseContract {
       ][]
     >;
 
+    getCommissionAddress(): NonPayableTransactionObject<string>;
+
+    getExchangerAddress(): NonPayableTransactionObject<string>;
+
     getMinimumFee(): NonPayableTransactionObject<string>;
 
     getNextOfferId(): NonPayableTransactionObject<string>;
