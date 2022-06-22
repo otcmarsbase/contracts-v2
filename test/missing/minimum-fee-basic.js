@@ -32,8 +32,8 @@ describe("missing/minimum-fee-basic", () =>
 	{
 		let { owner, alice, bob, charlie, dex } = await prepareEnvironment()
 
-		expect(dex.connect(alice).setMinimumFee(1)).revertedWith("403")
-		expect(dex.connect(bob).setMinimumFee(1)).revertedWith("403")
-		expect(dex.connect(charlie).setMinimumFee(1)).revertedWith("403")
+		await expect(dex.connect(alice).setMinimumFee(1)).revertedWith("403")
+		await expect(dex.connect(bob).setMinimumFee(1)).revertedWith("403")
+		await expect(dex.connect(charlie).setMinimumFee(1)).revertedWith("403")
 	})
 })
