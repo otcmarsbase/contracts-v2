@@ -146,13 +146,13 @@ export type OfferModified = ContractEventLog<{
   3: [boolean, boolean, boolean, string, string, string, string, string];
 }>;
 
-export interface MarsBaseExchange extends BaseContract {
+export interface IMarsbaseExchange extends BaseContract {
   constructor(
     jsonInterface: any[],
     address?: string,
     options?: ContractOptions
-  ): MarsBaseExchange;
-  clone(): MarsBaseExchange;
+  ): IMarsbaseExchange;
+  clone(): IMarsbaseExchange;
   methods: {
     acceptOffer(
       offerId: number | string | BN,

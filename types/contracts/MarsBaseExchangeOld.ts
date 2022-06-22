@@ -146,13 +146,13 @@ export type OfferModified = ContractEventLog<{
   3: [boolean, boolean, boolean, string, string, string, string, string];
 }>;
 
-export interface MarsBaseExchange extends BaseContract {
+export interface MarsBaseExchangeOld extends BaseContract {
   constructor(
     jsonInterface: any[],
     address?: string,
     options?: ContractOptions
-  ): MarsBaseExchange;
-  clone(): MarsBaseExchange;
+  ): MarsBaseExchangeOld;
+  clone(): MarsBaseExchangeOld;
   methods: {
     acceptOffer(
       offerId: number | string | BN,
@@ -271,6 +271,37 @@ export interface MarsBaseExchange extends BaseContract {
     lockContract(): NonPayableTransactionObject<void>;
 
     migrateContract(): PayableTransactionObject<void>;
+
+    offers(arg0: number | string | BN): NonPayableTransactionObject<{
+      active: boolean;
+      minimumMet: boolean;
+      offerType: string;
+      offerId: string;
+      amountAlice: string;
+      feeAlice: string;
+      feeBob: string;
+      smallestChunkSize: string;
+      minimumSize: string;
+      deadline: string;
+      amountRemaining: string;
+      offerer: string;
+      payoutAddress: string;
+      tokenAlice: string;
+      0: boolean;
+      1: boolean;
+      2: string;
+      3: string;
+      4: string;
+      5: string;
+      6: string;
+      7: string;
+      8: string;
+      9: string;
+      10: string;
+      11: string;
+      12: string;
+      13: string;
+    }>;
 
     price(
       amountAlice: number | string | BN,

@@ -1,27 +1,3 @@
-/**
-
-https://linear.app/mbdev/issue/MAR-845/neverno-rasschityvaetsya-ostatok-offera-posle-bida
-
-Неверно рассчитывается остаток оффера после бида
-Неправильно остаток токенов считается и на фронте потом неверные значения выводятся. В итоге оффер
-не закрывается по наполнению, а фронт думает что есть ещё токены в оффере, хотя он на 100% выкуплен.
-
-Создал оффер 100 BAT - 12.4999 USDC
-
-Сделал бид в 50% оффера:
-https://rinkeby.etherscan.io/tx/0x74592aaf7e2daa4c2860624cf2b7c243253ea4546e30dd71756ca6cc9151e45a
-
-Вторым бидом выкупаю остаток в 50%
-https://rinkeby.etherscan.io/tx/0x81b748dd574cb5bdd0476eff2de3504a995ad7262146a80dbc0540de6f4ee397
-
-Оффер должен закрыться по наполнению.  Но он остаётся открытым и в нем остаются как бы не выкупленные токены.
-Их видно и оффер-мейкеру и бидеру
-
-В итоге оффер не закрыт и в него уже нельзя делать биды. Но токены выкупились 100% и распределились
-оффер мейкеру и бидеру как положено.
-
-*/
-
 const assert = require ('assert/strict')
 const BigNumber = require ('bignumber.js')
 const { expect } = require ("chai")
@@ -31,7 +7,7 @@ const ETH = "0x0000000000000000000000000000000000000000"
 
 const tomorrow = (now = Date.now()) => Math.floor(now / 1000 + 86400)
 
-describe("MAR-822", () => 
+describe("MAR-845", () => 
 {
 	it("should correctly close offer after 50% purchase", async () =>
 	{
@@ -41,9 +17,9 @@ describe("MAR-822", () =>
 		const m = await MarsBase.deploy()
 
 		const MarsBaseExchange = await ethers.getContractFactory("MarsBaseExchange", {
-			libraries: {
-				MarsBase: m.address
-			}
+			// libraries: {
+			// 	MarsBase: m.address
+			// }
 		})
 		const dex = await MarsBaseExchange.deploy()
 
@@ -164,9 +140,9 @@ describe("MAR-822", () =>
 		const m = await MarsBase.deploy()
 
 		const MarsBaseExchange = await ethers.getContractFactory("MarsBaseExchange", {
-			libraries: {
-				MarsBase: m.address
-			}
+			// libraries: {
+			// 	MarsBase: m.address
+			// }
 		})
 		const dex = await MarsBaseExchange.deploy()
 
@@ -230,9 +206,9 @@ describe("MAR-822", () =>
 		const m = await MarsBase.deploy()
 
 		const MarsBaseExchange = await ethers.getContractFactory("MarsBaseExchange", {
-			libraries: {
-				MarsBase: m.address
-			}
+			// libraries: {
+			// 	MarsBase: m.address
+			// }
 		})
 		const dex = await MarsBaseExchange.deploy()
 
@@ -296,9 +272,9 @@ describe("MAR-822", () =>
 		const m = await MarsBase.deploy()
 
 		const MarsBaseExchange = await ethers.getContractFactory("MarsBaseExchange", {
-			libraries: {
-				MarsBase: m.address
-			}
+			// libraries: {
+			// 	MarsBase: m.address
+			// }
 		})
 		const dex = await MarsBaseExchange.deploy()
 		await dex.setMinimumFee(0)
@@ -363,9 +339,9 @@ describe("MAR-822", () =>
 		const m = await MarsBase.deploy()
 
 		const MarsBaseExchange = await ethers.getContractFactory("MarsBaseExchange", {
-			libraries: {
-				MarsBase: m.address
-			}
+			// libraries: {
+			// 	MarsBase: m.address
+			// }
 		})
 		const dex = await MarsBaseExchange.deploy()
 		await dex.setMinimumFee(0)
@@ -429,9 +405,9 @@ describe("MAR-822", () =>
 		const m = await MarsBase.deploy()
 
 		const MarsBaseExchange = await ethers.getContractFactory("MarsBaseExchange", {
-			libraries: {
-				MarsBase: m.address
-			}
+			// libraries: {
+			// 	MarsBase: m.address
+			// }
 		})
 		const dex = await MarsBaseExchange.deploy()
 		await dex.setMinimumFee(0)

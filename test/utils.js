@@ -8,9 +8,9 @@ async function prepareEnvironment()
 	const m = await MarsBase.deploy()
 
 	const MarsBaseExchange = await ethers.getContractFactory("MarsBaseExchange", {
-		libraries: {
-			MarsBase: m.address
-		}
+		// libraries: {
+		// 	MarsBase: m.address
+		// }
 	})
 	const dex = await MarsBaseExchange.deploy()
 

@@ -17,9 +17,9 @@ describe("MAR-1067", () =>
         const m = await MarsBase.deploy()
 
         const MarsBaseExchange = await ethers.getContractFactory("MarsBaseExchange", {
-            libraries: {
-                MarsBase: m.address
-            }
+            // libraries: {
+            //     MarsBase: m.address
+            // }
         })
         console.log(commission.address);
         const dex = await MarsBaseExchange.deploy();

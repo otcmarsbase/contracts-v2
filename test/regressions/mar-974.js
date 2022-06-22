@@ -17,9 +17,9 @@ describe("MAR-974", () =>
         const m = await MarsBase.deploy()
 
         const MarsBaseExchange = await ethers.getContractFactory("MarsBaseExchange", {
-            libraries: {
-                MarsBase: m.address
-            }
+            // libraries: {
+            //     MarsBase: m.address
+            // }
         })
         console.log(commission.address);
         const dex = await MarsBaseExchange.deploy();
@@ -90,9 +90,9 @@ describe("MAR-974", () =>
         const m = await MarsBase.deploy()
 
         const MarsBaseExchange = await ethers.getContractFactory("MarsBaseExchange", {
-            libraries: {
-                MarsBase: m.address
-            }
+            // libraries: {
+            //     MarsBase: m.address
+            // }
         })
         const dex = await MarsBaseExchange.deploy()
         await dex.setCommissionAddress(ETH);
@@ -170,9 +170,9 @@ describe("MAR-974", () =>
         const m = await MarsBase.deploy()
 
         const MarsBaseExchange = await ethers.getContractFactory("MarsBaseExchange", {
-            libraries: {
-                MarsBase: m.address
-            }
+            // libraries: {
+            //     MarsBase: m.address
+            // }
         })
         console.log(commission.address);
         const dex = await MarsBaseExchange.deploy();

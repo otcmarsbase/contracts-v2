@@ -17,9 +17,9 @@ contract("MarsBaseExchange", async function () {
     m = await MarsBase.deploy();
 
     const MarsBaseExchange = await ethers.getContractFactory("MarsBaseExchange", {
-      libraries: {
-        MarsBase: m.address
-      }
+    //   libraries: {
+    //     MarsBase: m.address
+    //   }
     });
 
     dex = await MarsBaseExchange.deploy();
