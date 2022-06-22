@@ -12,27 +12,42 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 /// @notice This contract contains the public facing elements of the marsbase exchange. 
 contract MarsBaseExchange is IMarsbaseExchange
 {
+    address owner;
+
+    uint256 nextOfferId = 0;
+
+    uint256 minimumFee = 0;
+
+    address commissionWallet;
+    address commissionExchanger;
+
     constructor() {
+		owner = msg.sender;
     }
+
+	// onlyOwner modifier
+	modifier onlyOwner {
+		require(msg.sender == owner, "403");
+		_;
+	}
 	
-	function setCommissionAddress(address wallet) public
+	function setCommissionAddress(address wallet) onlyOwner public
+	{
+		commissionWallet = wallet;
+	}
+	function setExchangerAddress(address exchangeContract) onlyOwner public
 	{
 		require(false, "NI");
 	}
-	function setExchangerAddress(address exchangeContract) public
+	function setMinimumFee(uint256 _minimumFee) onlyOwner public
 	{
-		require(false, "NI");
-	}
-	function setMinimumFee(uint256 _minimumFee) public
-	{
-		require(false, "NI");
+		minimumFee = _minimumFee;
 	}
 	function getMinimumFee() public view returns (uint256)
 	{
-		require(false, "NI");
-		return 0;
+		return minimumFee;
 	}
-	function setNextOfferId(uint256 _nextOfferId) public
+	function setNextOfferId(uint256 _nextOfferId) onlyOwner public
 	{
 		require(false, "NI");
 	}
@@ -48,7 +63,7 @@ contract MarsBaseExchange is IMarsbaseExchange
 	{
 		require(false, "NI");
 	}
-	function changeOwner(address newOwner) public
+	function changeOwner(address newOwner) onlyOwner public
 	{
 		require(false, "NI");
 	}
@@ -104,15 +119,15 @@ contract MarsBaseExchange is IMarsbaseExchange
 	{
 		require(false, "NI");
 	}
-	function migrateContract() public payable
+	function migrateContract() onlyOwner public payable
 	{
 		require(false, "NI");
 	}
-	function lockContract() public
+	function lockContract() onlyOwner public
 	{
 		require(false, "NI");
 	}
-	function cancelOffers(uint256 from, uint256 to) public payable
+	function cancelOffers(uint256 from, uint256 to) onlyOwner public payable
 	{
 		require(false, "NI");
 	}
