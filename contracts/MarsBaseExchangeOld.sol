@@ -7,10 +7,10 @@ import "./IMarsbaseExchange.sol";
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-/// @title MarsBaseExchange
+/// @title MarsBaseExchangeOld
 /// @author dOTC Marsbase
 /// @notice This contract contains the public facing elements of the marsbase exchange. 
-contract MarsBaseExchange is IMarsbaseExchange {
+contract MarsBaseExchangeOld is IMarsbaseExchange {
     address marsBaseOffersAddress;
     address marsBaseMinimumOffersAddress;
     address owner;
