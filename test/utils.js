@@ -7,11 +7,7 @@ async function prepareEnvironment()
 	const MarsBase = await ethers.getContractFactory("MarsBase")
 	const m = await MarsBase.deploy()
 
-	const MarsBaseExchange = await ethers.getContractFactory("MarsBaseExchange", {
-		// libraries: {
-		// 	MarsBase: m.address
-		// }
-	})
+	const MarsBaseExchange = await ethers.getContractFactory("MarsBaseExchange")
 	const dex = await MarsBaseExchange.deploy()
 
 	const USDT = await ethers.getContractFactory("USDT")
