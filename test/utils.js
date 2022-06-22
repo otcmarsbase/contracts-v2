@@ -1,5 +1,7 @@
 const { ethers } = require ("hardhat")
 
+const ZERO = "0x0000000000000000000000000000000000000000"
+
 async function prepareEnvironment()
 {
 	const [owner, alice, bob, charlie, derek] = await ethers.getSigners()
@@ -27,4 +29,5 @@ async function prepareEnvironment()
 
 module.exports = {
 	prepareEnvironment,
+	ZERO,
 }
