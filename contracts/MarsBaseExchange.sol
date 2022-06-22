@@ -57,13 +57,13 @@ contract MarsBaseExchange is IMarsbaseExchange
 	}
 	function setNextOfferId(uint256 _nextOfferId) onlyOwner public
 	{
-		require(false, "NI");
-	}
-	function getOffer(uint256 offerId) public view returns (MarsBaseCommon.MBOffer memory)
-	{
-		require(false, "NI");
+		nextOfferId = _nextOfferId;
 	}
 	function getNextOfferId() public view returns (uint256)
+	{
+		return nextOfferId;
+	}
+	function getOffer(uint256 offerId) public view returns (MarsBaseCommon.MBOffer memory)
 	{
 		require(false, "NI");
 	}
