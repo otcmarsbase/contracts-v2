@@ -8,6 +8,8 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 
 import "./interfaces/IMarsbaseSink.sol";
 
+// import "hardhat/console.sol";
+
 library MarsBase {
   // MarsBaseCommon.OfferType as int
   /*
@@ -196,10 +198,10 @@ library MarsBase {
     // }
 
     uint256 partialAmountAlice = price(amountBob, acceptedAmountBob, offer.amountAlice);
-    uint256 partialAmountBob = price(partialAmountAlice, offer.amountAlice, acceptedAmountBob);
+    uint256 partialAmountBob = amountBob;
 
-    uint256 amountAfterFeeAlice = partialAmountBob * (1000-offer.feeBob) / 1000;
-    uint256 amountAfterFeeBob = partialAmountAlice * (1000-offer.feeAlice) / 1000;
+    uint256 amountAfterFeeAlice = partialAmountAlice * (1000-offer.feeAlice) / 1000;
+    uint256 amountAfterFeeBob = partialAmountBob * (1000-offer.feeBob) / 1000;
 
     require(acceptedTokenBob == tokenBob, "T3");
 
@@ -246,13 +248,22 @@ library MarsBase {
   }
 
   function payMinimumOffer(MarsBaseCommon.MBOffer memory offer, uint256 tokensSold, address acceptedTokenBob, uint256 amountAfterFeeAlice, uint256 amountAfterFeeBob, uint256 partialAmountAlice, uint256 partialAmountBob) private returns (MarsBaseCommon.MBOffer memory) {
+	require(partialAmountAlice >= amountAfterFeeAlice, "HH1a");
+	require(partialAmountBob >= amountAfterFeeBob, "HH1b");
+
+	// holdTokens is false and minimumSize is reached, meaning we can start payout
     if ((tokensSold >= offer.minimumSize && offer.capabilities[2] == false) ||
+	// or holdTokens is true and all tokens are sold (no point in holding anymore)
       (tokensSold == offer.amountAlice && offer.capabilities[2] == true) || 
+	// or holdTokens is true and minimumSize is reached, but the deadline is reached so no point in holding
       (tokensSold >= offer.minimumSize && offer.capabilities[2] == true && offer.deadline < block.timestamp)) {
-      if (acceptedTokenBob != address(0) && offer.tokenAlice != address(0)) {
-        require(IERC20(acceptedTokenBob).transferFrom(msg.sender, offer.payoutAddress, amountAfterFeeAlice), "T2a");
-        require(IERC20(offer.tokenAlice).transfer(msg.sender, amountAfterFeeBob), "T5");
-        require(IERC20(acceptedTokenBob).transferFrom(msg.sender, address(this), partialAmountAlice - amountAfterFeeAlice), "T1a");
+      if (acceptedTokenBob != address(0) && offer.tokenAlice != address(0)) { // not ETH, tokens on both sides
+	  	// send tokenBob to offer maker
+        require(IERC20(acceptedTokenBob).transferFrom(msg.sender, offer.payoutAddress, amountAfterFeeBob), "T2a");
+		// send tokenAlice to bidder
+        require(IERC20(offer.tokenAlice).transfer(msg.sender, amountAfterFeeAlice), "T5");
+		// if amount after fee is lower than total (meaning there's a fee) we should send Bob's tokens to our contract for later fee extraction
+		require(IERC20(acceptedTokenBob).transferFrom(msg.sender, address(this), partialAmountBob - amountAfterFeeBob), "T1a");
       } else if (acceptedTokenBob == address(0)) {
         require(IERC20(offer.tokenAlice).transfer(msg.sender, amountAfterFeeBob), "T5");
         (bool success, bytes memory data) = offer.payoutAddress.call{value: amountAfterFeeAlice, gas: 30000}("");
@@ -414,6 +425,9 @@ library MarsBase {
         if (offer.minimumOrderTokens[index] != address(0)) {
           require(IERC20(offer.minimumOrderTokens[index]).transfer(offer.offerer, offer.minimumOrderAmountsBob[index]), "T1b");
         } else {
+			// console.log(offer.minimumOrderAddresses[index]);
+			// console.log(offer.minimumOrderTokens[index]);
+			// console.log(offer.minimumOrderAmountsBob[index]);
           (bool success, bytes memory data) = offer.minimumOrderAddresses[index].call{value: offer.minimumOrderAmountsBob[index], gas: 30000}("");
           require(success, "t1b");
         }
