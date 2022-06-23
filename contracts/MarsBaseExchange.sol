@@ -15,11 +15,16 @@ contract MarsBaseExchange is IMarsbaseExchange
     address owner;
 
     uint256 nextOfferId = 0;
+	uint256 activeOffersCount = 0;
 
     uint256 minimumFee = 0;
 
     address commissionWallet;
     address commissionExchanger;
+	
+    bool locked = false;
+
+    mapping(uint256 => MarsBaseCommon.MBOffer) public offers;
 
     constructor() {
 		owner = msg.sender;
@@ -28,6 +33,10 @@ contract MarsBaseExchange is IMarsbaseExchange
 	// onlyOwner modifier
 	modifier onlyOwner {
 		require(msg.sender == owner, "403");
+		_;
+	}
+	modifier unlocked {
+		require(!locked, "409");
 		_;
 	}
 	
@@ -65,19 +74,65 @@ contract MarsBaseExchange is IMarsbaseExchange
 	}
 	function getOffer(uint256 offerId) public view returns (MarsBaseCommon.MBOffer memory)
 	{
-		require(false, "NI");
+		return offers[offerId];
 	}
 	function getOwner() public view returns (address)
 	{
-		require(false, "NI");
+		return owner;
 	}
 	function changeOwner(address newOwner) onlyOwner public
 	{
-		require(false, "NI");
+		owner = newOwner;
 	}
+	// TODO: rename to `getAllActiveOffers`
 	function getAllOffers() public view returns (MarsBaseCommon.MBOffer[] memory)
 	{
-		require(false, "NI");
+		MarsBaseCommon.MBOffer[] memory offersArray = new MarsBaseCommon.MBOffer[](activeOffersCount);
+		uint256 i = 0;
+		for (uint256 offerId = 0; offerId < nextOfferId; offerId++)
+		{
+			if (offers[offerId].active)
+			{
+				offersArray[i] = offers[offerId];
+				i++;
+			}
+		}
+		return offersArray;
+	}
+	function getOfferType(uint256 amountAlice, MarsBaseCommon.OfferParams calldata offerParameters) public pure returns (MarsBaseCommon.OfferType)
+	{
+		if (offerParameters.minimumSize == 0)
+		{
+			if (offerParameters.deadline > 0
+				&& offerParameters.smallestChunkSize > 0
+				&& offerParameters.smallestChunkSize != amountAlice)
+				return MarsBaseCommon.OfferType.LimitedTimeChunkedPurchase;
+			
+			if (offerParameters.smallestChunkSize > 0
+				&& offerParameters.smallestChunkSize != amountAlice)
+				return MarsBaseCommon.OfferType.ChunkedPurchase;
+			
+			if (offerParameters.deadline > 0)
+				return MarsBaseCommon.OfferType.LimitedTime;
+			
+			return MarsBaseCommon.OfferType.FullPurchase;
+		}
+		if (offerParameters.deadline > 0 
+			&& offerParameters.smallestChunkSize > 0
+			&& offerParameters.smallestChunkSize != amountAlice
+			&& offerParameters.holdTokens == true)
+			return MarsBaseCommon.OfferType.LimitedTimeMinimumChunkedDeadlinePurchase;
+
+		if (offerParameters.deadline > 0 && offerParameters.smallestChunkSize > 0 && offerParameters.smallestChunkSize != amountAlice)
+			return MarsBaseCommon.OfferType.LimitedTimeMinimumChunkedPurchase;
+
+		if (offerParameters.smallestChunkSize > 0 && offerParameters.smallestChunkSize != amountAlice)
+			return MarsBaseCommon.OfferType.MinimumChunkedPurchase;
+
+		if (offerParameters.deadline > 0)
+			return MarsBaseCommon.OfferType.LimitedTimeMinimumPurchase;
+		
+		return MarsBaseCommon.OfferType.MinimumChunkedPurchase;
 	}
 	function createOffer(
         address tokenAlice,
@@ -85,11 +140,51 @@ contract MarsBaseExchange is IMarsbaseExchange
         uint256 amountAlice,
         uint256[] calldata amountBob,
         MarsBaseCommon.OfferParams calldata offerParameters
-    ) public payable
+    ) unlocked public payable
 	{
-		require(false, "NI");
+		require(!offerParameters.cancelEnabled, "NI - cancelEnabled");
+		require(!offerParameters.modifyEnabled, "NI - modifyEnabled");
+		require(!offerParameters.holdTokens, "NI - holdTokens");
+		require(offerParameters.feeAlice == 0, "NI - feeAlice");
+		require(offerParameters.feeBob == 0, "NI - feeBob");
+		require(offerParameters.smallestChunkSize == 0, "NI - smallestChunkSize");
+		require(offerParameters.deadline == 0, "NI - deadline");
+		require(offerParameters.minimumSize == 0, "NI - minimumSize");
+		
+		require(tokenAlice != address(0), "NI - tokenAlice");
+		require(amountAlice > 0, "NI - amountAlice");
+
+		require(tokenBob.length > 0, "NI - tokenBob");
+		require(amountBob.length == tokenBob.length, "NI - amountBob");
+
+		uint256 offerId = nextOfferId++;
+		activeOffersCount++;
+
+		offers[offerId] = MarsBaseCommon.MBOffer(
+			true,
+			false,
+			getOfferType(amountAlice, offerParameters),
+			offerId,
+			amountAlice,
+			offerParameters.feeAlice,
+			offerParameters.feeBob,
+			offerParameters.smallestChunkSize,
+			offerParameters.minimumSize,
+			offerParameters.deadline,
+			amountAlice,
+			msg.sender,
+			msg.sender,
+			tokenAlice,
+			[offerParameters.modifyEnabled, offerParameters.cancelEnabled, offerParameters.holdTokens],
+			amountBob,
+			new uint256[](0),
+			new uint256[](0),
+			new address[](0),
+			new address[](0),
+			tokenBob
+		);
 	}
-	function cancelOffer(uint256 offerId) public
+	function cancelOffer(uint256 offerId) unlocked public
 	{
 		require(false, "NI");
 	}
@@ -106,7 +201,7 @@ contract MarsBaseExchange is IMarsbaseExchange
         uint256 offerId,
         address tokenBob,
         uint256 amountBob
-    ) public payable
+    ) unlocked public payable
 	{
 		require(false, "NI");
 	}
@@ -115,11 +210,11 @@ contract MarsBaseExchange is IMarsbaseExchange
         address[] calldata tokenBob,
         uint256[] calldata amountBob,
         MarsBaseCommon.OfferParams calldata offerParameters
-    ) public
+    ) unlocked public
 	{
 		require(false, "NI");
 	}
-	function cancelBid(uint256 offerId) public
+	function cancelBid(uint256 offerId) unlocked public
 	{
 		require(false, "NI");
 	}
