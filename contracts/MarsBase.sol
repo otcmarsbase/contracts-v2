@@ -123,7 +123,7 @@ library MarsBase {
     // offer.minimumOrderAmountsAlice = new uint256[](0);
     // offer.minimumOrderAmountsBob = new uint256[](0);
 
-    offer.capabilities = new bool[](3);
+    offer.capabilities = [offerParameters.modifyEnabled, offerParameters.cancelEnabled, offerParameters.holdTokens];
 
     offer.active = true;
     offer.minimumMet = false;
