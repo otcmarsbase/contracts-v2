@@ -158,7 +158,7 @@ contract MarsBaseExchangeOld is IMarsbaseExchange {
     /// NOTE: If the user would like to accept native ether, token bob should have an element with a zero address. This indicates that we accept native ether.
     /// amountAlice - the amount of tokenAlice we are putting for sale, in wei.
     /// amountBob - a list of the amounts we are willing to accept for each token bob. This is then compared with amountAlice to generate a fixed exchange rate.
-    /// offerParamaters - The configureation parameters for the offer to set the conditions for the sale. 
+    /// offerParameters - The configureation parameters for the offer to set the conditions for the sale. 
     function createOffer(
         address tokenAlice,
         address[] calldata tokenBob,
