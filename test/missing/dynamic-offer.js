@@ -125,5 +125,13 @@ describe("missing/dynamic-offer", () =>
 
 		expect(eventOfferData.tokenBob).length(1)
 		expect(eventOfferData.tokenBob[0]).eq(bat.address)
+
+		let nextOfferId = await dex.getNextOfferId()
+		expect(nextOfferId).eq("1")
+		let offer = await dex.getOffer("0")
+		expect(offer).eql(eventOfferData)
+		let offers = await dex.getAllOffers()
+		expect(offers).length(1)
+		expect(offers[0]).eql(eventOfferData)
 	})
 })
