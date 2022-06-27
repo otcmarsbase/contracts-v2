@@ -160,6 +160,16 @@ export interface MarsBaseExchange extends BaseContract {
       amountBob: number | string | BN
     ): PayableTransactionObject<void>;
 
+    afterFee(
+      amountBeforeFee: number | string | BN,
+      feePercent: number | string | BN
+    ): NonPayableTransactionObject<{
+      amountAfterFee: string;
+      fee: string;
+      0: string;
+      1: string;
+    }>;
+
     cancelBid(offerId: number | string | BN): NonPayableTransactionObject<void>;
 
     cancelExpiredOffers(): PayableTransactionObject<void>;
@@ -287,6 +297,8 @@ export interface MarsBaseExchange extends BaseContract {
     getOwner(): NonPayableTransactionObject<string>;
 
     lockContract(): NonPayableTransactionObject<void>;
+
+    log2(x: number | string | BN): NonPayableTransactionObject<string>;
 
     migrateContract(): PayableTransactionObject<void>;
 
