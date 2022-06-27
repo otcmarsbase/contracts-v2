@@ -523,6 +523,7 @@ contract MarsBaseExchange is IMarsbaseExchange
 		}
 
 		delete offers[offerId];
+		activeOffersCount--;
 		
 		emit OfferClosed(
 			// uint256 offerId,
