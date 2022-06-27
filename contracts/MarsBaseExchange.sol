@@ -389,7 +389,7 @@ contract MarsBaseExchange is IMarsbaseExchange
 
 		if (offers[offerId].amountRemaining == 0)
 		{
-			destroyOffer(offerId, MarsBaseCommon.OfferCloseReason.Success);
+			_destroyOffer(offerId, MarsBaseCommon.OfferCloseReason.Success);
 		}
 	}
 	function cancelOffer(uint256 offerId) unlocked public
@@ -399,7 +399,87 @@ contract MarsBaseExchange is IMarsbaseExchange
 		require(offer.capabilities[1], "400-CE");
 		require(offer.offerer == msg.sender, "403");
 
-		destroyOffer(offerId, MarsBaseCommon.OfferCloseReason.CancelledBySeller);
+		_destroyOffer(offerId, MarsBaseCommon.OfferCloseReason.CancelledBySeller);
+	}
+	function _swapAllHeldTokens(MarsBaseCommon.MBOffer memory offer) private
+	{
+		uint256 offerId = offer.offerId;
+
+		// trade all remaining tokens
+		for (uint256 i = 0; i < offer.minimumOrderTokens.length; i++)
+		{
+			// address tokenBob = offer.minimumOrderTokens[i];
+			// uint256 amountBob = offer.minimumOrderAmountsBob[i];
+			uint256 amountAlice = offer.minimumOrderAmountsAlice[i];
+
+			require(amountAlice > 0, "500-AAL"); // Amount Alice is too Low
+
+			offer.amountRemaining -= amountAlice;
+			require(offer.amountRemaining >= 0, "500-AR"); // Amount Remaining
+			
+			// just to future-proof double entry protection in case of refactoring
+			offers[offerId].minimumOrderAmountsAlice[i] = 0;
+
+			_swapHeldTokens(offer, i);
+		}
+		// drop used arrays
+		offers[offerId].minimumOrderAmountsAlice = new uint256[](0);
+		offers[offerId].minimumOrderAmountsBob = new uint256[](0);
+		offers[offerId].minimumOrderAddresses = new address[](0);
+		offers[offerId].minimumOrderTokens = new address[](0);
+	}
+	function _swapHeldTokens(MarsBaseCommon.MBOffer memory offer, uint256 i) private
+	{
+		// send Bob tokens to Alice
+		(uint256 bobSentToAlice, uint256 feeBobDeducted) = sendTokensAfterFeeFrom(
+			// address token,
+			offer.minimumOrderTokens[i],
+			// uint256 amount,
+			offer.minimumOrderAmountsBob[i],
+			// address from,
+			address(this),
+			// address to,
+			offer.offerer,
+			// uint256 feePercent
+			offer.feeBob
+		);
+		// send Alice tokens to Bob
+		(uint256 aliceSentToBob, uint256 feeAliceDeducted) = sendTokensAfterFeeFrom(
+			// address token,
+			offer.tokenAlice,
+			// uint256 amount,
+			offer.minimumOrderAmountsAlice[i],
+			// address from,
+			address(this),
+			// address to,
+			offer.minimumOrderAddresses[i],
+			// uint256 feePercent
+			offer.feeAlice
+		);
+
+		// emit event
+		emit OfferAccepted(
+			// uint256 offerId,
+			offer.offerId,
+			// address sender,
+			msg.sender,
+			// uint256 blockTimestamp,
+			block.timestamp,
+			// uint256 amountAliceReceived,
+			aliceSentToBob,
+			// uint256 amountBobReceived,
+			bobSentToAlice,
+			// address tokenAddressAlice,
+			offer.tokenAlice,
+			// address tokenAddressBob,
+			offer.minimumOrderTokens[i],
+			// MarsBaseCommon.OfferType offerType,
+			offer.offerType,
+			// uint256 feeAlice,
+			feeAliceDeducted,
+			// uint256 feeBob
+			feeBobDeducted
+		);
 	}
 	function closeExpiredOffer(uint256 offerId) unlocked public
 	{
@@ -415,89 +495,19 @@ contract MarsBaseExchange is IMarsbaseExchange
 		// bool minimumCovered = (offer.amountAlice - offer.amountRemaining) >= offer.minimumSize;
 		if ((offer.amountAlice - offer.amountRemaining) < offer.minimumSize)
 		{
-			destroyOffer(offerId, MarsBaseCommon.OfferCloseReason.DeadlinePassed);
+			_destroyOffer(offerId, MarsBaseCommon.OfferCloseReason.DeadlinePassed);
 			return;
 		}
 
 		// if any tokens are still held in the offer
 		if (offer.minimumOrderTokens.length > 0)
 		{
-			// trade all remaining tokens
-			for (uint256 i = 0; i < offer.minimumOrderTokens.length; i++)
-			{
-				// address tokenBob = offer.minimumOrderTokens[i];
-				// uint256 amountBob = offer.minimumOrderAmountsBob[i];
-				// uint256 amountAlice = offer.minimumOrderAmountsAlice[i];
-
-				require(offer.minimumOrderAmountsAlice[i] > 0, "500-AAL"); // Amount Alice is too Low
-
-				offer.amountRemaining -= offer.minimumOrderAmountsAlice[i];
-				require(offer.amountRemaining >= 0, "500-AR"); // Amount Remaining
-				
-				// just to future-proof double entry protection in case of refactoring
-				offers[offerId].minimumOrderAmountsAlice[i] = 0;
-
-				// send Bob tokens to Alice
-				(uint256 bobSentToAlice, uint256 feeBobDeducted) = sendTokensAfterFeeFrom(
-					// address token,
-					offer.minimumOrderTokens[i],
-					// uint256 amount,
-					offer.minimumOrderAmountsBob[i],
-					// address from,
-					address(this),
-					// address to,
-					offer.offerer,
-					// uint256 feePercent
-					offer.feeBob
-				);
-				// send Alice tokens to Bob
-				(uint256 aliceSentToBob, uint256 feeAliceDeducted) = sendTokensAfterFeeFrom(
-					// address token,
-					offer.tokenAlice,
-					// uint256 amount,
-					offer.minimumOrderAmountsAlice[i],
-					// address from,
-					address(this),
-					// address to,
-					offer.minimumOrderAddresses[i],
-					// uint256 feePercent
-					offer.feeAlice
-				);
-
-				// emit event
-				emit OfferAccepted(
-					// uint256 offerId,
-					offerId,
-					// address sender,
-					msg.sender,
-					// uint256 blockTimestamp,
-					block.timestamp,
-					// uint256 amountAliceReceived,
-					aliceSentToBob,
-					// uint256 amountBobReceived,
-					bobSentToAlice,
-					// address tokenAddressAlice,
-					offer.tokenAlice,
-					// address tokenAddressBob,
-					offer.minimumOrderTokens[i],
-					// MarsBaseCommon.OfferType offerType,
-					offer.offerType,
-					// uint256 feeAlice,
-					feeAliceDeducted,
-					// uint256 feeBob
-					feeBobDeducted
-				);
-			}
-			// drop used arrays
-			offers[offerId].minimumOrderAmountsAlice = new uint256[](0);
-			offers[offerId].minimumOrderAmountsBob = new uint256[](0);
-			offers[offerId].minimumOrderAddresses = new address[](0);
-			offers[offerId].minimumOrderTokens = new address[](0);
+			_swapAllHeldTokens(offer);
 		}
 
-		destroyOffer(offerId, MarsBaseCommon.OfferCloseReason.Success);
+		_destroyOffer(offerId, MarsBaseCommon.OfferCloseReason.Success);
 	}
-	function destroyOffer(uint256 offerId, MarsBaseCommon.OfferCloseReason reason) private
+	function _destroyOffer(uint256 offerId, MarsBaseCommon.OfferCloseReason reason) private
 	{
 		MarsBaseCommon.MBOffer memory offer = offers[offerId];
 
