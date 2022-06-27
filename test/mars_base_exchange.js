@@ -52,7 +52,7 @@ contract("MarsBaseExchange", async function () {
     const deadline = 0;
 
     // Create Offer
-    await dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, {feeAlice: feeAlice, feeBob: feeBob, smallestChunkSize: smallestChunkSize.toString().toString(), deadline: deadline, cancelEnabled: true, modifyEnabled: true, minimumSize: 0, holdTokens: false});
+    await dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, {feeAlice: feeAlice, feeBob: feeBob, smallestChunkSize: smallestChunkSize.toString().toString(), deadline: deadline, cancelEnabled: true, modifyEnabled: false, minimumSize: 0, holdTokens: false});
 
     // Get the offer and ensure it's all set correctly
     let offer = await dex.getOffer(0);
@@ -81,7 +81,7 @@ contract("MarsBaseExchange", async function () {
     const deadline = 100;
 
     // Create Offer
-    assert.rejects(dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, {feeAlice: feeAlice, feeBob: feeBob, smallestChunkSize: smallestChunkSize.toString().toString(), deadline: deadline, cancelEnabled: true, modifyEnabled: true, minimumSize: 0, holdTokens: false}));
+    assert.rejects(dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, {feeAlice: feeAlice, feeBob: feeBob, smallestChunkSize: smallestChunkSize.toString().toString(), deadline: deadline, cancelEnabled: true, modifyEnabled: false, minimumSize: 0, holdTokens: false}));
     
     return;
   });
@@ -93,7 +93,7 @@ contract("MarsBaseExchange", async function () {
     const deadline = 0;
 
     // Create Offer
-    await dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, {feeAlice: feeAlice, feeBob: feeBob, smallestChunkSize: smallestChunkSize.toString(), deadline: deadline, cancelEnabled: true, modifyEnabled: true, minimumSize: 0, holdTokens: false});
+    await dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, {feeAlice: feeAlice, feeBob: feeBob, smallestChunkSize: smallestChunkSize.toString(), deadline: deadline, cancelEnabled: true, modifyEnabled: false, minimumSize: 0, holdTokens: false});
 
     // Get the offer and ensure it's all set correctly
     let offer = await dex.getOffer(0);
@@ -113,7 +113,7 @@ contract("MarsBaseExchange", async function () {
     const deadline = 0;
 
     // Create Offer
-    assert.rejects(dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, {feeAlice: feeAlice, feeBob: feeBob, smallestChunkSize: smallestChunkSize.toString().toString(), deadline: deadline, cancelEnabled: true, modifyEnabled: true, minimumSize: 0, holdTokens: false}));
+    assert.rejects(dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, {feeAlice: feeAlice, feeBob: feeBob, smallestChunkSize: smallestChunkSize.toString().toString(), deadline: deadline, cancelEnabled: true, modifyEnabled: false, minimumSize: 0, holdTokens: false}));
     
     return;
   });
@@ -127,7 +127,7 @@ contract("MarsBaseExchange", async function () {
     const deadline = 0;
 
     // Create Offer
-    assert.rejects(dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, {feeAlice: feeAlice, feeBob: feeBob, smallestChunkSize: smallestChunkSize.toString().toString(), deadline: deadline, cancelEnabled: true, modifyEnabled: true, minimumSize: minimumSizeOver.toString(), holdTokens: false}));
+    assert.rejects(dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, {feeAlice: feeAlice, feeBob: feeBob, smallestChunkSize: smallestChunkSize.toString().toString(), deadline: deadline, cancelEnabled: true, modifyEnabled: false, minimumSize: minimumSizeOver.toString(), holdTokens: false}));
 
     return;
   });
@@ -145,7 +145,7 @@ contract("MarsBaseExchange", async function () {
     const deadline = Date.now() + 10000;
 
     // Create Offer
-    await dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, {feeAlice: feeAlice, feeBob: feeBob, smallestChunkSize: smallestChunkSize.toString(), deadline: deadline, cancelEnabled: true, modifyEnabled: true, minimumSize: 0, holdTokens: false});
+    await dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, {feeAlice: feeAlice, feeBob: feeBob, smallestChunkSize: smallestChunkSize.toString(), deadline: deadline, cancelEnabled: true, modifyEnabled: false, minimumSize: 0, holdTokens: false});
 
     // Get the offer and ensure it's all set correctly
     let offer = await dex.getOffer(0);
@@ -165,7 +165,7 @@ contract("MarsBaseExchange", async function () {
   //   const mockedExpireTime = deadline + 11;
 
   //   // Create Offer
-  //   await dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, {feeAlice: feeAlice, feeBob: feeBob, smallestChunkSize: smallestChunkSize.toString(), deadline: deadline, cancelEnabled: true, modifyEnabled: true, minimumSize: 0, holdTokens: false});
+  //   await dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, {feeAlice: feeAlice, feeBob: feeBob, smallestChunkSize: smallestChunkSize.toString(), deadline: deadline, cancelEnabled: true, modifyEnabled: false, minimumSize: 0, holdTokens: false});
 
   //   // Get the offer and ensure it's all set correctly
   //   let offer = await dex.getOffer(0);
@@ -196,7 +196,7 @@ contract("MarsBaseExchange", async function () {
     const deadline = 0;
 
     // Create Offer
-    await dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, {feeAlice: feeAlice, feeBob: feeBob, smallestChunkSize: smallestChunkSize.toString(), deadline: deadline, cancelEnabled: true, modifyEnabled: true, minimumSize: 0, holdTokens: false});
+    await dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, {feeAlice: feeAlice, feeBob: feeBob, smallestChunkSize: smallestChunkSize.toString(), deadline: deadline, cancelEnabled: true, modifyEnabled: false, minimumSize: 0, holdTokens: false});
     // Get the offer and ensure it's all set correctly
     let offer = await dex.getOffer(0);
 
@@ -249,7 +249,7 @@ contract("MarsBaseExchange", async function () {
     assert.equal(initialUserTestTokenBalance.toString(), testTokenTotalSupply.toString());
 
     // Create the offer
-    await dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, {feeAlice: feeAlice, feeBob: feeBob, smallestChunkSize: smallestChunkSize.toString(), deadline: deadline, cancelEnabled: true, modifyEnabled: true, minimumSize: 0, holdTokens: false});
+    await dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, {feeAlice: feeAlice, feeBob: feeBob, smallestChunkSize: smallestChunkSize.toString(), deadline: deadline, cancelEnabled: true, modifyEnabled: false, minimumSize: 0, holdTokens: false});
 
     // Ensure the offer is active
     let offer = await dex.getOffer(0);
@@ -292,7 +292,7 @@ contract("MarsBaseExchange", async function () {
     assert.equal(initialUserTestTokenBalance.toString(), testTokenTotalSupply.toString());
 
     // Create the offer
-    await dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, {feeAlice: feeAlice, feeBob: feeBob, smallestChunkSize: smallestChunkSize.toString(), deadline: deadline, cancelEnabled: true, modifyEnabled: true, minimumSize: 0, holdTokens: false});
+    await dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, {feeAlice: feeAlice, feeBob: feeBob, smallestChunkSize: smallestChunkSize.toString(), deadline: deadline, cancelEnabled: true, modifyEnabled: false, minimumSize: 0, holdTokens: false});
 
     // Ensure the offer is active
     let offer = await dex.getOffer(0);
@@ -318,7 +318,7 @@ contract("MarsBaseExchange", async function () {
     assert.equal(cancelledOffer.payoutAddress, "0x0000000000000000000000000000000000000000");
 
     // Create the offer
-    assert.rejects(dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, {feeAlice: feeAlice, feeBob: feeBob, smallestChunkSize: smallestChunkSize.toString(), deadline: deadline, cancelEnabled: true, modifyEnabled: true, minimumSize: 0, holdTokens: false}));
+    assert.rejects(dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, {feeAlice: feeAlice, feeBob: feeBob, smallestChunkSize: smallestChunkSize.toString(), deadline: deadline, cancelEnabled: true, modifyEnabled: false, minimumSize: 0, holdTokens: false}));
 
 
     return;
@@ -339,7 +339,7 @@ contract("MarsBaseExchange", async function () {
     assert.equal(initialUserTestTokenBalance.toString(), testTokenTotalSupply.toString());
 
     // Create the offer
-    await dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, {feeAlice: feeAlice, feeBob: feeBob, smallestChunkSize: smallestChunkSize.toString(), deadline: deadline, cancelEnabled: false, modifyEnabled: true, minimumSize: 0, holdTokens: false});
+    await dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, {feeAlice: feeAlice, feeBob: feeBob, smallestChunkSize: smallestChunkSize.toString(), deadline: deadline, cancelEnabled: false, modifyEnabled: false, minimumSize: 0, holdTokens: false});
 
     // Ensure the offer is active
     let offer = await dex.getOffer(0);
@@ -375,7 +375,7 @@ contract("MarsBaseExchange", async function () {
     assert.equal(initialUserEpicCoinBalance.toString(), epicCoinTotalSupply.toString());
 
     // Create the offer
-    await dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, {feeAlice: feeAlice, feeBob: feeBob, smallestChunkSize: smallestChunkSize.toString(), deadline: deadline, cancelEnabled: true, modifyEnabled: true, minimumSize: 0, holdTokens: false});
+    await dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, {feeAlice: feeAlice, feeBob: feeBob, smallestChunkSize: smallestChunkSize.toString(), deadline: deadline, cancelEnabled: true, modifyEnabled: false, minimumSize: 0, holdTokens: false});
 
     // Ensure the offer is active
     let offer = await dex.getOffer(0);
@@ -429,7 +429,7 @@ contract("MarsBaseExchange", async function () {
     assert.equal(initialUserEpicCoinBalance.toString(), epicCoinTotalSupply.toString());
 
     // Create the offer
-    await dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, {feeAlice: feeAlice, feeBob: feeBob, smallestChunkSize: smallestChunkSize.toString(), deadline: deadline, cancelEnabled: true, modifyEnabled: true, minimumSize: 0, holdTokens: false});
+    await dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, {feeAlice: feeAlice, feeBob: feeBob, smallestChunkSize: smallestChunkSize.toString(), deadline: deadline, cancelEnabled: true, modifyEnabled: false, minimumSize: 0, holdTokens: false});
 
     // Ensure the offer is active
     let offer = await dex.getOffer(0);
@@ -461,7 +461,7 @@ contract("MarsBaseExchange", async function () {
     assert.equal(initialUserEpicCoinBalance.toString(), epicCoinTotalSupply.toString());
 
     // Create the offer
-    await dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, {feeAlice: feeAlice, feeBob: feeBob, smallestChunkSize: smallestChunkSize.toString(), deadline: deadline, cancelEnabled: true, modifyEnabled: true, minimumSize: smallestChunkSize.toString(), holdTokens: false});
+    await dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, {feeAlice: feeAlice, feeBob: feeBob, smallestChunkSize: smallestChunkSize.toString(), deadline: deadline, cancelEnabled: true, modifyEnabled: false, minimumSize: smallestChunkSize.toString(), holdTokens: false});
 
     // Ensure the offer is active
     let offer = await dex.getOffer(0);
@@ -493,7 +493,7 @@ contract("MarsBaseExchange", async function () {
     assert.equal(initialUserEpicCoinBalance.toString(), epicCoinTotalSupply.toString());
 
     // Create the offer
-    await dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, {feeAlice: feeAlice, feeBob: feeBob, smallestChunkSize: smallestChunkSize.toString(), deadline: deadline, cancelEnabled: true, modifyEnabled: true, minimumSize: 0, holdTokens: false});
+    await dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, {feeAlice: feeAlice, feeBob: feeBob, smallestChunkSize: smallestChunkSize.toString(), deadline: deadline, cancelEnabled: true, modifyEnabled: false, minimumSize: 0, holdTokens: false});
 
     // Ensure the offer is active
     let offer = await dex.getOffer(0);
@@ -530,8 +530,8 @@ contract("MarsBaseExchange", async function () {
     const deadline = 0;
 
     // Create the offer
-    await dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, {feeAlice: feeAlice, feeBob: feeBob, smallestChunkSize: smallestChunkSize.toString(), deadline: deadline, cancelEnabled: true, modifyEnabled: true, minimumSize: 0, holdTokens: false});
-    await dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, {feeAlice: feeAlice, feeBob: feeBob, smallestChunkSize: smallestChunkSize.toString(), deadline: deadline, cancelEnabled: true, modifyEnabled: true, minimumSize: 0, holdTokens: false});
+    await dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, {feeAlice: feeAlice, feeBob: feeBob, smallestChunkSize: smallestChunkSize.toString(), deadline: deadline, cancelEnabled: true, modifyEnabled: false, minimumSize: 0, holdTokens: false});
+    await dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, {feeAlice: feeAlice, feeBob: feeBob, smallestChunkSize: smallestChunkSize.toString(), deadline: deadline, cancelEnabled: true, modifyEnabled: false, minimumSize: 0, holdTokens: false});
 
     // Ensure the offer is active
     let offer = await dex.getOffer(0);
@@ -578,7 +578,7 @@ contract("MarsBaseExchange", async function () {
     const amountAfterFeeBob = smallestChunkSize * (1000 - feeBob) / 1000;
 
     // Create the offer
-    await dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, {feeAlice: feeAlice, feeBob: feeBob, smallestChunkSize: smallestChunkSize.toString(), deadline: deadline, cancelEnabled: true, modifyEnabled: true, minimumSize: 0, holdTokens: false});
+    await dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, {feeAlice: feeAlice, feeBob: feeBob, smallestChunkSize: smallestChunkSize.toString(), deadline: deadline, cancelEnabled: true, modifyEnabled: false, minimumSize: 0, holdTokens: false});
 
     // Ensure the offer is active
     let offer = await dex.getOffer(0);
@@ -619,7 +619,7 @@ contract("MarsBaseExchange", async function () {
     const amountAfterFeeBob = smallestChunkSize * (1000 - feeBob) / 1000;
 
     // Create the offer
-    await dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, {feeAlice: feeAlice, feeBob: feeBob, smallestChunkSize: smallestChunkSize.toString(), deadline: deadline, cancelEnabled: true, modifyEnabled: true, minimumSize: 0, holdTokens: false});
+    await dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, {feeAlice: feeAlice, feeBob: feeBob, smallestChunkSize: smallestChunkSize.toString(), deadline: deadline, cancelEnabled: true, modifyEnabled: false, minimumSize: 0, holdTokens: false});
 
     // Ensure the offer is active
     let offer = await dex.getOffer(0);
@@ -679,7 +679,7 @@ contract("MarsBaseExchange", async function () {
     assert.equal(offer.tokenBob.length, 3);
 
     // Cancel the offer, thus returning everything to its initial state
-    await dex.changeOfferParams(0, changedTokensBob, changedAmountsBob, {feeAlice: feeAlice, feeBob: feeBob, smallestChunkSize: smallestChunkSize.toString(), deadline: deadline, cancelEnabled: true, modifyEnabled: true, minimumSize: 0, holdTokens: false});
+    await dex.changeOfferParams(0, changedTokensBob, changedAmountsBob, {feeAlice: feeAlice, feeBob: feeBob, smallestChunkSize: smallestChunkSize.toString(), deadline: deadline, cancelEnabled: true, modifyEnabled: false, minimumSize: 0, holdTokens: false});
 
     // Get the offer again, this time after it's been cancelled.
     let acceptedOffer = await dex.getOffer(0);
@@ -757,7 +757,7 @@ contract("MarsBaseExchange", async function () {
     assert.equal(offer.smallestChunkSize.toString(), smallestChunkSize.toString());
 
     // Cancel the offer, thus returning everything to its initial state
-    await dex.changeOfferParams(0, tokensBob, tokensBob, {feeAlice: feeAlice, feeBob: feeBob, smallestChunkSize: changedSmallestChunkSize, deadline: deadline, cancelEnabled: true, modifyEnabled: true, minimumSize: 0, holdTokens: false});
+    await dex.changeOfferParams(0, tokensBob, tokensBob, {feeAlice: feeAlice, feeBob: feeBob, smallestChunkSize: changedSmallestChunkSize, deadline: deadline, cancelEnabled: true, modifyEnabled: false, minimumSize: 0, holdTokens: false});
 
     // Get the offer again, this time after it's been cancelled.
     let acceptedOffer = await dex.getOffer(0);
@@ -785,7 +785,7 @@ contract("MarsBaseExchange", async function () {
     const deadline = 0;
 
     // Create the offer
-    await dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, {feeAlice: feeAlice, feeBob: feeBob, smallestChunkSize: smallestChunkSize.toString(), deadline: deadline, cancelEnabled: true, modifyEnabled: true, minimumSize: 0, holdTokens: false});
+    await dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, {feeAlice: feeAlice, feeBob: feeBob, smallestChunkSize: smallestChunkSize.toString(), deadline: deadline, cancelEnabled: true, modifyEnabled: false, minimumSize: 0, holdTokens: false});
 
     // Ensure the offer is active
     let offer = await dex.getOffer(0);
@@ -823,7 +823,7 @@ contract("MarsBaseExchange", async function () {
     const deadline = 0;
 
     // Create the offer
-    await dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, {feeAlice: feeAlice, feeBob: feeBob, smallestChunkSize: smallestChunkSize.toString(), deadline: deadline, cancelEnabled: true, modifyEnabled: true, minimumSize: 0, holdTokens: false});
+    await dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, {feeAlice: feeAlice, feeBob: feeBob, smallestChunkSize: smallestChunkSize.toString(), deadline: deadline, cancelEnabled: true, modifyEnabled: false, minimumSize: 0, holdTokens: false});
 
     // Ensure the offer is active
     let offer = await dex.getOffer(0);
@@ -862,7 +862,7 @@ contract("MarsBaseExchange", async function () {
     const deadline = 0;
 
     // Create the offer
-    await dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, {feeAlice: feeAlice, feeBob: feeBob, smallestChunkSize: smallestChunkSize.toString(), deadline: deadline, cancelEnabled: false, modifyEnabled: true, minimumSize: minimumSale.toString(), holdTokens: true});
+    await dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, {feeAlice: feeAlice, feeBob: feeBob, smallestChunkSize: smallestChunkSize.toString(), deadline: deadline, cancelEnabled: false, modifyEnabled: false, minimumSize: minimumSale.toString(), holdTokens: true});
 
     // Ensure the offer is active
     let offer = await dex.getOffer(0);
@@ -907,7 +907,7 @@ contract("MarsBaseExchange", async function () {
     const deadline = 0;
 
     // Create the offer
-    await dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, {feeAlice: feeAlice, feeBob: feeBob, smallestChunkSize: smallestChunkSize.toString(), deadline: deadline, cancelEnabled: false, modifyEnabled: true, minimumSize: minimumSale.toString(), holdTokens: true});
+    await dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, {feeAlice: feeAlice, feeBob: feeBob, smallestChunkSize: smallestChunkSize.toString(), deadline: deadline, cancelEnabled: false, modifyEnabled: false, minimumSize: minimumSale.toString(), holdTokens: true});
 
     // Ensure the offer is active
     let offer = await dex.getOffer(0);
@@ -952,7 +952,7 @@ contract("MarsBaseExchange", async function () {
     const deadline = 0;
 
     // Create the offer
-    await dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, {feeAlice: feeAlice, feeBob: feeBob, smallestChunkSize: smallestChunkSize.toString().toString(), deadline: deadline, cancelEnabled: true, modifyEnabled: true, minimumSize: minimumSale.toString(), holdTokens: false});
+    await dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, {feeAlice: feeAlice, feeBob: feeBob, smallestChunkSize: smallestChunkSize.toString().toString(), deadline: deadline, cancelEnabled: true, modifyEnabled: false, minimumSize: minimumSale.toString(), holdTokens: false});
 
     // Ensure the offer is active
     let offer = await dex.getOffer(0);
@@ -995,7 +995,7 @@ contract("MarsBaseExchange", async function () {
     const deadline = 0;
 
     // Create the offer
-    await dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, {feeAlice: feeAlice, feeBob: feeBob, smallestChunkSize: smallestChunkSize.toString().toString(), deadline: deadline, cancelEnabled: true, modifyEnabled: true, minimumSize: minimumSale.toString(), holdTokens: false});
+    await dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, {feeAlice: feeAlice, feeBob: feeBob, smallestChunkSize: smallestChunkSize.toString().toString(), deadline: deadline, cancelEnabled: true, modifyEnabled: false, minimumSize: minimumSale.toString(), holdTokens: false});
 
     // Ensure the offer is active
     let offer = await dex.getOffer(0);
@@ -1038,7 +1038,7 @@ contract("MarsBaseExchange", async function () {
     const deadline = 0;
 
     // Create the offer
-    await dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, {feeAlice: feeAlice, feeBob: feeBob, smallestChunkSize: smallestChunkSize.toString(), deadline: deadline, cancelEnabled: true, modifyEnabled: true, minimumSize: minimumSale.toString(), holdTokens: true});
+    await dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, {feeAlice: feeAlice, feeBob: feeBob, smallestChunkSize: smallestChunkSize.toString(), deadline: deadline, cancelEnabled: true, modifyEnabled: false, minimumSize: minimumSale.toString(), holdTokens: true});
 
     // Ensure the offer is active
     let offer = await dex.getOffer(0);
@@ -1096,7 +1096,7 @@ contract("MarsBaseExchange", async function () {
     const deadline = 0;
 
     // Create the offer
-    await dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, {feeAlice: feeAlice, feeBob: feeBob, smallestChunkSize: smallestChunkSize.toString(), deadline: deadline, cancelEnabled: true, modifyEnabled: true, minimumSize: minimumSale.toString(), holdTokens: true});
+    await dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, {feeAlice: feeAlice, feeBob: feeBob, smallestChunkSize: smallestChunkSize.toString(), deadline: deadline, cancelEnabled: true, modifyEnabled: false, minimumSize: minimumSale.toString(), holdTokens: true});
 
     // Ensure the offer is active
     let offer = await dex.getOffer(0);
@@ -1139,7 +1139,7 @@ contract("MarsBaseExchange", async function () {
     const deadline = 0;
 
     // Create the offer
-    await dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, {feeAlice: feeAlice, feeBob: feeBob, smallestChunkSize: smallestChunkSize, deadline: deadline, cancelEnabled: true, modifyEnabled: true, minimumSize: minimumSale.toString(), holdTokens: true});
+    await dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, {feeAlice: feeAlice, feeBob: feeBob, smallestChunkSize: smallestChunkSize, deadline: deadline, cancelEnabled: true, modifyEnabled: false, minimumSize: minimumSale.toString(), holdTokens: true});
 
     // Ensure the offer is active
     let offer = await dex.getOffer(0);
@@ -1195,7 +1195,7 @@ contract("MarsBaseExchange", async function () {
     const deadline = 0;
 
     // Create the offer
-    await dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, {feeAlice: feeAlice, feeBob: feeBob, smallestChunkSize: smallestChunkSize.toString(), deadline: deadline, cancelEnabled: true, modifyEnabled: true, minimumSize: minimumSale.toString(), holdTokens: true});
+    await dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, {feeAlice: feeAlice, feeBob: feeBob, smallestChunkSize: smallestChunkSize.toString(), deadline: deadline, cancelEnabled: true, modifyEnabled: false, minimumSize: minimumSale.toString(), holdTokens: true});
 
     // Ensure the offer is active
     let offer = await dex.getOffer(0);

@@ -35,7 +35,7 @@ describe("MAR-1110", () =>
 
         let tx = await dex.connect(alice).createOffer(bat.address, [usdt.address], batAmount, [usdtAmount], {
             cancelEnabled: true,
-            modifyEnabled: true,
+            modifyEnabled: false,
             holdTokens: true,
             feeAlice: 5,
             feeBob: 5,

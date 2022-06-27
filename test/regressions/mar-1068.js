@@ -31,7 +31,7 @@ describe("MAR-1068", () =>
         // console.log(97)
         let tx = dex.connect(alice).createOffer(ETH, [usdt.address], ethAmount, [usdtAmount], {
             cancelEnabled: true,
-            modifyEnabled: true,
+            modifyEnabled: false,
             holdTokens: true,
             feeAlice: 5,
             feeBob: 5,
@@ -65,7 +65,7 @@ describe("MAR-1068", () =>
         // console.log(97)
         let tx = dex.connect(alice).createOffer(ETH, [usdt.address], ethAmount, [usdtAmount], {
             cancelEnabled: true,
-            modifyEnabled: true,
+            modifyEnabled: false,
             holdTokens: true,
             feeAlice: 5,
             feeBob: 5,

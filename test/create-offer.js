@@ -1,5 +1,5 @@
 const sensibleOfferDefaults = () => ({
-	modifyEnabled: true,
+	modifyEnabled: false,
 	cancelEnabled: true,
 	holdTokens: false,
 	feeAlice: "5",

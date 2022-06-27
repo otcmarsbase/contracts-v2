@@ -31,7 +31,7 @@ describe("MAR-842", () =>
         // console.log(97)
         let tx = await dex.connect(alice).createOffer(ETH, [usdt.address], ethAmount, [usdtAmount], {
             cancelEnabled: true,
-            modifyEnabled: true,
+            modifyEnabled: false,
             holdTokens: true,
             feeAlice: 5,
             feeBob: 5,
@@ -80,7 +80,7 @@ describe("MAR-842", () =>
         await usdt.connect(bob).approve(dex.address, usdtAmount)
 		let tx = await dex.connect(bob).createOffer(usdt.address, [ETH], usdtAmount, [ethAmount], {
             cancelEnabled: true,
-            modifyEnabled: true,
+            modifyEnabled: false,
             holdTokens: true,
             feeAlice: 5,
             feeBob: 5,
@@ -119,7 +119,7 @@ describe("MAR-842", () =>
         await usdt.connect(bob).approve(dex.address, usdtAmount)
 		let tx = await dex.connect(bob).createOffer(usdt.address, [ETH], usdtAmount, [ethAmount], {
             cancelEnabled: true,
-            modifyEnabled: true,
+            modifyEnabled: false,
             holdTokens: true,
             feeAlice: 5,
             feeBob: 5,

@@ -81,7 +81,7 @@ describe("MAR-1125", () =>
 
 		let txCreate = await dex.connect(alice).createOffer(ETH, [usdt.address], "200000000000000000", ["62232606000000000000"], {
             cancelEnabled: true,
-            modifyEnabled: true,
+            modifyEnabled: false,
             holdTokens: false,
             feeAlice: "5",
             feeBob: "5",
