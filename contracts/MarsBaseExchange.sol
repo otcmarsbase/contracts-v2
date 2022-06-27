@@ -232,8 +232,8 @@ contract MarsBaseExchange is IMarsbaseExchange
 		require(!offerParameters.holdTokens, "NI - holdTokens");
 		// require(offerParameters.feeAlice == 0, "NI - feeAlice");
 		// require(offerParameters.feeBob == 0, "NI - feeBob");
-		require(offerParameters.smallestChunkSize == 0, "NI - smallestChunkSize");
-		require(offerParameters.deadline == 0, "NI - deadline");
+		// require(offerParameters.smallestChunkSize == 0, "NI - smallestChunkSize");
+		// require(offerParameters.deadline == 0, "NI - deadline");
 		require(offerParameters.minimumSize == 0, "NI - minimumSize");
 		
 		require(tokenAlice != address(0), "NI - tokenAlice");
@@ -241,6 +241,10 @@ contract MarsBaseExchange is IMarsbaseExchange
 
 		require(tokenBob.length > 0, "NI - tokenBob");
 		require(amountBob.length == tokenBob.length, "400-BLMM"); // Bob Length MisMatch
+		for (uint256 i = 0; i < tokenBob.length; i++)
+		{
+			require(tokenBob[i] != address(0), "NI - tokenBob ETH");
+		}
 
 		// create offer object
 		uint256 offerId = nextOfferId++;
@@ -344,8 +348,8 @@ contract MarsBaseExchange is IMarsbaseExchange
 		// check that amountAlice is not too high
 		require(amountAlice <= offer.amountRemaining, "400-AAH"); // Amount Alice is too High
 
-		// check that amountAlice is not too low
-		require(amountAlice > 0, "400-AAL");
+		// check that amountAlice is not too low (0 is also okay)
+		require(amountAlice >= offer.smallestChunkSize, "400-AAL");
 
 		// update offer
 		offers[offerId].amountRemaining -= amountAlice;
@@ -397,13 +401,109 @@ contract MarsBaseExchange is IMarsbaseExchange
 
 		destroyOffer(offerId, MarsBaseCommon.OfferCloseReason.CancelledBySeller);
 	}
+	function closeExpiredOffer(uint256 offerId) unlocked public
+	{
+		MarsBaseCommon.MBOffer memory offer = offers[offerId];
+		require(offer.active, "404");
+
+		// require offer to be expired
+		require((offer.deadline > 0) && (offer.deadline < block.timestamp), "400-NE"); // Not Expired
+		
+		// if minimum covered
+		// uint256 amountSold = offer.amountAlice - offer.amountRemaining;
+		// bool minimumCovered = amountSold >= offer.minimumSize;
+		// bool minimumCovered = (offer.amountAlice - offer.amountRemaining) >= offer.minimumSize;
+		if ((offer.amountAlice - offer.amountRemaining) < offer.minimumSize)
+		{
+			destroyOffer(offerId, MarsBaseCommon.OfferCloseReason.DeadlinePassed);
+			return;
+		}
+
+		// if any tokens are still held in the offer
+		if (offer.minimumOrderTokens.length > 0)
+		{
+			// trade all remaining tokens
+			for (uint256 i = 0; i < offer.minimumOrderTokens.length; i++)
+			{
+				// address tokenBob = offer.minimumOrderTokens[i];
+				// uint256 amountBob = offer.minimumOrderAmountsBob[i];
+				// uint256 amountAlice = offer.minimumOrderAmountsAlice[i];
+
+				require(offer.minimumOrderAmountsAlice[i] > 0, "500-AAL"); // Amount Alice is too Low
+
+				offer.amountRemaining -= offer.minimumOrderAmountsAlice[i];
+				require(offer.amountRemaining >= 0, "500-AR"); // Amount Remaining
+				
+				// just to future-proof double entry protection in case of refactoring
+				offers[offerId].minimumOrderAmountsAlice[i] = 0;
+
+				// send Bob tokens to Alice
+				(uint256 bobSentToAlice, uint256 feeBobDeducted) = sendTokensAfterFeeFrom(
+					// address token,
+					offer.minimumOrderTokens[i],
+					// uint256 amount,
+					offer.minimumOrderAmountsBob[i],
+					// address from,
+					address(this),
+					// address to,
+					offer.offerer,
+					// uint256 feePercent
+					offer.feeBob
+				);
+				// send Alice tokens to Bob
+				(uint256 aliceSentToBob, uint256 feeAliceDeducted) = sendTokensAfterFeeFrom(
+					// address token,
+					offer.tokenAlice,
+					// uint256 amount,
+					offer.minimumOrderAmountsAlice[i],
+					// address from,
+					address(this),
+					// address to,
+					offer.minimumOrderAddresses[i],
+					// uint256 feePercent
+					offer.feeAlice
+				);
+
+				// emit event
+				emit OfferAccepted(
+					// uint256 offerId,
+					offerId,
+					// address sender,
+					msg.sender,
+					// uint256 blockTimestamp,
+					block.timestamp,
+					// uint256 amountAliceReceived,
+					aliceSentToBob,
+					// uint256 amountBobReceived,
+					bobSentToAlice,
+					// address tokenAddressAlice,
+					offer.tokenAlice,
+					// address tokenAddressBob,
+					offer.minimumOrderTokens[i],
+					// MarsBaseCommon.OfferType offerType,
+					offer.offerType,
+					// uint256 feeAlice,
+					feeAliceDeducted,
+					// uint256 feeBob
+					feeBobDeducted
+				);
+			}
+			// drop used arrays
+			offers[offerId].minimumOrderAmountsAlice = new uint256[](0);
+			offers[offerId].minimumOrderAmountsBob = new uint256[](0);
+			offers[offerId].minimumOrderAddresses = new address[](0);
+			offers[offerId].minimumOrderTokens = new address[](0);
+		}
+
+		destroyOffer(offerId, MarsBaseCommon.OfferCloseReason.Success);
+	}
 	function destroyOffer(uint256 offerId, MarsBaseCommon.OfferCloseReason reason) private
 	{
 		MarsBaseCommon.MBOffer memory offer = offers[offerId];
 
 		require(offer.active, "404");
 
-		require(offer.minimumSize == 0, "NI - offer.minimumSize");
+		// require(offer.minimumSize == 0, "NI - offer.minimumSize");
 
 		// is this excessive for double-entry prevention?
 		offers[offerId].active = false;
@@ -412,7 +512,15 @@ contract MarsBaseExchange is IMarsbaseExchange
 		if (offer.amountRemaining > 0)
 			IERC20(offer.tokenAlice).transfer(offer.offerer, offer.amountRemaining);
 
-		// TODO: return all locked Bob tokens to Bobs
+		// if any tokens are still held in the offer
+		if (offer.minimumOrderTokens.length > 0)
+		{
+			// revert all tokens to their owners
+			for (uint256 i = 0; i < offer.minimumOrderTokens.length; i++)
+			{
+				IERC20(offer.minimumOrderTokens[i]).transfer(offer.minimumOrderAddresses[i], offer.minimumOrderAmountsBob[i]);
+			}
+		}
 
 		delete offers[offerId];
 		
