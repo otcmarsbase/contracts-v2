@@ -346,7 +346,20 @@ contract MarsBaseExchange is IMarsbaseExchange
 		uint256 amountAlice = price(amountBob, offerAmountBob, offer.amountAlice);
 
 		// check that amountAlice is not too high
-		require(amountAlice <= offer.amountRemaining, "400-AAH"); // Amount Alice is too High
+		// require(amountAlice <= offer.amountRemaining, "400-AAH"); // Amount Alice is too High
+		// we don't throw here so it's possible to "overspend"
+		// e.g.:
+		// swap 100 $ALICE to 33 $BOB
+		// 1 $BOB = 3.333 $ALICE (rounded to 3 due to integer arithmetics)
+		// minbid is 11 $BOB
+		// Bob buys 33 $ALICE for 11 $BOB (67 $ALICE remaining)
+		// Charlie buys 33 $ALICE for 11 $BOB (34 $ALICE remaining)
+		// David wants to buy all 34 $ALICE, but:
+		// if he tries to send 11 $BOB he will receive only 33 $ALICE
+		// if he tries to send 12 $BOB, amountAlice will be 36 $ALICE and tx will revert
+		// so we need to let David send a little more $BOB than the limit
+		if (amountAlice > offer.amountRemaining)
+			amountAlice = offer.amountRemaining;
 
 		// check that amountAlice is not too low (0 is also okay)
 		require(amountAlice >= offer.smallestChunkSize, "400-AAL");
