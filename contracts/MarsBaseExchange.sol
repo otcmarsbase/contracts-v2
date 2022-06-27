@@ -354,37 +354,11 @@ contract MarsBaseExchange is IMarsbaseExchange
 		// update offer
 		offers[offerId].amountRemaining -= amountAlice;
 
-		{ // split to block to prevent solidity stack issues
-			// send tokens to participants or schedule for sending later
-			// (now we only implement instant send)
-			// send Bob tokens to Alice
-			(uint256 bobSentToAlice, uint256 feeBobDeducted) = sendTokensAfterFeeFrom(tokenBob, amountBob, msg.sender, offer.offerer, offer.feeBob);
-			// send Alice tokens to Bob
-			(uint256 aliceSentToBob, uint256 feeAliceDeducted) = sendTokensAfterFeeFrom(offer.tokenAlice, amountAlice, address(this), msg.sender, offer.feeAlice);
-
-			// emit event
-			emit OfferAccepted(
-				// uint256 offerId,
-				offerId,
-				// address sender,
-				msg.sender,
-				// uint256 blockTimestamp,
-				block.timestamp,
-				// uint256 amountAliceReceived,
-				aliceSentToBob,
-				// uint256 amountBobReceived,
-				bobSentToAlice,
-				// address tokenAddressAlice,
-				offer.tokenAlice,
-				// address tokenAddressBob,
-				tokenBob,
-				// MarsBaseCommon.OfferType offerType,
-				offer.offerType,
-				// uint256 feeAlice,
-				feeAliceDeducted,
-				// uint256 feeBob
-				feeBobDeducted
-			);
+		// send tokens to participants or schedule for sending later
+		bool holdTokens = offer.capabilities[2];
+		if (!holdTokens)
+		{
+			_swapInstantTokens(offer, tokenBob, amountBob, amountAlice);
 		}
 
 		if (offers[offerId].amountRemaining == 0)
@@ -400,6 +374,64 @@ contract MarsBaseExchange is IMarsbaseExchange
 		require(offer.offerer == msg.sender, "403");
 
 		_destroyOffer(offerId, MarsBaseCommon.OfferCloseReason.CancelledBySeller);
+	}
+	function _swapInstantTokens(
+		MarsBaseCommon.MBOffer memory offer,
+		address tokenBob,
+		uint256 amountBob,
+		uint256 amountAlice
+	) private
+	{
+		// send Bob tokens to Alice
+		(uint256 bobSentToAlice, uint256 feeBobDeducted) = sendTokensAfterFeeFrom(
+			// address token,
+			tokenBob,
+			// uint256 amount,
+			amountBob,
+			// address from,
+			msg.sender,
+			// address to,
+			offer.offerer,
+			// uint256 feePercent
+			offer.feeBob
+		);
+		// send Alice tokens to Bob
+		(uint256 aliceSentToBob, uint256 feeAliceDeducted) = sendTokensAfterFeeFrom(
+			// address token,
+			offer.tokenAlice,
+			// uint256 amount,
+			amountAlice,
+			// address from,
+			address(this),
+			// address to,
+			msg.sender,
+			// uint256 feePercent
+			offer.feeAlice
+		);
+
+		// emit event
+		emit OfferAccepted(
+			// uint256 offerId,
+			offer.offerId,
+			// address sender,
+			msg.sender,
+			// uint256 blockTimestamp,
+			block.timestamp,
+			// uint256 amountAliceReceived,
+			aliceSentToBob,
+			// uint256 amountBobReceived,
+			bobSentToAlice,
+			// address tokenAddressAlice,
+			offer.tokenAlice,
+			// address tokenAddressBob,
+			tokenBob,
+			// MarsBaseCommon.OfferType offerType,
+			offer.offerType,
+			// uint256 feeAlice,
+			feeAliceDeducted,
+			// uint256 feeBob
+			feeBobDeducted
+		);
 	}
 	function _swapAllHeldTokens(MarsBaseCommon.MBOffer memory offer) private
 	{
