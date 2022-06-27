@@ -2,6 +2,7 @@ const assert = require('assert/strict');
 const { default: BigNumber } = require('bignumber.js');
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
+const { prepareJustContracts } = require("./utils")
 
 /*
  * uncomment accounts to access the test accounts made available by the
@@ -13,16 +14,7 @@ contract("MarsBaseExchange", async function () {
   beforeEach(async function() {
     const accounts = await ethers.getSigners();
     
-    const MarsBase = await await ethers.getContractFactory("MarsBase");
-    m = await MarsBase.deploy();
-
-    const MarsBaseExchange = await ethers.getContractFactory("MarsBaseExchange", {
-    //   libraries: {
-    //     MarsBase: m.address
-    //   }
-    });
-
-    dex = await MarsBaseExchange.deploy();
+	({m, dex} = await prepareJustContracts());
 
     const USDTCoin = await ethers.getContractFactory("TetherToken");
     const TestToken = await ethers.getContractFactory("TestToken");

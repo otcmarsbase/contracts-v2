@@ -2,6 +2,7 @@ const assert = require ('assert/strict')
 const BigNumber = require ('bignumber.js')
 const { expect } = require ("chai")
 const { ethers } = require ("hardhat")
+const { prepareJustContracts } = require('../utils')
 
 const ETH = "0x0000000000000000000000000000000000000000"
 
@@ -13,15 +14,7 @@ describe("MAR-975", () =>
     {
         const [owner, alice, bob] = await ethers.getSigners()
 
-        const MarsBase = await ethers.getContractFactory("MarsBase")
-        const m = await MarsBase.deploy()
-
-        const MarsBaseExchange = await ethers.getContractFactory("MarsBaseExchange", {
-            // libraries: {
-            //     MarsBase: m.address
-            // }
-        })
-        const dex = await MarsBaseExchange.deploy()
+        const { MarsBase, m, MarsBaseExchange, dex } = await prepareJustContracts()
 
         const USDT = await ethers.getContractFactory("USDT")
         const BAT = await ethers.getContractFactory("BAT18")

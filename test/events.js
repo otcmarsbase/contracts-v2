@@ -10,13 +10,36 @@ const checkEvent = (log, name, args, params = { exhaustive: true }) =>
 	{
 		let val = log.args[key]
 		let m = `[Event] ${name}.${key} != ${args[key]}`
-		if (ethers.BigNumber.isBigNumber(val))
+		if ((typeof val === "object") && ethers.BigNumber.isBigNumber(val))
 			expect(val.toString()).eq(args[key], m)
 		else
 			expect(val).eql(args[key], m)
 	}
 	if (params.exhaustive)
 		expect(excludeNumberKeys(Object.keys(log.args))).eql(Object.keys(args), "events keys are missing")
+}
+const checkEventExists = (logs, name, predicate, args, params) =>
+{
+	if (typeof predicate !== "function")
+	{
+		params = args
+		args = predicate
+		predicate = () => true
+	}
+	let idx = logs.findIndex(x => (x.name == name) && predicate(x.args))
+	expect(idx).gt(-1, `[Event] ${name} not found`)
+	let log = logs[idx]
+	expect(log, `event ${name} not found with ${predicate.toString()}`).not.undefined
+	checkEvent(log, name, args, params)
+	return idx
+}
+const checkEventDoesntExist = (logs, name, predicate) =>
+{
+	if (typeof predicate !== "function")
+		predicate = () => true
+	
+	let idx = logs.findIndex(x => (x.name == name) && predicate(x.args))
+	expect(idx).eq(-1, `[Event] ${name} found when it shouldn't exist ${predicate.toString()}`)
 }
 const erc20Abi = new ethers.utils.Interface(
 	[
@@ -50,6 +73,8 @@ const PUBLIC_ABIS = [
 
 module.exports = {
 	checkEvent,
+	checkEventExists,
+	checkEventDoesntExist,
 	tryParseLog,
 	PUBLIC_ABIS,
 }
