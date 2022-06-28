@@ -2,7 +2,8 @@ const assert = require ('assert/strict')
 const BigNumber = require ('bignumber.js')
 const { expect } = require ("chai")
 const { ethers } = require ("hardhat")
-const { prepareJustContracts } = require('../utils')
+const { checkEventExists } = require('../events')
+const { prepareEnvironment } = require("../utils")
 
 const ETH = "0x0000000000000000000000000000000000000000"
 
@@ -12,15 +13,7 @@ describe("MAR-773", () =>
 {
     it("should output an OfferAccepted event with the amount of tokens pucrhased for that bid", async () =>
     {
-        const [owner, alice, bob] = await ethers.getSigners()
-
-		const { MarsBase, m, MarsBaseExchange, dex } = await prepareJustContracts()
-
-        const USDT = await ethers.getContractFactory("USDT")
-        const BAT = await ethers.getContractFactory("BAT18")
-
-        const usdt = await USDT.deploy()
-        const bat = await BAT.deploy()
+        const { owner, alice, bob, usdt, bat, dex, parseLogs } = await prepareEnvironment()
         
         // console.log(99)
         
@@ -37,11 +30,11 @@ describe("MAR-773", () =>
             cancelEnabled: true,
             modifyEnabled: false,
             holdTokens: true,
-            feeAlice: 5,
-            feeBob: 5,
+            feeAlice: 0,
+            feeBob: 0,
             smallestChunkSize: "0",
             deadline: tomorrow(),
-            minimumSize: "1000000000000000000"
+            minimumSize: "10000000000000000"
         })
         // console.log(96)
         let receipt = await tx.wait()
@@ -56,8 +49,9 @@ describe("MAR-773", () =>
         tx = await dex.connect(bob).acceptOffer(id, usdt.address, "60000000000000000")
         
         receipt = await tx.wait()
-        let acceptedEvent = receipt.events.find(x => x.event == "OfferAccepted");
-
-        expect(acceptedEvent.args.amountAliceReceived).to.equal("60000000000000000");
+		
+		checkEventExists(parseLogs(receipt.logs), "OfferAccepted", {
+			amountAliceReceived: "60000000000000000"
+		}, { exhaustive: false })
     })
 });

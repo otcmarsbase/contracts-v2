@@ -2,7 +2,7 @@ const assert = require ('assert/strict')
 const BigNumber = require ('bignumber.js')
 const { expect } = require ("chai")
 const { ethers } = require ("hardhat")
-const { prepareJustContracts } = require('../utils')
+const { prepareEnvironment } = require("../utils")
 
 const ETH = "0x0000000000000000000000000000000000000000"
 
@@ -12,15 +12,7 @@ describe("MAR-1087", () =>
 {
     it("should not allow static offers to have bids placed after the deadline is passed", async () =>
     {
-        const [owner, alice, bob] = await ethers.getSigners()
-
-        const { MarsBase, m, MarsBaseExchange, dex } = await prepareJustContracts()
-
-        const USDT = await ethers.getContractFactory("USDT")
-        const BAT = await ethers.getContractFactory("BAT18")
-
-        const usdt = await USDT.deploy()
-        const bat = await BAT.deploy()
+        const { owner, alice, bob, usdt, bat, dex, parseLogs } = await prepareEnvironment()
         
         // console.log(99)
         
@@ -55,6 +47,6 @@ describe("MAR-1087", () =>
         await network.provider.send("evm_increaseTime", [3600]);
         await network.provider.send("evm_mine");
 
-        await expect(dex.connect(bob).acceptOffer(id, usdt.address, "60000000000000000")).to.be.revertedWith("M2")
+        await expect(dex.connect(bob).acceptOffer(id, usdt.address, "60000000000000000")).to.be.revertedWith("405-D")
     })
 });

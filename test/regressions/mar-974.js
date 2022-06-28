@@ -2,7 +2,7 @@ const assert = require ('assert/strict')
 const BigNumber = require ('bignumber.js')
 const { expect } = require ("chai")
 const { ethers } = require ("hardhat")
-const { prepareJustContracts } = require('../utils')
+const { prepareEnvironment } = require("../utils")
 
 const ETH = "0x0000000000000000000000000000000000000000"
 
@@ -12,18 +12,10 @@ describe("MAR-974", () =>
 {
     it("should send tokens to the commission wallet if no exchange contract is specified", async () =>
     {
-        const [owner, alice, bob, commission] = await ethers.getSigners()
-
-        const { MarsBase, m, MarsBaseExchange, dex } = await prepareJustContracts()
+        const { owner, alice, bob, charlie: commission, usdt, bat, dex, parseLogs } = await prepareEnvironment()
 
         let commissionTx = await dex.setCommissionAddress(commission.address);
         commissionTx.wait();
-
-        const USDT = await ethers.getContractFactory("USDT")
-        const BAT = await ethers.getContractFactory("BAT18")
-
-        const usdt = await USDT.deploy()
-        const bat = await BAT.deploy()
         
         // console.log(99)
         
@@ -39,7 +31,7 @@ describe("MAR-974", () =>
         let tx = await dex.connect(alice).createOffer(bat.address, [usdt.address], batAmount, [usdtAmount], {
             cancelEnabled: true,
             modifyEnabled: false,
-            holdTokens: true,
+            holdTokens: false,
             feeAlice: 5,
             feeBob: 5,
             smallestChunkSize: "10000",
@@ -61,8 +53,8 @@ describe("MAR-974", () =>
         receipt = await tx.wait()
         let acceptedEvent = receipt.events.find(x => x.event == "OfferAccepted");
 
-        expect(acceptedEvent.args.amountAliceReceived).to.equal("100000000000000000");
-        expect(acceptedEvent.args.amountBobReceived).to.equal("100000000000000000");
+        expect(acceptedEvent.args.amountAliceReceived).to.equal("99500000000000000");
+        expect(acceptedEvent.args.amountBobReceived).to.equal("99500000000000000");
         expect(acceptedEvent.args.tokenAddressAlice).to.equal(bat.address);
         expect(acceptedEvent.args.tokenAddressBob).to.equal(usdt.address);
 
@@ -74,18 +66,10 @@ describe("MAR-974", () =>
         expect(await usdt.balanceOf(commission.address)).to.equal("500000000000000");
     })
 
-    it("should not send tokens to the commission wallet if it's is specified", async () =>
+    it("should not send tokens to the commission wallet if it's not specified", async () =>
     {
-        const [owner, alice, bob, commission] = await ethers.getSigners()
-
-        const { MarsBase, m, MarsBaseExchange, dex } = await prepareJustContracts()
+        const { owner, alice, bob, charlie: commission, usdt, bat, dex, parseLogs } = await prepareEnvironment()
         await dex.setCommissionAddress(ETH);
-
-        const USDT = await ethers.getContractFactory("USDT")
-        const BAT = await ethers.getContractFactory("BAT18")
-
-        const usdt = await USDT.deploy()
-        const bat = await BAT.deploy()
         
         // console.log(99)
         
@@ -101,12 +85,12 @@ describe("MAR-974", () =>
         let tx = await dex.connect(alice).createOffer(bat.address, [usdt.address], batAmount, [usdtAmount], {
             cancelEnabled: true,
             modifyEnabled: false,
-            holdTokens: true,
+            holdTokens: false,
             feeAlice: 5,
             feeBob: 5,
             smallestChunkSize: "0",
             deadline: tomorrow(),
-            minimumSize: "1000000000000000000"
+            minimumSize: "1000000000000000"
         })
         // console.log(96)
         let receipt = await tx.wait()
@@ -132,14 +116,14 @@ describe("MAR-974", () =>
         
         await tx.wait();
 
-        expect(await usdt.balanceOf(alice.address)).to.equal("9950000000000000");
-        expect(await bat.balanceOf(bob.address)).to.equal("9950000000000000");
+        expect(await usdt.balanceOf(alice.address)).to.equal("10000000000000000");
+        expect(await bat.balanceOf(bob.address)).to.equal("10000000000000000");
 
         expect(await bat.balanceOf(alice.address)).to.equal("99990000000000000000");
 
         // Check commission
-        expect(await bat.balanceOf(dex.address)).to.equal("50000000000000");
-        expect(await usdt.balanceOf(dex.address)).to.equal("50000000000000");
+        expect(await bat.balanceOf(dex.address)).to.equal("0");
+        expect(await usdt.balanceOf(dex.address)).to.equal("0");
 
         // Should be empty
         expect(await bat.balanceOf(commission.address)).to.equal("0");
@@ -148,9 +132,7 @@ describe("MAR-974", () =>
 
     it("should exchange tokens to USDT if the commission wallet and exchange address is specified", async () =>
     {
-        const [owner, alice, bob, commission] = await ethers.getSigners()
-
-        const { MarsBase, m, MarsBaseExchange, dex } = await prepareJustContracts()
+        const { owner, alice, bob, charlie: commission, usdt, bat, dex, parseLogs } = await prepareEnvironment()
 
         let commissionTx = await dex.setCommissionAddress(commission.address);
         await commissionTx.wait();
@@ -160,12 +142,6 @@ describe("MAR-974", () =>
 
         let exchangeTx = await dex.setExchangerAddress(swap.address);
         await exchangeTx.wait();
-
-        const USDT = await ethers.getContractFactory("USDT")
-        const BAT = await ethers.getContractFactory("BAT18")
-
-        const usdt = await USDT.deploy()
-        const bat = await BAT.deploy()
         
         // console.log(99)
         

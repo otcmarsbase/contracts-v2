@@ -2,7 +2,7 @@ const assert = require ('assert/strict')
 const BigNumber = require ('bignumber.js')
 const { expect } = require ("chai")
 const { ethers } = require ("hardhat")
-const { prepareJustContracts } = require('../utils')
+const { prepareJustContracts } = require("../utils")
 
 const ETH = "0x0000000000000000000000000000000000000000"
 

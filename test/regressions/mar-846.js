@@ -2,7 +2,8 @@ const assert = require ('assert/strict')
 const BigNumber = require ('bignumber.js')
 const { expect } = require ("chai")
 const { ethers } = require ("hardhat")
-const { prepareJustContracts } = require('../utils')
+const { checkEvent, checkEventExists } = require('../events')
+const { prepareJustContracts, prepareEnvironment } = require('../utils')
 
 const ETH = "0x0000000000000000000000000000000000000000"
 
@@ -12,15 +13,7 @@ describe("MAR-846", () =>
 {
     it("should emit an OfferAccepted event with the proper parameters", async () =>
     {
-        const [owner, alice, bob] = await ethers.getSigners()
-
-        const { MarsBase, m, MarsBaseExchange, dex } = await prepareJustContracts()
-
-        const USDT = await ethers.getContractFactory("USDT")
-        const BAT = await ethers.getContractFactory("BAT18")
-
-        const usdt = await USDT.deploy()
-        const bat = await BAT.deploy()
+        const { owner, alice, bob, usdt, bat, dex, parseLogs } = await prepareEnvironment()
         
         // console.log(99)
         
@@ -36,12 +29,12 @@ describe("MAR-846", () =>
         let tx = await dex.connect(alice).createOffer(bat.address, [usdt.address], batAmount, [usdtAmount], {
             cancelEnabled: true,
             modifyEnabled: false,
-            holdTokens: true,
+            holdTokens: false,
             feeAlice: 5,
             feeBob: 5,
             smallestChunkSize: "0",
             deadline: tomorrow(),
-            minimumSize: "1000000000000000000"
+            minimumSize: "100000000000"
         })
         // console.log(96)
         let receipt = await tx.wait()
@@ -56,13 +49,14 @@ describe("MAR-846", () =>
         tx = await dex.connect(bob).acceptOffer(id, usdt.address, "60000000000000000")
         
         receipt = await tx.wait()
-        let acceptedEvent = receipt.events.find(x => x.event == "OfferAccepted");
 
-        expect(acceptedEvent.args.amountAliceReceived).to.equal("60000000000000000");
-        expect(acceptedEvent.args.amountBobReceived).to.equal("60000000000000000");
-        expect(acceptedEvent.args.feeAlice).to.equal("300000000000000");
-        expect(acceptedEvent.args.feeBob).to.equal("300000000000000");
-        expect(acceptedEvent.args.tokenAddressAlice).to.equal(bat.address);
-        expect(acceptedEvent.args.tokenAddressBob).to.equal(usdt.address);
+		checkEventExists(parseLogs(receipt.logs), "OfferAccepted", {
+			amountAliceReceived: "59700000000000000",
+			amountBobReceived: "59700000000000000",
+			feeAlice: "300000000000000",
+			feeBob: "300000000000000",
+			tokenAddressAlice: bat.address,
+			tokenAddressBob: usdt.address,
+		}, { exhaustive: false })
     })
-});
+})

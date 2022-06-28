@@ -30,7 +30,8 @@ const checkEventExists = (logs, name, predicate, args, params) =>
 	expect(idx).gt(-1, `[Event] ${name} not found`)
 	let log = logs[idx]
 	expect(log, `event ${name} not found with ${predicate.toString()}`).not.undefined
-	checkEvent(log, name, args, params)
+	if (typeof args !== "undefined")
+		checkEvent(log, name, args, params)
 	return idx
 }
 const checkEventDoesntExist = (logs, name, predicate) =>

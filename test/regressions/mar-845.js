@@ -2,25 +2,18 @@ const assert = require ('assert/strict')
 const BigNumber = require ('bignumber.js')
 const { expect } = require ("chai")
 const { ethers } = require ("hardhat")
-const { prepareJustContracts } = require('../utils')
+const { checkEventExists } = require('../events')
+const { prepareEnvironment } = require("../utils")
 
 const ETH = "0x0000000000000000000000000000000000000000"
 
 const tomorrow = (now = Date.now()) => Math.floor(now / 1000 + 86400)
 
-describe("MAR-845", () => 
+describe.skip("MAR-845", () => 
 {
 	it("should correctly close offer after 50% purchase", async () =>
 	{
-		const [owner, alice, bob] = await ethers.getSigners()
-
-		const { MarsBase, m, MarsBaseExchange, dex } = await prepareJustContracts()
-
-		const USDT = await ethers.getContractFactory("USDT")
-		const BAT = await ethers.getContractFactory("BAT18")
-
-		const usdt = await USDT.deploy()
-		const bat = await BAT.deploy()
+		const { owner, alice, bob, usdt, bat, dex, parseLogs } = await prepareEnvironment()
 
 		const batAmount = "100000000000000000000"
 		const usdtAmount = "12499991140624812000"
@@ -42,7 +35,7 @@ describe("MAR-845", () =>
 		let receipt = await tx.wait()
 		// console.log(receipt.events)
 		let id = receipt.events.find(x => x.event == "OfferCreated").args[0]
-		console.log(`id: ${id}`)
+		// console.log(`id: ${id}`)
 
 		await usdt.connect(bob).approve(dex.address, usdtAmount)
 		await dex.connect(bob).acceptOffer(id, usdt.address, "6249991140619999000")
@@ -127,15 +120,7 @@ describe("MAR-845", () =>
 	})
 	it("should correctly calculate with round prices", async () =>
 	{
-		const [owner, alice, bob] = await ethers.getSigners()
-
-		const { MarsBase, m, MarsBaseExchange, dex } = await prepareJustContracts()
-
-		const USDT = await ethers.getContractFactory("USDT")
-		const BAT = await ethers.getContractFactory("BAT18")
-
-		const usdt = await USDT.deploy()
-		const bat = await BAT.deploy()
+		const { owner, alice, bob, usdt, bat, dex, parseLogs } = await prepareEnvironment()
 		
 		// console.log(99)
 		
@@ -172,8 +157,8 @@ describe("MAR-845", () =>
 		tx = await dex.connect(bob).acceptOffer(id, usdt.address, "150000000000000000000")
 		
 		receipt = await tx.wait()
-		let closedEvent = receipt.events.find(x => x.event == "OfferClosed")
-		expect(closedEvent).to.not.be.undefined
+		
+		checkEventExists(parseLogs(receipt.logs), "OfferClosed")
 
 		let [offer] = await dex.getAllOffers()
 		expect(offer.amountRemaining).to.equal(0)
@@ -185,15 +170,7 @@ describe("MAR-845", () =>
 	})
 	it("should correctly calculate with round prices and small delta remaining", async () =>
 	{
-		const [owner, alice, bob] = await ethers.getSigners()
-
-		const { MarsBase, m, MarsBaseExchange, dex } = await prepareJustContracts()
-
-		const USDT = await ethers.getContractFactory("USDT")
-		const BAT = await ethers.getContractFactory("BAT18")
-
-		const usdt = await USDT.deploy()
-		const bat = await BAT.deploy()
+		const { owner, alice, bob, usdt, bat, dex, parseLogs } = await prepareEnvironment()
 		
 		// console.log(99)
 		
@@ -238,21 +215,11 @@ describe("MAR-845", () =>
 		expect(await bat.balanceOf(alice.address)).to.equal("1")
 		expect(offer.active).false
 
-		let closedEvent = receipt.events.find(x => x.event == "OfferClosed")
-		expect(closedEvent).to.not.be.undefined
+		checkEventExists(parseLogs(receipt.logs), "OfferClosed")
 	})
 	it("should correctly calculate with round prices and small delta remaining and 0 fee", async () =>
 	{
-		const [owner, alice, bob] = await ethers.getSigners()
-
-		const { MarsBase, m, MarsBaseExchange, dex } = await prepareJustContracts()
-		await dex.setMinimumFee(0)
-
-		const USDT = await ethers.getContractFactory("USDT")
-		const BAT = await ethers.getContractFactory("BAT18")
-
-		const usdt = await USDT.deploy()
-		const bat = await BAT.deploy()
+		const { owner, alice, bob, usdt, bat, dex, parseLogs } = await prepareEnvironment()
 		
 		// console.log(99)
 		
@@ -302,16 +269,7 @@ describe("MAR-845", () =>
 	})
 	it("should correctly calculate with super small round prices and big delta remaining and 0 fee", async () =>
 	{
-		const [owner, alice, bob] = await ethers.getSigners()
-
-		const { MarsBase, m, MarsBaseExchange, dex } = await prepareJustContracts()
-		await dex.setMinimumFee(0)
-
-		const USDT = await ethers.getContractFactory("USDT")
-		const BAT = await ethers.getContractFactory("BAT18")
-
-		const usdt = await USDT.deploy()
-		const bat = await BAT.deploy()
+		const { owner, alice, bob, usdt, bat, dex, parseLogs } = await prepareEnvironment()
 		
 		// console.log(99)
 		
@@ -327,7 +285,7 @@ describe("MAR-845", () =>
 		let tx = await dex.connect(alice).createOffer(bat.address, [usdt.address], batAmount, [usdtAmount], {
 			cancelEnabled: true,
 			modifyEnabled: false,
-			holdTokens: true,
+			holdTokens: false,
 			feeAlice: 0,
 			feeBob: 0,
 			smallestChunkSize: "1",
@@ -360,16 +318,7 @@ describe("MAR-845", () =>
 	})
 	it("should correctly close and calculate with small round prices and small delta remaining and 0 fee", async () =>
 	{
-		const [owner, alice, bob] = await ethers.getSigners()
-
-		const { MarsBase, m, MarsBaseExchange, dex } = await prepareJustContracts()
-		await dex.setMinimumFee(0)
-
-		const USDT = await ethers.getContractFactory("USDT")
-		const BAT = await ethers.getContractFactory("BAT18")
-
-		const usdt = await USDT.deploy()
-		const bat = await BAT.deploy()
+		const { owner, alice, bob, usdt, bat, dex, parseLogs } = await prepareEnvironment()
 		
 		// console.log(99)
 		

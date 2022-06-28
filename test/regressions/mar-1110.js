@@ -2,7 +2,7 @@ const assert = require ('assert/strict')
 const BigNumber = require ('bignumber.js')
 const { expect } = require ("chai")
 const { ethers } = require ("hardhat")
-const { prepareJustContracts } = require('../utils')
+const { prepareEnvironment } = require("../utils")
 
 const ETH = "0x0000000000000000000000000000000000000000"
 
@@ -12,15 +12,7 @@ describe("MAR-1110", () =>
 {
     it("should allow a part dynamic offer with token Alice as ETH to be bought 100% immediately, even with rounding issues", async () =>
     {
-        const [owner, alice, bob] = await ethers.getSigners()
-
-        const { MarsBase, m, MarsBaseExchange, dex } = await prepareJustContracts()
-
-        const USDT = await ethers.getContractFactory("USDT")
-        const BAT = await ethers.getContractFactory("BAT18")
-
-        const usdt = await USDT.deploy()
-        const bat = await BAT.deploy()
+        const { owner, alice, bob, usdt, bat, dex, parseLogs } = await prepareEnvironment()
         
         // console.log(99)
         
