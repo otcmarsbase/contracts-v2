@@ -157,13 +157,13 @@ contract MarsBaseExchange is IMarsbaseExchange
 		if (feePercent == 0)
 			return (amountBeforeFee, 0);
 
-		if (feePercent >= 1e4)
+		if (feePercent >= 1e3)
 			return (0, amountBeforeFee);
 
 		if (amountBeforeFee < MAX_SAFE_TARGET_AMOUNT)
-			fee = (amountBeforeFee * feePercent) / 1e4;
+			fee = (amountBeforeFee * feePercent) / 1e3;
 		else
-			fee = (amountBeforeFee / 1e4) * feePercent;
+			fee = (amountBeforeFee / 1e3) * feePercent;
 
 		amountAfterFee = amountBeforeFee - fee;
 		return (amountAfterFee, fee);
