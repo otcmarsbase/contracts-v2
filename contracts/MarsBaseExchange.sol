@@ -325,7 +325,7 @@ contract MarsBaseExchange is IMarsbaseExchange
 
 		// check that deadline has not passed
 		if (offer.deadline > 0)
-			require(offer.deadline < block.timestamp, "405-D"); // deadline has passed
+			require(offer.deadline >= block.timestamp, "405-D"); // deadline has passed
 
 		// check that tokenBob is accepted in the offer
 		uint256 offerAmountBob = 0;
