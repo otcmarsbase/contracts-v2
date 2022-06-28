@@ -28,6 +28,7 @@ contract MarsBaseExchange is IMarsbaseExchange
 
     constructor() {
 		owner = msg.sender;
+		commissionWallet = msg.sender;
     }
 
 	// onlyOwner modifier
