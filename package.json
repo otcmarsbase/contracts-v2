@@ -31,7 +31,6 @@
 		"hardhat-gas-reporter": "^1.0.8",
 		"solc-0.8": "npm:solc@^0.8.12",
 		"solidity-docgen": "^0.5.16",
-		"truffle": "^5.4.23",
 		"typechain": "^8.0.0",
 		"web3": "^1.7.0"
 	},
