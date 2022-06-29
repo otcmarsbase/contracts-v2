@@ -7,6 +7,8 @@ import "./IMarsbaseExchange.sol";
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
+// import "hardhat/console.sol";
+
 /// @title MarsBaseExchange
 /// @author dOTC Marsbase
 /// @notice This contract contains the public facing elements of the marsbase exchange. 
@@ -367,7 +369,7 @@ contract MarsBaseExchange is IMarsbaseExchange
 
 		// update offer
 		offers[offerId].amountRemaining -= amountAlice;
-
+		
 		offer = offers[offerId];
 
 		// send tokens to participants or schedule for sending later
