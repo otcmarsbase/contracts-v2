@@ -306,6 +306,32 @@ export interface MarsBaseExchange extends BaseContract {
 
     migrateContract(): PayableTransactionObject<void>;
 
+    minimumCovered(
+      offer: [
+        boolean,
+        boolean,
+        number | string | BN,
+        number | string | BN,
+        number | string | BN,
+        number | string | BN,
+        number | string | BN,
+        number | string | BN,
+        number | string | BN,
+        number | string | BN,
+        number | string | BN,
+        string,
+        string,
+        string,
+        boolean[],
+        (number | string | BN)[],
+        (number | string | BN)[],
+        (number | string | BN)[],
+        string[],
+        string[],
+        string[]
+      ]
+    ): NonPayableTransactionObject<boolean>;
+
     offers(arg0: number | string | BN): NonPayableTransactionObject<{
       active: boolean;
       minimumMet: boolean;

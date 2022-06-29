@@ -277,6 +277,8 @@ contract MarsBaseExchange is IMarsbaseExchange
 			tokenBob
 		);
 
+		// console.log(amountAlice);
+
 		// take tokens from alice
 		require(IERC20(tokenAlice).transferFrom(msg.sender, address(this), amountAlice), "402");
 
@@ -364,7 +366,7 @@ contract MarsBaseExchange is IMarsbaseExchange
 		if (amountAlice > offer.amountRemaining)
 			amountAlice = offer.amountRemaining;
 
-		// check that amountAlice is not too low (0 is also okay)
+		// check that amountAlice is not too low (if smallestChunkSize is 0 it's also okay)
 		require(amountAlice >= offer.smallestChunkSize, "400-AAL");
 
 		// update offer
@@ -392,12 +394,20 @@ contract MarsBaseExchange is IMarsbaseExchange
 			_destroyOffer(offerId, MarsBaseCommon.OfferCloseReason.Success);
 		}
 	}
+	function minimumCovered(MarsBaseCommon.MBOffer memory offer) pure public returns (bool result)
+	{
+		uint256 amountSold = offer.amountAlice - offer.amountRemaining;
+		result = amountSold >= offer.minimumSize;
+	}
 	function cancelOffer(uint256 offerId) unlocked public
 	{
 		MarsBaseCommon.MBOffer memory offer = offers[offerId];
 		require(offer.active, "404");
 		require(offer.capabilities[1], "400-CE");
 		require(offer.offerer == msg.sender, "403");
+
+		if (minimumCovered(offer))
+			_swapAllHeldTokens(offer);
 
 		_destroyOffer(offerId, MarsBaseCommon.OfferCloseReason.CancelledBySeller);
 	}
@@ -640,6 +650,7 @@ contract MarsBaseExchange is IMarsbaseExchange
 			for (uint256 i = 0; i < offer.minimumOrderTokens.length; i++)
 			{
 				IERC20(offer.minimumOrderTokens[i]).transfer(offer.minimumOrderAddresses[i], offer.minimumOrderAmountsBob[i]);
+				IERC20(offer.tokenAlice).transfer(offer.offerer, offer.minimumOrderAmountsAlice[i]);
 			}
 		}
 
