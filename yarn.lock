@@ -1020,6 +1020,14 @@
     strip-ansi "^4.0.0"
     strip-indent "^2.0.0"
 
+"@typechain/ethers-v5@^10.1.0":
+  version "10.1.0"
+  resolved "https://registry.yarnpkg.com/@typechain/ethers-v5/-/ethers-v5-10.1.0.tgz#068d7dc7014502354696dab59590a7841091e951"
+  integrity sha512-3LIb+eUpV3mNCrjUKT5oqp8PBsZYSnVrkfk6pY/ZM0boRs2mKxjFZ7bktx42vfDye8PPz3NxtW4DL5NsNsFqlg==
+  dependencies:
+    lodash "^4.17.15"
+    ts-essentials "^7.0.1"
+
 "@typechain/ethers-v5@^2.0.0":
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/@typechain/ethers-v5/-/ethers-v5-2.0.0.tgz#cd3ca1590240d587ca301f4c029b67bfccd08810"
@@ -1027,25 +1035,18 @@
   dependencies:
     ethers "^5.0.2"
 
-"@typechain/ethers-v5@^9.0.0":
-  version "9.0.0"
-  resolved "https://registry.yarnpkg.com/@typechain/ethers-v5/-/ethers-v5-9.0.0.tgz#6aa93bea7425c0463bd8a61eea3643540ef851bd"
-  integrity sha512-bAanuPl1L2itaUdMvor/QvwnIH+TM/CmG00q17Ilv3ZZMeJ2j8HcarhgJUZ9pBY1teBb85P8cC03dz3mSSx+tQ==
-  dependencies:
-    lodash "^4.17.15"
-    ts-essentials "^7.0.1"
-
-"@typechain/hardhat@^4.0.0":
-  version "4.0.0"
-  resolved "https://registry.yarnpkg.com/@typechain/hardhat/-/hardhat-4.0.0.tgz#976d4dcc0d9237602d722801d30adc573c529981"
-  integrity sha512-SeEKtiHu4Io3LHhE8VV3orJbsj7dwJZX8pzSTv7WQR38P18vOLm2M52GrykVinMpkLK0uVc88ICT58emvfn74w==
+"@typechain/hardhat@^6.1.2":
+  version "6.1.2"
+  resolved "https://registry.yarnpkg.com/@typechain/hardhat/-/hardhat-6.1.2.tgz#d3beccc6937d93f9b437616b741f839a8b953693"
+  integrity sha512-k4Ea3pVITKB2DH8p1a5U38cyy7KZPD04Spo4q5b4wO+n2mT+uAz5dxckPtbczn/Kk5wiFq+ZkuOtw5ZKFhL/+w==
   dependencies:
     fs-extra "^9.1.0"
+    lodash "^4.17.15"
 
-"@typechain/truffle-v5@^7.0.0":
-  version "7.0.0"
-  resolved "https://registry.yarnpkg.com/@typechain/truffle-v5/-/truffle-v5-7.0.0.tgz#f7ab68186de8b2ef0a3f932837f6380a6c481360"
-  integrity sha512-TeK3EjbWzRyvR7Ags6I05UmDnWDGOxZnfUkFEJf9e5bheipDqvaoMYThcw3AObVfYaC6VA6UdelwPRtK6BC8lg==
+"@typechain/truffle-v5@^8.0.1":
+  version "8.0.1"
+  resolved "https://registry.yarnpkg.com/@typechain/truffle-v5/-/truffle-v5-8.0.1.tgz#41cf405cde54e63197eb35938a83e2d89e4c14bd"
+  integrity sha512-rCMoFhqebUijiWWraZgm/J3Zl8PDkTiSXFVJYQo26iBqJIco9FgZdqUoMUrilJR5zj5c8FlKBxOUxh0UJ5t3vA==
   dependencies:
     lodash "^4.17.15"
 
