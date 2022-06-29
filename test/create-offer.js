@@ -5,6 +5,7 @@ const sensibleOfferDefaults = () => ({
 	feeAlice: "5",
 	feeBob: "5",
 	minimumSize: "0",
+	smallestChunkSize: "0",
 	deadline: Math.floor((Date.now() / 1000) + 86400),
 })
 
