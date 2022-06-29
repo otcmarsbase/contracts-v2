@@ -8,12 +8,12 @@ async function prepareJustContracts()
 	const MarsBase = await ethers.getContractFactory("MarsBase")
 	const m = await MarsBase.deploy()
 
-	// const MarsBaseExchange = await ethers.getContractFactory("MarsBaseExchange")
-	const MarsBaseExchange = await ethers.getContractFactory("MarsBaseExchangeOld", {
-		libraries: {
-			MarsBase: m.address,
-		}
-	})
+	const MarsBaseExchange = await ethers.getContractFactory("MarsBaseExchange")
+	// const MarsBaseExchange = await ethers.getContractFactory("MarsBaseExchangeOld", {
+	// 	libraries: {
+	// 		MarsBase: m.address,
+	// 	}
+	// })
 	const dex = await MarsBaseExchange.deploy()
 	return {
 		MarsBase,
