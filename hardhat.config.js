@@ -21,14 +21,8 @@ require('@typechain/hardhat');
 require("hardhat-gas-reporter");
 require('hardhat-contract-sizer');
 
-async function lockContract(libraryAddress, exchangeAddress) {
-  const Library = await ethers.getContractFactory("MarsBase");
-  let library = Library.attach(libraryAddress);
-  const MarsBaseExchange = await ethers.getContractFactory("MarsBaseExchange", {
-		libraries: {
-			MarsBase: library.address
-		}
-	});
+async function lockContract(exchangeAddress) {
+  const MarsBaseExchange = await ethers.getContractFactory("MarsBaseExchange");
 
   const exchange = await MarsBaseExchange.attach(exchangeAddress);
 
@@ -40,15 +34,9 @@ async function lockContract(libraryAddress, exchangeAddress) {
   console.log("Commission disabled!");
 }
 
-async function configureNewContract(libraryAddress, exchangeAddress, nextOfferId) {
-  console.log(`configureNewContract\n\tlibraryAddress=${libraryAddress}\n\texchangeAddress=${exchangeAddress}\n\tnextOfferId=${nextOfferId}`)
-  const Library = await ethers.getContractFactory("MarsBase");
-  let library = Library.attach(libraryAddress);
-  const MarsBaseExchange = await ethers.getContractFactory("MarsBaseExchange", {
-		libraries: {
-			MarsBase: library.address
-		}
-	});
+async function configureNewContract(exchangeAddress, nextOfferId) {
+  console.log(`configureNewContract\n\texchangeAddress=${exchangeAddress}\n\tnextOfferId=${nextOfferId}`)
+  const MarsBaseExchange = await ethers.getContractFactory("MarsBaseExchange");
 
   const exchange = await MarsBaseExchange.attach(exchangeAddress);
 
@@ -61,14 +49,8 @@ async function configureNewContract(libraryAddress, exchangeAddress, nextOfferId
 }
 
 
-async function disableCommission(libraryAddress, exchangeAddress) {
-  const Library = await ethers.getContractFactory("MarsBase");
-  let library = Library.attach(libraryAddress);
-  const MarsBaseExchange = await ethers.getContractFactory("MarsBaseExchange", {
-		libraries: {
-			MarsBase: library.address
-		}
-	});
+async function disableCommission(exchangeAddress) {
+  const MarsBaseExchange = await ethers.getContractFactory("MarsBaseExchange");
 
   const exchange = await MarsBaseExchange.attach(exchangeAddress);
 
@@ -79,19 +61,12 @@ async function disableCommission(libraryAddress, exchangeAddress) {
 
   console.log("Commission disabled!");
 }
-async function setMinimumFee(libraryAddress, exchangeAddress, amountInTenthsOfPercent) {
-  console.log(`setMinimumFee\nlibrary = ${libraryAddress}\nexchangeAddress = ${exchangeAddress}\nfeeTenths = ${amountInTenthsOfPercent}`)
+async function setMinimumFee(exchangeAddress, amountInTenthsOfPercent) {
+  console.log(`setMinimumFee\nexchangeAddress = ${exchangeAddress}\nfeeTenths = ${amountInTenthsOfPercent}`)
 
-  expect(libraryAddress?.startsWith("0x"))
   expect(exchangeAddress?.startsWith("0x"))
 
-  const Library = await ethers.getContractFactory("MarsBase");
-  let library = Library.attach(libraryAddress);
-  const MarsBaseExchange = await ethers.getContractFactory("MarsBaseExchange", {
-		libraries: {
-			MarsBase: library.address
-		}
-	});
+  const MarsBaseExchange = await ethers.getContractFactory("MarsBaseExchange");
 
   const exchange = await MarsBaseExchange.attach(exchangeAddress);
 
@@ -105,7 +80,7 @@ async function setMinimumFee(libraryAddress, exchangeAddress, amountInTenthsOfPe
   console.log(`Fee set to ${fee}!`);
 }
 
-async function deployTestTokens(deployer, libraryAddress)
+async function deployTestTokens(deployer)
 {
   const LOOKS = await ethers.getContractFactory("LOOKS");
   const USDC = await ethers.getContractFactory("USDC");
@@ -139,25 +114,9 @@ async function sendTestTokensToAccount(tokenAddress, account, amount)
   return tx;
 }
 
-async function deployLibrary()
+async function deployExchange()
 {
-	const MarsBase = await ethers.getContractFactory("MarsBase")
-
-	console.log("Deploying Contract Library...")
-	let m = await MarsBase.deploy()
-	console.log(`Marsbase Library address: ${m.address}`)
-	return {
-		contract: m,
-		address: m.address,
-	}
-}
-async function deployExchange(libraryAddress)
-{
-	const MarsBaseExchange = await ethers.getContractFactory("MarsBaseExchange", {
-		libraries: {
-			MarsBase: libraryAddress
-		}
-	});
+	const MarsBaseExchange = await ethers.getContractFactory("MarsBaseExchange");
 
 	console.log("Deploying Exchange Contract...")
 	let dex = await MarsBaseExchange.deploy()
@@ -189,31 +148,27 @@ const printDeployerInfo = async (print = true) =>
 }
 
 task("lock-contract", "Lock a deployed contract")
-  .addParam("library", "Library Address")
   .addParam("exchange", "Exchange Address")
   .setAction(async (params) => {
-    await lockContract(params.library, params.exchange);
+    await lockContract(params.exchange);
   });
 
 task("set-next-offer-id", "Set Next Offer ID for new contract")
-  .addParam("library", "Library Address")
   .addParam("exchange", "Exchange Address")
   .addParam("nextofferid", "Next Offer ID")
   .setAction(async (params) => {
 	expect(typeof params.nextofferid == "string")
 	expect(parseInt(params.nextofferid) + "").equal(params.nextofferid)
-    await configureNewContract(params.library, params.exchange, params.nextofferid);
+    await configureNewContract(params.exchange, params.nextofferid);
   });
 
 task("disable-commission", "Disable the commission on the exchange contract")
-  .addParam("library", "Library Address")
   .addParam("exchange", "Exchange Address")
   .setAction(async (params) => {
-    await disableCommission(params.library, params.exchange);
+    await disableCommission(params.exchange);
   });
 
 task("set-minimum-fee", "Set minimum fee size on the MarsbaseExchange contract")
-  .addParam("library", "Marsbase library contract address")
   .addParam("exchange", "MarsbaseExchange contract address")
   .addParam("fee", "Fee in percent (e.g. '0.5%')")
   .setAction(async (params) => {
@@ -228,14 +183,12 @@ task("set-minimum-fee", "Set minimum fee size on the MarsbaseExchange contract")
 	expect(fee).lessThan(100)
 	let feeInTenths = (fee * 10).toFixed(0)
 
-    await setMinimumFee(params.library, params.exchange, feeInTenths);
+    await setMinimumFee(params.exchange, feeInTenths);
   });
 
 task("deploy-all", "Deploys both contracts").setAction(async () => {
 	const { printEthBalance, balance, getEthBalance } = await printDeployerInfo()
-	const { contract: library, address: libraryAddress } = await deployLibrary()
-	const { contract: exchange, address: exchangeAddress } = await deployExchange(libraryAddress)
-	await library.deployed()
+	const { contract: exchange, address: exchangeAddress } = await deployExchange()
 	await exchange.deployed()
 	await printEthBalance()
 	console.log(`gas spent: ${weiToEth(balance.sub(await getEthBalance()))}`)
@@ -258,23 +211,12 @@ task('send-test-tokens', 'Sends test tokens to account')
 
   });
 
-task("deploy-lib", "Deploys Marsbase Library contract").setAction(async () =>
-{
-	const { printEthBalance, balance, getEthBalance } = await printDeployerInfo()
-	const { contract: library, address: libraryAddress } = await deployLibrary()
-	await library.deployed()
-	await printEthBalance()
-	console.log(`gas spent: ${weiToEth(balance.sub(await getEthBalance()))}`)
-})
-
 task("deploy-exchange", "Deploys Marsbase Exchange contract")
-	.addParam("library", "Marsbase Library contract")
 	.setAction(async params =>
 	{
-		let libraryAddress = web3.utils.toChecksumAddress(params.library)
-		console.log("deploying exchange with library: " + libraryAddress)
+		console.log("deploying exchange")
 		const { printEthBalance, balance, getEthBalance } = await printDeployerInfo()
-		const { contract: exchange, address: exchangeAddress } = await deployExchange(libraryAddress)
+		const { contract: exchange, address: exchangeAddress } = await deployExchange()
 		await exchange.deployed()
 		await printEthBalance()
 		console.log(`gas spent: ${weiToEth(balance.sub(await getEthBalance()))}`)
