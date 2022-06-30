@@ -380,17 +380,24 @@ contract MarsBaseExchange is IMarsbaseExchange
 
 		// send tokens to participants or schedule for sending later
 		bool holdTokens = offer.capabilities[2];
-		bool minimumCoveredAfterThis = (offer.amountAlice + amountAlice - offer.amountRemaining) >= offer.minimumSize;
 
-		if (!holdTokens && minimumCoveredAfterThis)
+		if (!holdTokens && minimumCovered(offer))
 		{
+			// console.log("instant");
+			// console.log(amountBob);
+			// console.log(amountAlice);
 			_swapAllHeldTokens(offers[offerId]);
 			_swapInstantTokens(offer, tokenBob, amountBob, amountAlice);
 		}
 		else
 		{
+			// console.log("hold");
+			// console.log(amountBob);
+			// console.log(amountAlice);
 			_scheduleTokenSwap(offer, tokenBob, amountBob, amountAlice, msg.sender);
 		}
+		
+		offer = offers[offerId];
 
 		if (offers[offerId].amountRemaining == 0)
 		{
@@ -464,6 +471,9 @@ contract MarsBaseExchange is IMarsbaseExchange
 	) private
 	{
 		uint256 index = offers[offer.offerId].minimumOrderAddresses.length;
+
+		// console.log("_scheduleTokenSwap");
+		// console.log(amountBob);
 
 		IERC20(tokenBob).transferFrom(bob, address(this), amountBob);
 
@@ -544,9 +554,6 @@ contract MarsBaseExchange is IMarsbaseExchange
 			uint256 amountAlice = offer.minimumOrderAmountsAlice[i];
 
 			require(amountAlice > 0, "500-AAL"); // Amount Alice is too Low
-
-			offer.amountRemaining -= amountAlice;
-			require(offer.amountRemaining >= 0, "500-AR"); // Amount Remaining
 			
 			// just to future-proof double entry protection in case of refactoring
 			offers[offerId].minimumOrderAmountsAlice[i] = 0;
