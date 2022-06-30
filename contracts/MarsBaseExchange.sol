@@ -350,8 +350,9 @@ contract MarsBaseExchange is IMarsbaseExchange
 		// calculate how much tokenAlice should be sent
 		uint256 amountAlice = price(amountBob, offerAmountBob, offer.amountAlice);
 
+
 		// check that amountAlice is not too high
-		// require(amountAlice <= offer.amountRemaining, "400-AAH"); // Amount Alice is too High
+		require(amountAlice <= offer.amountRemaining, "400-AAH"); // Amount Alice is too High
 		// we don't throw here so it's possible to "overspend"
 		// e.g.:
 		// swap 100 $ALICE to 33 $BOB
@@ -363,11 +364,12 @@ contract MarsBaseExchange is IMarsbaseExchange
 		// if he tries to send 11 $BOB he will receive only 33 $ALICE
 		// if he tries to send 12 $BOB, amountAlice will be 36 $ALICE and tx will revert
 		// so we need to let David send a little more $BOB than the limit
-		if (amountAlice > offer.amountRemaining)
-			amountAlice = offer.amountRemaining;
+		// if (amountAlice > offer.amountRemaining)
+		// 	amountAlice = offer.amountRemaining;
+		// unfortunately, to prevent front-running we need to make sure
+		// that the bidder really expects to get less tokens
+		// TODO: we can enable this functionality by providing expected amountAlice into this method (dex-style)
 
-		// check that amountAlice is not too low (if smallestChunkSize is 0 it's also okay)
-		require(amountAlice >= offer.smallestChunkSize, "400-AAL");
 
 		// update offer
 		offers[offerId].amountRemaining -= amountAlice;
