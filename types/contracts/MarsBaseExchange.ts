@@ -304,7 +304,17 @@ export interface MarsBaseExchange extends BaseContract {
 
     log2(x: number | string | BN): NonPayableTransactionObject<string>;
 
+    max(
+      a: number | string | BN,
+      b: number | string | BN
+    ): NonPayableTransactionObject<string>;
+
     migrateContract(): PayableTransactionObject<void>;
+
+    min(
+      a: number | string | BN,
+      b: number | string | BN
+    ): NonPayableTransactionObject<string>;
 
     minimumCovered(
       offer: [

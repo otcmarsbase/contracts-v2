@@ -396,6 +396,14 @@ contract MarsBaseExchange is IMarsbaseExchange
 			_destroyOffer(offerId, MarsBaseCommon.OfferCloseReason.Success);
 		}
 	}
+	function max(uint256 a, uint256 b) public pure returns (uint256)
+	{
+		return a >= b ? a : b;
+	}
+	function min(uint256 a, uint256 b) public pure returns (uint256)
+	{
+		return a >= b ? b : a;
+	}
 	function minimumCovered(MarsBaseCommon.MBOffer memory offer) pure public returns (bool result)
 	{
 		uint256 amountSold = offer.amountAlice - offer.amountRemaining;
