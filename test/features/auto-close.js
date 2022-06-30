@@ -25,7 +25,7 @@ describe("features/auto close offers", () =>
 				usdt: OFFER_SIZE,
 			},
 			bob: {
-				bat: BID,
+				bat: "1000000",
 			}
 		})
 
@@ -47,7 +47,7 @@ describe("features/auto close offers", () =>
 		let bidSuccess = await dex.connect(bob).acceptOffer(0, bat.address, BID)
 		await bidSuccess.wait()
 
-		expectBalances(env, {
+		await expectBalances(env, {
 			alice: {
 				usdt: "1",
 				bat: "999900",
