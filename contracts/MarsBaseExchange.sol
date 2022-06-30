@@ -157,16 +157,20 @@ contract MarsBaseExchange is IMarsbaseExchange
 
 	function afterFee(uint256 amountBeforeFee, uint256 feePercent) public pure returns (uint256 amountAfterFee, uint256 fee)
 	{
+		return _afterFee(amountBeforeFee, feePercent, 1e3, MAX_SAFE_TARGET_AMOUNT);
+	}
+	function _afterFee(uint256 amountBeforeFee, uint256 feePercent, uint256 scale, uint256 safeAmount) public pure returns (uint256 amountAfterFee, uint256 fee)
+	{
 		if (feePercent == 0)
 			return (amountBeforeFee, 0);
 
-		if (feePercent >= 1e3)
+		if (feePercent >= scale)
 			return (0, amountBeforeFee);
 
-		if (amountBeforeFee < MAX_SAFE_TARGET_AMOUNT)
-			fee = (amountBeforeFee * feePercent) / 1e3;
+		if (amountBeforeFee < safeAmount)
+			fee = (amountBeforeFee * feePercent) / scale;
 		else
-			fee = (amountBeforeFee / 1e3) * feePercent;
+			fee = (amountBeforeFee / scale) * feePercent;
 
 		amountAfterFee = amountBeforeFee - fee;
 		return (amountAfterFee, fee);
@@ -222,6 +226,18 @@ contract MarsBaseExchange is IMarsbaseExchange
 		
 		return MarsBaseCommon.OfferType.MinimumChunkedPurchase;
 	}
+	function limitMinimumSize9999(uint256 minimumSize, uint256 amountAlice) public pure returns (uint256)
+	{
+		if (minimumSize == 0)
+			return minimumSize;
+		
+		(uint256 amountAfterFee, ) = _afterFee(amountAlice, 1, 1e4, MAX_UINT256 / 1e5);
+		if (minimumSize > amountAfterFee)
+		{
+			minimumSize = amountAfterFee;
+		}
+		return minimumSize;
+	}
 	function createOffer(
         address tokenAlice,
         address[] calldata tokenBob,
@@ -261,8 +277,8 @@ contract MarsBaseExchange is IMarsbaseExchange
 			amountAlice,
 			offerParameters.feeAlice,
 			offerParameters.feeBob,
-			offerParameters.smallestChunkSize,
-			offerParameters.minimumSize,
+			limitMinimumSize9999(offerParameters.smallestChunkSize, amountAlice),
+			limitMinimumSize9999(offerParameters.minimumSize, amountAlice),
 			offerParameters.deadline,
 			amountAlice,
 			msg.sender,
@@ -399,7 +415,7 @@ contract MarsBaseExchange is IMarsbaseExchange
 		
 		offer = offers[offerId];
 
-		if (offers[offerId].amountRemaining == 0)
+		if (offer.amountRemaining <= (offer.amountAlice / 10000))
 		{
 			_swapAllHeldTokens(offers[offerId]);
 			_destroyOffer(offerId, MarsBaseCommon.OfferCloseReason.Success);

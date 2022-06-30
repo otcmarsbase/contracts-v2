@@ -154,6 +154,18 @@ export interface MarsBaseExchange extends BaseContract {
   ): MarsBaseExchange;
   clone(): MarsBaseExchange;
   methods: {
+    _afterFee(
+      amountBeforeFee: number | string | BN,
+      feePercent: number | string | BN,
+      scale: number | string | BN,
+      safeAmount: number | string | BN
+    ): NonPayableTransactionObject<{
+      amountAfterFee: string;
+      fee: string;
+      0: string;
+      1: string;
+    }>;
+
     acceptOffer(
       offerId: number | string | BN,
       tokenBob: string,
@@ -299,6 +311,11 @@ export interface MarsBaseExchange extends BaseContract {
     ): NonPayableTransactionObject<string>;
 
     getOwner(): NonPayableTransactionObject<string>;
+
+    limitMinimumSize9999(
+      minimumSize: number | string | BN,
+      amountAlice: number | string | BN
+    ): NonPayableTransactionObject<string>;
 
     lockContract(): NonPayableTransactionObject<void>;
 
