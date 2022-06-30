@@ -350,6 +350,8 @@ contract MarsBaseExchange is IMarsbaseExchange
 		// calculate how much tokenAlice should be sent
 		uint256 amountAlice = price(amountBob, offerAmountBob, offer.amountAlice);
 
+		// check that amountAlice is not too low (if smallestChunkSize is 0 it's also okay)
+		require(amountAlice >= min(offer.smallestChunkSize, offer.amountRemaining), "400-AAL");
 
 		// check that amountAlice is not too high
 		require(amountAlice <= offer.amountRemaining, "400-AAH"); // Amount Alice is too High
