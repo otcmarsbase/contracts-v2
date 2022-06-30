@@ -3,20 +3,8 @@ const BigNumber = require ('bignumber.js')
 const { expect } = require ("chai")
 const { ethers } = require ("hardhat")
 const { checkEvent, checkEventExists, checkEventDoesntExist } = require('../events')
+const { mintAll, expectBalances } = require('../token-utils')
 const { prepareEnvironment, ZERO, getOfferIdFromTx, getOfferDataFromTx } = require("../utils")
-
-async function expectBalances(env, balances)
-{
-	for (let name in balances)
-		for (let token in balances[name])
-			expect(await env[token].balanceOf(env[name].address), `${name} ${token} balance`).to.eq(balances[name][token])
-}
-async function mintAll(env, balances)
-{
-	for (let name in balances)
-		for (let token in balances[name])
-			await env.mint[token](env[name].address, balances[name][token])
-}
 
 describe("missing/smallest chunk size", () =>
 {
