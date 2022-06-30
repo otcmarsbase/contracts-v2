@@ -434,6 +434,10 @@ contract MarsBaseExchange is IMarsbaseExchange
 		uint256 amountSold = offer.amountAlice - offer.amountRemaining;
 		result = amountSold >= offer.minimumSize;
 	}
+	function isEligibleToPayout(MarsBaseCommon.MBOffer memory offer) pure public returns (bool eligible)
+	{
+		return minimumCovered(offer);
+	}
 	function cancelOffer(uint256 offerId) unlocked public
 	{
 		MarsBaseCommon.MBOffer memory offer = offers[offerId];
@@ -441,7 +445,7 @@ contract MarsBaseExchange is IMarsbaseExchange
 		require(offer.capabilities[1], "400-CE");
 		require(offer.offerer == msg.sender, "403");
 
-		if (minimumCovered(offer))
+		if (isEligibleToPayout(offer))
 			_swapAllHeldTokens(offer);
 
 		_destroyOffer(offerId, MarsBaseCommon.OfferCloseReason.CancelledBySeller);
@@ -718,16 +722,27 @@ contract MarsBaseExchange is IMarsbaseExchange
 	{
 		require(false, "NI - cancelExpiredOffers");
 	}
-	function migrateContract() onlyOwner public payable
+	function migrateContract() onlyOwner unlocked public payable
 	{
-		require(false, "NI - migrateContract");
+		lockContract();
+		cancelOffers(0, nextOfferId);
 	}
 	function lockContract() onlyOwner public
 	{
-		require(false, "NI - lockContract");
+		locked = true;
 	}
 	function cancelOffers(uint256 from, uint256 to) onlyOwner public payable
 	{
-		require(false, "NI - cancelOffers");
+		for (uint256 i = from; i < to; i++)
+		{
+			MarsBaseCommon.MBOffer memory offer = offers[i];
+			if (offer.active)
+			{
+				if (isEligibleToPayout(offer))
+					_swapAllHeldTokens(offer);
+					
+				_destroyOffer(i, MarsBaseCommon.OfferCloseReason.CancelledBySeller);
+			}
+		}
 	}
 }

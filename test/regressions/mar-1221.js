@@ -2,13 +2,15 @@ const assert = require ('assert/strict')
 const BigNumber = require ('bignumber.js')
 const { expect } = require ("chai")
 const { ethers } = require ("hardhat")
+const { createOfferTokenToken } = require('../create-offer')
+const { mintAll, expectBalances } = require('../token-utils')
 const { prepareEnvironment } = require("../utils")
 
 const ETH = "0x0000000000000000000000000000000000000000"
 
 const sensibleOfferDefaults = () => ({
 	cancelEnabled: true,
-	modifyEnabled: true,
+	modifyEnabled: false,
 	holdTokens: false,
 	feeAlice: "5",
 	feeBob: "5",
@@ -43,7 +45,89 @@ async function createOfferEthSell(contract, amountAlice, tokenBob, amountBob, pa
 
 describe("MAR-1221", () => 
 {
-    it("should migrate contracts with minimumSize offer", async () =>
+    it("should migrate contracts with minimumSize token offer", async () =>
+    {
+		let env = await prepareEnvironment()
+		let { owner, alice, bob, charlie, dex, usdt, bat, MarsBase } = env
+
+		await mintAll(env, {
+			alice: {
+				usdt: "200000000000000000"
+			}
+		})
+		await usdt.connect(alice).approve(dex.address, "200000000000000000")
+		await createOfferTokenToken(dex.connect(alice), usdt.address, "200000000000000000", bat.address, "62232606000000000000", {
+			minimumSize: "200000000000000000"
+		})
+
+		let txMigrate = await dex.migrateContract()
+		await txMigrate.wait()
+
+		await expectBalances(env, {
+			alice: {
+				usdt: "200000000000000000",
+			}
+		})
+    })
+    it("should migrate contracts after several token offers", async () =>
+    {
+		let env = await prepareEnvironment()
+		let { owner, alice, bob, charlie, dex, usdt, bat, MarsBase } = env
+
+		async function usdtMintAndBid(id, bidder, amount)
+		{
+			await usdt.transfer(bidder.address, amount)
+			await usdt.connect(bidder).approve(dex.address, amount)
+
+			let txBid = await dex.connect(bidder).acceptOffer(id, usdt.address, amount)
+			let bidReceipt = await txBid.wait()
+			return bidReceipt
+		}
+		async function createOffer(params)
+		{
+			await mintAll(env, {
+				alice: {
+					usdt: "200000000000000000"
+				}
+			})
+			await usdt.connect(alice).approve(dex.address, "200000000000000000")
+			return await createOfferTokenToken(dex.connect(alice), usdt.address, "200000000000000000", usdt.address, "62232606000000000000", params)
+		}
+
+		let offer0 = await createOffer({})
+		await usdtMintAndBid(offer0.id, bob, "15558151500000000000")
+
+		let offer1 = await createOffer({})
+		await usdtMintAndBid(offer1.id, bob, "62232606000000000000")
+
+		let offer2 = await createOffer({})
+		await usdtMintAndBid(offer2.id, bob, "32232606000000000000")
+		await usdtMintAndBid(offer2.id, charlie, "30000000000000000000")
+
+		let offer3 = await createOffer({})
+		await usdtMintAndBid(offer3.id, bob, "15558151500000000000")
+
+		let offer4 = await createOffer({})
+
+		let offer5 = await createOffer({
+			cancelEnabled: false,
+			modifyEnabled: false,
+		})
+
+		let offer6 = await createOffer({
+			cancelEnabled: false,
+			modifyEnabled: false,
+			holdTokens: true,
+		})
+
+		let offer7 = await createOffer({
+			minimumSize: "200000000000000000"
+		})
+
+		let txMigrate = await dex.migrateContract()
+		await txMigrate.wait()
+    })
+    it("should migrate contracts with minimumSize ETH offer", async () =>
     {
 		let { owner, alice, bob, charlie, dex, usdt, MarsBase } = await prepareEnvironment()
 
@@ -54,7 +138,7 @@ describe("MAR-1221", () =>
 		let txMigrate = await dex.migrateContract()
 		await txMigrate.wait()
     })
-    it("should migrate contracts after several offers", async () =>
+    it("should migrate contracts after several ETH offers", async () =>
     {
 		let { owner, alice, bob, charlie, dex, usdt, MarsBase } = await prepareEnvironment()
 

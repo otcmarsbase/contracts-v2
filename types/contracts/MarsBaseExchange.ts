@@ -312,6 +312,32 @@ export interface MarsBaseExchange extends BaseContract {
 
     getOwner(): NonPayableTransactionObject<string>;
 
+    isEligibleToPayout(
+      offer: [
+        boolean,
+        boolean,
+        number | string | BN,
+        number | string | BN,
+        number | string | BN,
+        number | string | BN,
+        number | string | BN,
+        number | string | BN,
+        number | string | BN,
+        number | string | BN,
+        number | string | BN,
+        string,
+        string,
+        string,
+        boolean[],
+        (number | string | BN)[],
+        (number | string | BN)[],
+        (number | string | BN)[],
+        string[],
+        string[],
+        string[]
+      ]
+    ): NonPayableTransactionObject<boolean>;
+
     limitMinimumSize9999(
       minimumSize: number | string | BN,
       amountAlice: number | string | BN
