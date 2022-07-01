@@ -45,14 +45,14 @@
         {
             "language": "markdown",
             "source": [
-                "### 5. *`OLD`* Stop all trading on the old contract\n\n```\nyarn hardhat lock-contract --library <LIBRARY_ADDRESS> --exchange <EXCHANGE_ADDRESS> --network marsbase\n```"
+                "### 5. *`OLD`* Stop all trading on the old contract\n\n```\nyarn hardhat lock-contract --exchange <EXCHANGE_ADDRESS> --network marsbase\n```"
             ],
             "outputs": []
         },
         {
             "language": "markdown",
             "source": [
-                "### 6. **`NEW`** Set next offer id on the new contract based on last offer id\n\n#### Get last offer id from the old contract\n\n`getNextOfferId` on Etherscan/Bscscan\n\n```\n<<< TODO: script >>>\n```\n\n#### Set new offer id on the new contract\n\n```\nyarn hardhat set-next-offer-id \\\n\t--library <LIBRARY_ADDRESS> \\\n\t--exchange <EXCHANGE_ADDRESS> \\\n\t--nextofferid <NEXT_OFFER_ID> \\\n\t--network marsbase\n```"
+                "### 6. **`NEW`** Set next offer id on the new contract based on last offer id\n\n#### Get last offer id from the old contract\n\n`getNextOfferId` on Etherscan/Bscscan\n\n```\n<<< TODO: script >>>\n```\n\n#### Set new offer id on the new contract\n\n```\nyarn hardhat set-next-offer-id \\\n\t--exchange <EXCHANGE_ADDRESS> \\\n\t--nextofferid <NEXT_OFFER_ID> \\\n\t--network marsbase\n```"
             ],
             "outputs": []
         },

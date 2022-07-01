@@ -43,7 +43,7 @@ yarn hardhat set-minimum-fee --library <LIBRARY_ADDRESS> --exchange <EXCHANGE_AD
 ### 5. *`OLD`* Stop all trading on the old contract
 
 ```
-yarn hardhat lock-contract --library <LIBRARY_ADDRESS> --exchange <EXCHANGE_ADDRESS> --network marsbase
+yarn hardhat lock-contract --exchange <EXCHANGE_ADDRESS> --network marsbase
 ```
 
 ### 6. **`NEW`** Set next offer id on the new contract based on last offer id
@@ -60,7 +60,6 @@ yarn hardhat lock-contract --library <LIBRARY_ADDRESS> --exchange <EXCHANGE_ADDR
 
 ```
 yarn hardhat set-next-offer-id \
-	--library <LIBRARY_ADDRESS> \
 	--exchange <EXCHANGE_ADDRESS> \
 	--nextofferid <NEXT_OFFER_ID> \
 	--network marsbase
