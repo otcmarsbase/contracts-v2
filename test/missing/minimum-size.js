@@ -300,7 +300,6 @@ describe("dynamic offers with minimum size", () =>
 })
 describe("static offers with minimum size", () =>
 {
-	it("should not bid in an expired offer")
 	it("should take out money from a successful expired offer as offermaker")
 	it("should take out money from a successful expired offer as a bidder")
 	it("should revert money from cancelled expired offer as offermaker")
