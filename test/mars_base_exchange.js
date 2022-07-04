@@ -2,7 +2,7 @@ const assert = require('assert/strict');
 const { default: BigNumber } = require('bignumber.js');
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
-const { prepareJustContracts } = require("./utils")
+const { prepareJustContracts, getLastBlockTime } = require("./utils")
 
 /*
  * uncomment accounts to access the test accounts made available by the
@@ -142,7 +142,7 @@ contract("MarsBaseExchange", async function () {
     const feeAlice = 10;
     const feeBob = 20;
     const smallestChunkSize = ethers.utils.parseEther("1");
-    const deadline = Date.now() + 10000;
+    const deadline = await getLastBlockTime() + 10000;
 
     // Create Offer
     await dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, {feeAlice: feeAlice, feeBob: feeBob, smallestChunkSize: smallestChunkSize.toString(), deadline: deadline, cancelEnabled: true, modifyEnabled: false, minimumSize: 0, holdTokens: false});
@@ -161,7 +161,7 @@ contract("MarsBaseExchange", async function () {
   //   const feeAlice = 10;
   //   const feeBob = 20;
   //   const smallestChunkSize = ethers.utils.parseEther("1");
-  //   const deadline = Date.now() + 10;
+  //   const deadline = await getLastBlockTime() + 10;
   //   const mockedExpireTime = deadline + 11;
 
   //   // Create Offer

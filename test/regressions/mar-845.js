@@ -3,11 +3,9 @@ const BigNumber = require ('bignumber.js')
 const { expect } = require ("chai")
 const { ethers } = require ("hardhat")
 const { checkEventExists } = require('../events')
-const { prepareEnvironment } = require("../utils")
+const { prepareEnvironment, getLastBlockTime } = require("../utils")
 
 const ETH = "0x0000000000000000000000000000000000000000"
-
-const tomorrow = (now = Date.now()) => Math.floor(now / 1000 + 86400)
 
 describe.skip("MAR-845", () => 
 {
@@ -29,7 +27,7 @@ describe.skip("MAR-845", () =>
 			feeAlice: 5,
 			feeBob: 5,
 			smallestChunkSize: "1000000000000000000",
-			deadline: tomorrow(),
+			deadline: await getLastBlockTime(),
 			minimumSize: 0
 		})
 		let receipt = await tx.wait()
@@ -140,7 +138,7 @@ describe.skip("MAR-845", () =>
 			feeAlice: 5,
 			feeBob: 5,
 			smallestChunkSize: "1000000000000000000",
-			deadline: tomorrow(),
+			deadline: await getLastBlockTime() + 86400,
 			minimumSize: 0
 		})
 		// console.log(96)
@@ -190,7 +188,7 @@ describe.skip("MAR-845", () =>
 			feeAlice: 5,
 			feeBob: 5,
 			smallestChunkSize: "1000000000000000000",
-			deadline: tomorrow(),
+			deadline: await getLastBlockTime() + 86400,
 			minimumSize: 0
 		})
 		// console.log(96)
@@ -239,7 +237,7 @@ describe.skip("MAR-845", () =>
 			feeAlice: 0,
 			feeBob: 0,
 			smallestChunkSize: "1000000000000000000",
-			deadline: tomorrow(),
+			deadline: await getLastBlockTime() + 86400,
 			minimumSize: 0
 		})
 		// console.log(96)
@@ -289,7 +287,7 @@ describe.skip("MAR-845", () =>
 			feeAlice: 0,
 			feeBob: 0,
 			smallestChunkSize: "1",
-			deadline: tomorrow(),
+			deadline: await getLastBlockTime() + 86400,
 			minimumSize: 0
 		})
 		// console.log(96)
@@ -338,7 +336,7 @@ describe.skip("MAR-845", () =>
 			feeAlice: 0,
 			feeBob: 0,
 			smallestChunkSize: "1000000",
-			deadline: tomorrow(),
+			deadline: await getLastBlockTime() + 86400,
 			minimumSize: 0
 		})
 		// console.log(96)

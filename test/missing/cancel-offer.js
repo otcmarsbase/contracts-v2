@@ -5,7 +5,7 @@ const { ethers } = require ("hardhat")
 const { sensibleOfferDefaults, createOfferTokenToken } = require('../create-offer')
 const { checkEvent, checkEventExists, checkEventDoesntExist } = require('../events')
 const { offerDataStringToOffer } = require('../regressions/utils')
-const { prepareEnvironment, ZERO, getOfferIdFromTx, getOfferDataFromTx } = require("../utils")
+const { prepareEnvironment, ZERO, getOfferIdFromTx, getOfferDataFromTx, getLastBlockTime } = require("../utils")
 
 describe("cancel dynamic offers", () =>
 {
@@ -40,7 +40,7 @@ describe("cancel static offers", () =>
 			feeAlice: offerData.feeAlice,
 			feeBob: offerData.feeBob,
 			minimumSize: "50000000",
-			deadline: Math.floor((Date.now() / 1000) + 86400),
+			deadline: await getLastBlockTime() + 86400,
 		})
 		
 		await mint.bat(bob.address, bobAmountBid)
@@ -78,7 +78,7 @@ describe("cancel static offers", () =>
 			feeAlice: offerData.feeAlice,
 			feeBob: offerData.feeBob,
 			minimumSize: offerData.minimumSize,
-			deadline: Math.floor((Date.now() / 1000) + 86400),
+			deadline: await getLastBlockTime() + 86400,
 		})
 		
 		await mint.bat(bob.address, bobAmountBid)

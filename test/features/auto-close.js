@@ -4,7 +4,7 @@ const { expect } = require ("chai")
 const { ethers } = require ("hardhat")
 const { checkEvent, checkEventExists, checkEventDoesntExist } = require('../events')
 const { mintAll, expectBalances } = require('../token-utils')
-const { prepareEnvironment, ZERO, getOfferIdFromTx, getOfferDataFromTx } = require("../utils")
+const { prepareEnvironment, getLastBlockTime } = require("../utils")
 
 describe("features/auto close offers", () =>
 {
@@ -12,7 +12,7 @@ describe("features/auto close offers", () =>
 	for (let HOLD_TOKENS of [false, true])
 	for (let MIN_SIZE of ["0", "5000", "9999", "10000"])
 	for (let SCS of ["0", "5000", "9999", "10000"])
-	for (let DEADLINE of [0, Date.now() + 86400])
+	for (let DEADLINE of [0, Math.floor(Date.now() / 1000) + 86400])
 	it(`should auto close ${HOLD_TOKENS ? "static" : "dynamic"} offer in one bid [${DEADLINE ? "" : "no "}deadline - min ${MIN_SIZE} minbid ${SCS}]`, async () =>
 	{
 		let env = await prepareEnvironment()

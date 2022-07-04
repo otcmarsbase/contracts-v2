@@ -6,8 +6,6 @@ const { prepareJustContracts } = require("../utils")
 
 const ETH = "0x0000000000000000000000000000000000000000"
 
-const tomorrow = (now = Date.now()) => Math.floor(now / 1000 + 86400)
-
 describe("MAR-1067", () => 
 {
     it("should allow the commission exchanger address to be set to the zero address", async () =>

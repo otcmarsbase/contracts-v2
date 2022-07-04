@@ -2,11 +2,9 @@ const assert = require ('assert/strict')
 const BigNumber = require ('bignumber.js')
 const { expect } = require ("chai")
 const { ethers } = require ("hardhat")
-const { prepareEnvironment } = require("../utils")
+const { prepareEnvironment, getLastBlockTime } = require("../utils")
 
 const ETH = "0x0000000000000000000000000000000000000000"
-
-const tomorrow = (now = Date.now()) => Math.floor(now / 1000 + 86400)
 
 describe("MAR-1125", () => 
 {
@@ -80,7 +78,7 @@ describe("MAR-1125", () =>
             feeAlice: "5",
             feeBob: "5",
             smallestChunkSize: "2000000000000000",
-            deadline: Math.floor((Date.now() / 1000) + (1655207697 - 1655121337)),
+            deadline: await getLastBlockTime() + (1655207697 - 1655121337),
             minimumSize: "0"
         }, {
 			value: "200000000000000000"
@@ -183,7 +181,7 @@ describe("MAR-1125", () =>
             feeAlice: offer.feeAlice,
             feeBob: offer.feeBob,
             smallestChunkSize: offer.smallestChunkSize,
-            deadline: Math.floor((Date.now() / 1000) + 86400),
+            deadline: await getLastBlockTime() + 86400,
             minimumSize: offer.minimumSize
         }, {
 			value: offer.amountAlice
