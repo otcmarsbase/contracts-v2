@@ -1,4 +1,4 @@
-const { ethers } = require ("hardhat")
+const { ethers, network } = require ("hardhat")
 const { tryParseLog, PUBLIC_ABIS } = require("./events")
 
 const ZERO = "0x0000000000000000000000000000000000000000"
@@ -62,10 +62,30 @@ async function getOfferDataFromTx(txCreate)
 	return offerCreatedEvent.args
 }
 
+async function skipTimeTo(timestamp)
+{
+	await network.provider.send("evm_setNextBlockTimestamp", [timestamp])
+}
+
+async function skipTime(seconds)
+{
+	// forward time in hardhat
+	await network.provider.send("evm_increaseTime", [seconds])
+	await network.provider.send("evm_mine")
+}
+async function getLastBlockTime()
+{
+	let block = await ethers.provider.getBlock("latest")
+	return block.timestamp
+}
+
 module.exports = {
 	prepareJustContracts,
 	prepareEnvironment,
 	getOfferIdFromTx,
 	getOfferDataFromTx,
+	skipTime,
+	skipTimeTo,
+	getLastBlockTime,
 	ZERO,
 }
