@@ -9,12 +9,16 @@ async function mintAll(env, balances)
 	for (let name in balances)
 		for (let token in balances[name])
 			await env.mint[token](env[name].address, balances[name][token])
+
+	return balances
 }
 async function approveMany(env, balances)
 {
 	for (let name in balances)
 		for (let token in balances[name])
 			await env[token].connect(env[name]).approve(env.dex.address, balances[name][token])
+	
+	return balances
 }
 
 module.exports = {
