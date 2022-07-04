@@ -1,3 +1,5 @@
+const { getLastBlockTime } = require("./utils")
+
 const sensibleOfferDefaults = () => ({
 	modifyEnabled: false,
 	cancelEnabled: true,
@@ -14,6 +16,7 @@ async function createOfferTokenToken(contract, tokenAlice, amountAlice, tokenBob
 	let smallestChunkSize = amountAlice.substring(0, amountAlice.length - 2)
 	let details = {
 		...sensibleOfferDefaults(),
+		deadline: await getLastBlockTime() + 86400,
 		smallestChunkSize,
 		...params,
 	}

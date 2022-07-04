@@ -4,25 +4,25 @@ const { expect } = require ("chai")
 const { ethers } = require ("hardhat")
 const { createOfferTokenToken } = require('../create-offer')
 const { mintAll, expectBalances } = require('../token-utils')
-const { prepareEnvironment } = require("../utils")
+const { prepareEnvironment, getLastBlockTime } = require("../utils")
 
 const ETH = "0x0000000000000000000000000000000000000000"
 
-const sensibleOfferDefaults = () => ({
+const sensibleOfferDefaults = async () => ({
 	cancelEnabled: true,
 	modifyEnabled: false,
 	holdTokens: false,
 	feeAlice: "5",
 	feeBob: "5",
 	minimumSize: "0",
-	deadline: Math.floor((Date.now() / 1000) + 86400),
+	deadline: await getLastBlockTime() + 86400,
 })
 
 async function createOfferEthSell(contract, amountAlice, tokenBob, amountBob, params = sensibleOfferDefaults())
 {
 	let smallestChunkSize = amountAlice.substring(0, amountAlice.length - 2)
 	let details = {
-		...sensibleOfferDefaults(),
+		...await sensibleOfferDefaults(),
 		smallestChunkSize,
 		...params,
 	}
