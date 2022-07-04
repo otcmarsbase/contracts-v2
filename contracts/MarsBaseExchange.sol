@@ -114,12 +114,12 @@ contract MarsBaseExchange is IMarsbaseExchange
 	/**
 		Price calculation is approximate, but it's good enough for our purposes.
 		We don't need the exact amount of tokens, we just need a close enough approximation.
-	 */
+	*/
 	function price(
-        uint256 amountAlice,
-        uint256 offerAmountAlice,
-        uint256 offerAmountBob
-    ) public pure returns (uint256)
+		uint256 amountAlice,
+		uint256 offerAmountAlice,
+		uint256 offerAmountBob
+	) public pure returns (uint256)
 	{
 		uint16 amountAliceLog2 = log2(amountAlice);
 		uint16 offerAmountBobLog2 = log2(offerAmountBob);
@@ -254,8 +254,10 @@ contract MarsBaseExchange is IMarsbaseExchange
 		// require(offerParameters.smallestChunkSize == 0, "NI - smallestChunkSize");
 		// require(offerParameters.deadline == 0, "NI - deadline");
 		// require(offerParameters.minimumSize == 0, "NI - minimumSize");
+		if (offerParameters.deadline > 0)
+			require(offerParameters.deadline > block.timestamp, "405-OD");
 		
-		require(tokenAlice != address(0), "NI - tokenAlice");
+		require(tokenAlice != address(0), "NI - tokenAlice ETH");
 		require(amountAlice > 0, "NI - amountAlice");
 
 		require(tokenBob.length > 0, "NI - tokenBob");
