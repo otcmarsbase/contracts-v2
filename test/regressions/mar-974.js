@@ -6,7 +6,7 @@ const { prepareEnvironment, getLastBlockTime } = require("../utils")
 
 const ETH = "0x0000000000000000000000000000000000000000"
 
-describe("MAR-974", () => 
+describe.skip("MAR-974", () => 
 {
     it("should send tokens to the commission wallet if no exchange contract is specified", async () =>
     {

@@ -45,8 +45,8 @@ describe("MAR-842", () =>
         receipt = await tx.wait()
 		
         checkEventExists(parseLogs(receipt.logs), "OfferAccepted", {
-			amountAliceReceived: "60000000000000000",
-			amountBobReceived: "60000000000000000",
+			amountAliceReceived: "59700000000000000",
+			amountBobReceived: "59700000000000000",
 			feeAlice: "300000000000000",
 			feeBob: "300000000000000",
 			tokenAddressAlice: ETH,
@@ -82,7 +82,7 @@ describe("MAR-842", () =>
 
         let ptx = dex.connect(alice).acceptOffer(id, ETH, "60000000000000000")
 
-		await expect(ptx).to.be.revertedWith("M6")
+		await expect(ptx).to.be.revertedWith("403-C1")
 	})
 	it("allow tokens to be purchased for eth with static offer", async () =>
 	{
@@ -116,8 +116,8 @@ describe("MAR-842", () =>
         receipt = await tx.wait()
         
 		checkEventExists(parseLogs(receipt.logs), "OfferAccepted", {
-			amountAliceReceived: "60000000000000000",
-			amountBobReceived: "60000000000000000",
+			amountAliceReceived: "59700000000000000",
+			amountBobReceived: "59700000000000000",
 			feeAlice: "300000000000000",
 			feeBob: "300000000000000",
 			tokenAddressAlice: usdt.address,

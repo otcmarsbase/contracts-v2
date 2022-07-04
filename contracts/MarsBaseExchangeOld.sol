@@ -191,7 +191,7 @@ contract MarsBaseExchangeOld is IMarsbaseExchange {
 
     /// Cancels the offer at the provided ID
     /// Must be the offer creator.
-    function cancelOffer(uint256 offerId) public {
+    function cancelOffer(uint256 offerId) public payable {
         offers[offerId] = MarsBase.cancelOffer(offers[offerId]);
         emit OfferCancelled(offerId, msg.sender, block.timestamp);
         emit OfferClosed(offerId, MarsBaseCommon.OfferCloseReason.CancelledBySeller, block.timestamp);

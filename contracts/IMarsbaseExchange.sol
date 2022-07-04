@@ -77,7 +77,7 @@ interface IMarsbaseExchange {
         uint256[] calldata amountBob,
         MarsBaseCommon.OfferParams calldata offerParameters
     ) external payable;
-	function cancelOffer(uint256 offerId) external;
+	function cancelOffer(uint256 offerId) external payable;
 	function price(
         uint256 amountAlice,
         uint256 offerAmountAlice,

@@ -186,9 +186,7 @@ export interface MarsBaseExchange extends BaseContract {
 
     cancelExpiredOffers(): PayableTransactionObject<void>;
 
-    cancelOffer(
-      offerId: number | string | BN
-    ): NonPayableTransactionObject<void>;
+    cancelOffer(offerId: number | string | BN): PayableTransactionObject<void>;
 
     cancelOffers(
       from: number | string | BN,
@@ -295,20 +293,6 @@ export interface MarsBaseExchange extends BaseContract {
         string[]
       ]
     >;
-
-    getOfferType(
-      amountAlice: number | string | BN,
-      offerParameters: [
-        boolean,
-        boolean,
-        boolean,
-        number | string | BN,
-        number | string | BN,
-        number | string | BN,
-        number | string | BN,
-        number | string | BN
-      ]
-    ): NonPayableTransactionObject<string>;
 
     getOwner(): NonPayableTransactionObject<string>;
 

@@ -191,41 +191,6 @@ contract MarsBaseExchange is IMarsbaseExchange
 		}
 		return offersArray;
 	}
-	function getOfferType(uint256 amountAlice, MarsBaseCommon.OfferParams calldata offerParameters) public pure returns (MarsBaseCommon.OfferType)
-	{
-		if (offerParameters.minimumSize == 0)
-		{
-			if (offerParameters.deadline > 0
-				&& offerParameters.smallestChunkSize > 0
-				&& offerParameters.smallestChunkSize != amountAlice)
-				return MarsBaseCommon.OfferType.LimitedTimeChunkedPurchase;
-			
-			if (offerParameters.smallestChunkSize > 0
-				&& offerParameters.smallestChunkSize != amountAlice)
-				return MarsBaseCommon.OfferType.ChunkedPurchase;
-			
-			if (offerParameters.deadline > 0)
-				return MarsBaseCommon.OfferType.LimitedTime;
-			
-			return MarsBaseCommon.OfferType.FullPurchase;
-		}
-		if (offerParameters.deadline > 0 
-			&& offerParameters.smallestChunkSize > 0
-			&& offerParameters.smallestChunkSize != amountAlice
-			&& offerParameters.holdTokens == true)
-			return MarsBaseCommon.OfferType.LimitedTimeMinimumChunkedDeadlinePurchase;
-
-		if (offerParameters.deadline > 0 && offerParameters.smallestChunkSize > 0 && offerParameters.smallestChunkSize != amountAlice)
-			return MarsBaseCommon.OfferType.LimitedTimeMinimumChunkedPurchase;
-
-		if (offerParameters.smallestChunkSize > 0 && offerParameters.smallestChunkSize != amountAlice)
-			return MarsBaseCommon.OfferType.MinimumChunkedPurchase;
-
-		if (offerParameters.deadline > 0)
-			return MarsBaseCommon.OfferType.LimitedTimeMinimumPurchase;
-		
-		return MarsBaseCommon.OfferType.MinimumChunkedPurchase;
-	}
 	function limitMinimumSize9999(uint256 minimumSize, uint256 amountAlice) public pure returns (uint256)
 	{
 		if (minimumSize == 0)
@@ -247,7 +212,7 @@ contract MarsBaseExchange is IMarsbaseExchange
     ) unlocked public payable
 	{
 		// require(!offerParameters.cancelEnabled, "NI - cancelEnabled");
-		require(!offerParameters.modifyEnabled, "NI - modifyEnabled");
+		require(!offerParameters.modifyEnabled, "NI-ME"); // Modify Enabled
 		// require(!offerParameters.holdTokens, "NI - holdTokens");
 		// require(offerParameters.feeAlice == 0, "NI - feeAlice");
 		// require(offerParameters.feeBob == 0, "NI - feeBob");
@@ -257,15 +222,21 @@ contract MarsBaseExchange is IMarsbaseExchange
 		if (offerParameters.deadline > 0)
 			require(offerParameters.deadline > block.timestamp, "405-OD");
 		
-		require(tokenAlice != address(0), "NI - tokenAlice ETH");
-		require(amountAlice > 0, "NI - amountAlice");
+		// require(tokenAlice != address(0), "NI - tokenAlice ETH");
+		require(amountAlice > 0, "400-AAL");
 
-		require(tokenBob.length > 0, "NI - tokenBob");
+		require(tokenBob.length > 0, "400-BE");
 		require(amountBob.length == tokenBob.length, "400-BLMM"); // Bob Length MisMatch
-		for (uint256 i = 0; i < tokenBob.length; i++)
-		{
-			require(tokenBob[i] != address(0), "NI - tokenBob ETH");
-		}
+		// for (uint256 i = 0; i < tokenBob.length; i++)
+		// {
+		// 	require(tokenBob[i] != address(0), "NI - tokenBob ETH");
+		// }
+
+		// take tokens from alice
+		if (tokenAlice == address(0))
+			require(amountAlice == msg.value, "402-E");
+		else
+			require(IERC20(tokenAlice).transferFrom(msg.sender, address(this), amountAlice), "402");
 
 		// create offer object
 		uint256 offerId = nextOfferId++;
@@ -274,7 +245,7 @@ contract MarsBaseExchange is IMarsbaseExchange
 		offers[offerId] = MarsBaseCommon.MBOffer(
 			true,
 			false,
-			getOfferType(amountAlice, offerParameters),
+			MarsBaseCommon.OfferType.MinimumChunkedPurchase,
 			offerId,
 			amountAlice,
 			offerParameters.feeAlice,
@@ -296,9 +267,6 @@ contract MarsBaseExchange is IMarsbaseExchange
 		);
 
 		// console.log(amountAlice);
-
-		// take tokens from alice
-		require(IERC20(tokenAlice).transferFrom(msg.sender, address(this), amountAlice), "402");
 
 		emit OfferCreated(offerId, msg.sender, block.timestamp, offers[offerId]);
 	}
@@ -323,10 +291,7 @@ contract MarsBaseExchange is IMarsbaseExchange
 
 		if (fee > 0)
 		{
-			if (commissionWallet != address(0))
-			{
-				require(commissionExchanger == address(0), "NI - commissionExchanger");
-			}
+			require(commissionExchanger == address(0), "NI - commissionExchanger");
 
 			// send fee to commission wallet
 			if (from == address(this))
@@ -336,12 +301,37 @@ contract MarsBaseExchange is IMarsbaseExchange
 		}
 		return (amountAfterFee, fee);
 	}
+	function _sendEthAfterFee(
+		uint256 amount,
+		address to,
+		uint256 feePercent
+	) private returns (uint256 /* amountAfterFee */, uint256 /* fee */)
+	{
+		if (commissionWallet == address(0))
+			feePercent = 0;
+		
+		(uint256 amountAfterFee, uint256 fee) = afterFee(amount, feePercent);
+
+		(bool success, ) = to.call{value: amountAfterFee, gas: 30000}("");
+		require(success, "404-C1");
+
+		if (fee > 0)
+		{
+			require(commissionExchanger == address(0), "NI - commissionExchanger");
+
+			// send fee to commission wallet
+			(bool success2, ) = commissionWallet.call{value: fee, gas: 30000}("");
+			require(success2, "404-C2");
+		}
+		return (amountAfterFee, fee);
+	}
 	function acceptOffer(
         uint256 offerId,
         address tokenBob,
         uint256 amountBob
     ) unlocked public payable
 	{
+		require(amountBob > 0, "400-ABL");
 		MarsBaseCommon.MBOffer memory offer = offers[offerId];
 		require(offer.active, "404");
 
@@ -440,7 +430,7 @@ contract MarsBaseExchange is IMarsbaseExchange
 	{
 		return minimumCovered(offer);
 	}
-	function cancelOffer(uint256 offerId) unlocked public
+	function cancelOffer(uint256 offerId) unlocked public payable
 	{
 		MarsBaseCommon.MBOffer memory offer = offers[offerId];
 		require(offer.active, "404");
@@ -497,7 +487,14 @@ contract MarsBaseExchange is IMarsbaseExchange
 		// console.log("_scheduleTokenSwap");
 		// console.log(amountBob);
 
-		IERC20(tokenBob).transferFrom(bob, address(this), amountBob);
+		if (tokenBob == address(0))
+		{
+			require(msg.value == amountBob, "403-C1");
+		}
+		else
+		{
+			IERC20(tokenBob).transferFrom(bob, address(this), amountBob);
+		}
 
 		offers[offer.offerId].minimumOrderAmountsAlice.push(amountAlice);
 		offers[offer.offerId].minimumOrderAmountsBob.push(amountBob);
@@ -514,31 +511,50 @@ contract MarsBaseExchange is IMarsbaseExchange
 	) private
 	{
 		// send Bob tokens to Alice
-		(uint256 bobSentToAlice, uint256 feeBobDeducted) = sendTokensAfterFeeFrom(
-			// address token,
-			tokenBob,
-			// uint256 amount,
-			amountBob,
-			// address from,
-			msg.sender,
-			// address to,
-			offer.offerer,
-			// uint256 feePercent
-			offer.feeBob
-		);
+		uint256 bobSentToAlice;
+		uint256 feeBobDeducted;
+		if (tokenBob == address(0))
+		{
+			(bobSentToAlice, feeBobDeducted) = _sendEthAfterFee(amountBob, offer.offerer, offer.feeBob);
+		}
+		else
+		{
+			(bobSentToAlice, feeBobDeducted) = sendTokensAfterFeeFrom(
+				// address token,
+				tokenBob,
+				// uint256 amount,
+				amountBob,
+				// address from,
+				msg.sender,
+				// address to,
+				offer.offerer,
+				// uint256 feePercent
+				offer.feeBob
+			);
+		}
+
 		// send Alice tokens to Bob
-		(uint256 aliceSentToBob, uint256 feeAliceDeducted) = sendTokensAfterFeeFrom(
-			// address token,
-			offer.tokenAlice,
-			// uint256 amount,
-			amountAlice,
-			// address from,
-			address(this),
-			// address to,
-			msg.sender,
-			// uint256 feePercent
-			offer.feeAlice
-		);
+		uint256 aliceSentToBob;
+		uint256 feeAliceDeducted;
+		if (offer.tokenAlice == address(0))
+		{
+			(aliceSentToBob, feeAliceDeducted) = _sendEthAfterFee(amountAlice, msg.sender, offer.feeAlice);
+		}
+		else
+		{
+			(aliceSentToBob, feeAliceDeducted) = sendTokensAfterFeeFrom(
+				// address token,
+				offer.tokenAlice,
+				// uint256 amount,
+				amountAlice,
+				// address from,
+				address(this),
+				// address to,
+				msg.sender,
+				// uint256 feePercent
+				offer.feeAlice
+			);
+		}
 
 		// emit event
 		emit OfferAccepted(
@@ -591,31 +607,46 @@ contract MarsBaseExchange is IMarsbaseExchange
 	function _swapHeldTokens(MarsBaseCommon.MBOffer memory offer, uint256 i) private
 	{
 		// send Bob tokens to Alice
-		(uint256 bobSentToAlice, uint256 feeBobDeducted) = sendTokensAfterFeeFrom(
-			// address token,
-			offer.minimumOrderTokens[i],
-			// uint256 amount,
-			offer.minimumOrderAmountsBob[i],
-			// address from,
-			address(this),
-			// address to,
-			offer.offerer,
-			// uint256 feePercent
-			offer.feeBob
-		);
+		if (offer.minimumOrderTokens[i] == address(0))
+		{
+			_sendEthAfterFee(offer.minimumOrderAmountsBob[i], offer.offerer, offer.feeBob);
+		}
+		else
+		{
+			sendTokensAfterFeeFrom(
+				// address token,
+				offer.minimumOrderTokens[i],
+				// uint256 amount,
+				offer.minimumOrderAmountsBob[i],
+				// address from,
+				address(this),
+				// address to,
+				offer.offerer,
+				// uint256 feePercent
+				offer.feeBob
+			);
+		}
+
 		// send Alice tokens to Bob
-		(uint256 aliceSentToBob, uint256 feeAliceDeducted) = sendTokensAfterFeeFrom(
-			// address token,
-			offer.tokenAlice,
-			// uint256 amount,
-			offer.minimumOrderAmountsAlice[i],
-			// address from,
-			address(this),
-			// address to,
-			offer.minimumOrderAddresses[i],
-			// uint256 feePercent
-			offer.feeAlice
-		);
+		if (offer.tokenAlice == address(0))
+		{
+			_sendEthAfterFee(offer.minimumOrderAmountsAlice[i], offer.minimumOrderAddresses[i], offer.feeAlice);
+		}
+		else
+		{
+			sendTokensAfterFeeFrom(
+				// address token,
+				offer.tokenAlice,
+				// uint256 amount,
+				offer.minimumOrderAmountsAlice[i],
+				// address from,
+				address(this),
+				// address to,
+				offer.minimumOrderAddresses[i],
+				// uint256 feePercent
+				offer.feeAlice
+			);
+		}
 
 		// do not emit event (it was emit before)
 
@@ -682,7 +713,12 @@ contract MarsBaseExchange is IMarsbaseExchange
 
 		// send remaining tokens to Alice
 		if (offer.amountRemaining > 0)
-			IERC20(offer.tokenAlice).transfer(offer.offerer, offer.amountRemaining);
+		{
+			if (offer.tokenAlice == address(0))
+				_sendEthAfterFee(offer.amountRemaining, offer.offerer, 0);
+			else
+				IERC20(offer.tokenAlice).transfer(offer.offerer, offer.amountRemaining);
+		}
 
 		// if any tokens are still held in the offer
 		if (offer.minimumOrderTokens.length > 0)
@@ -690,8 +726,15 @@ contract MarsBaseExchange is IMarsbaseExchange
 			// revert all tokens to their owners
 			for (uint256 i = 0; i < offer.minimumOrderTokens.length; i++)
 			{
-				IERC20(offer.minimumOrderTokens[i]).transfer(offer.minimumOrderAddresses[i], offer.minimumOrderAmountsBob[i]);
-				IERC20(offer.tokenAlice).transfer(offer.offerer, offer.minimumOrderAmountsAlice[i]);
+				if (offer.minimumOrderTokens[i] == address(0))
+					_sendEthAfterFee(offer.minimumOrderAmountsBob[i], offer.minimumOrderAddresses[i], 0);
+				else
+					IERC20(offer.minimumOrderTokens[i]).transfer(offer.minimumOrderAddresses[i], offer.minimumOrderAmountsBob[i]);
+				
+				if (offer.tokenAlice == address(0))
+					_sendEthAfterFee(offer.minimumOrderAmountsAlice[i], offer.offerer, 0);
+				else
+					IERC20(offer.tokenAlice).transfer(offer.offerer, offer.minimumOrderAmountsAlice[i]);
 			}
 		}
 

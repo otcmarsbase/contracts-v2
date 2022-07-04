@@ -175,7 +175,7 @@ describe("MAR-1125", () =>
 		let { owner, alice, bob, dex, usdt, MarsBase } = await prepareEnvironment()
 
 		let txCreate = await dex.connect(alice).createOffer(ETH, [usdt.address], offer.amountAlice, offer.amountBob, {
-            modifyEnabled: offer.capabilities[0],
+            modifyEnabled: false,
             cancelEnabled: offer.capabilities[1],
             holdTokens: offer.capabilities[2],
             feeAlice: offer.feeAlice,
@@ -219,7 +219,7 @@ describe("MAR-1125", () =>
 
         await usdt.connect(bob).approve(dex.address, txParamsBob3.amountBob)
 		let txBid3 = dex.connect(bob).acceptOffer(id, usdt.address, txParamsBob3.amountBob)
-		await expect(txBid3).revertedWith("M10")
+		await expect(txBid3).revertedWith("400-AAH")
 
 		let amountBobWithoutOverflow = "12965126249999994000"
 		let txBid4 = await dex.connect(bob).acceptOffer(id, usdt.address, amountBobWithoutOverflow)

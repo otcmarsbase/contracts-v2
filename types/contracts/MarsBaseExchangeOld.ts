@@ -164,9 +164,7 @@ export interface MarsBaseExchangeOld extends BaseContract {
 
     cancelExpiredOffers(): PayableTransactionObject<void>;
 
-    cancelOffer(
-      offerId: number | string | BN
-    ): NonPayableTransactionObject<void>;
+    cancelOffer(offerId: number | string | BN): PayableTransactionObject<void>;
 
     cancelOffers(
       from: number | string | BN,
