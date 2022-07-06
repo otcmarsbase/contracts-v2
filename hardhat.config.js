@@ -31,7 +31,7 @@ async function lockContract(exchangeAddress) {
   let tx = await exchange.migrateContract();
   await tx.wait();
 
-  console.log("Commission disabled!");
+  console.log("Contract locked!");
 }
 
 async function configureNewContract(exchangeAddress, nextOfferId) {
