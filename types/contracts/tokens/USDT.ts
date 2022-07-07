@@ -13,7 +13,7 @@ import type {
   BlockType,
   ContractEventLog,
   BaseContract,
-} from "../types";
+} from "../../types";
 
 export interface EventOptions {
   filter?: object;
@@ -38,13 +38,13 @@ export type Transfer = ContractEventLog<{
   2: string;
 }>;
 
-export interface BAT18 extends BaseContract {
+export interface USDT extends BaseContract {
   constructor(
     jsonInterface: any[],
     address?: string,
     options?: ContractOptions
-  ): BAT18;
-  clone(): BAT18;
+  ): USDT;
+  clone(): USDT;
   methods: {
     allowance(
       owner: string,

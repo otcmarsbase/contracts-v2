@@ -38,16 +38,14 @@ export type Transfer = ContractEventLog<{
   2: string;
 }>;
 
-export interface ERC20 extends BaseContract {
+export interface BAT18 extends BaseContract {
   constructor(
     jsonInterface: any[],
     address?: string,
     options?: ContractOptions
-  ): ERC20;
-  clone(): ERC20;
+  ): BAT18;
+  clone(): BAT18;
   methods: {
-    _totalSupply(): NonPayableTransactionObject<string>;
-
     allowance(
       owner: string,
       spender: string
@@ -55,23 +53,39 @@ export interface ERC20 extends BaseContract {
 
     approve(
       spender: string,
-      value: number | string | BN
-    ): NonPayableTransactionObject<void>;
+      amount: number | string | BN
+    ): NonPayableTransactionObject<boolean>;
 
-    balanceOf(who: string): NonPayableTransactionObject<string>;
+    balanceOf(account: string): NonPayableTransactionObject<string>;
+
+    decimals(): NonPayableTransactionObject<string>;
+
+    decreaseAllowance(
+      spender: string,
+      subtractedValue: number | string | BN
+    ): NonPayableTransactionObject<boolean>;
+
+    increaseAllowance(
+      spender: string,
+      addedValue: number | string | BN
+    ): NonPayableTransactionObject<boolean>;
+
+    name(): NonPayableTransactionObject<string>;
+
+    symbol(): NonPayableTransactionObject<string>;
 
     totalSupply(): NonPayableTransactionObject<string>;
 
     transfer(
       to: string,
-      value: number | string | BN
-    ): NonPayableTransactionObject<void>;
+      amount: number | string | BN
+    ): NonPayableTransactionObject<boolean>;
 
     transferFrom(
       from: string,
       to: string,
-      value: number | string | BN
-    ): NonPayableTransactionObject<void>;
+      amount: number | string | BN
+    ): NonPayableTransactionObject<boolean>;
   };
   events: {
     Approval(cb?: Callback<Approval>): EventEmitter;

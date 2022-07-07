@@ -38,73 +38,54 @@ export type Transfer = ContractEventLog<{
   2: string;
 }>;
 
-export interface UpgradedStandardToken extends BaseContract {
+export interface DAI extends BaseContract {
   constructor(
     jsonInterface: any[],
     address?: string,
     options?: ContractOptions
-  ): UpgradedStandardToken;
-  clone(): UpgradedStandardToken;
+  ): DAI;
+  clone(): DAI;
   methods: {
-    MAX_UINT(): NonPayableTransactionObject<string>;
-
-    _totalSupply(): NonPayableTransactionObject<string>;
-
     allowance(
-      _owner: string,
-      _spender: string
+      owner: string,
+      spender: string
     ): NonPayableTransactionObject<string>;
 
-    allowed(arg0: string, arg1: string): NonPayableTransactionObject<string>;
-
     approve(
-      _spender: string,
-      _value: number | string | BN
-    ): NonPayableTransactionObject<void>;
-
-    approveByLegacy(
-      from: string,
       spender: string,
-      value: number | string | BN
-    ): NonPayableTransactionObject<void>;
+      amount: number | string | BN
+    ): NonPayableTransactionObject<boolean>;
 
-    balanceOf(_owner: string): NonPayableTransactionObject<string>;
+    balanceOf(account: string): NonPayableTransactionObject<string>;
 
-    balances(arg0: string): NonPayableTransactionObject<string>;
+    decimals(): NonPayableTransactionObject<string>;
 
-    basisPointsRate(): NonPayableTransactionObject<string>;
+    decreaseAllowance(
+      spender: string,
+      subtractedValue: number | string | BN
+    ): NonPayableTransactionObject<boolean>;
 
-    maximumFee(): NonPayableTransactionObject<string>;
+    increaseAllowance(
+      spender: string,
+      addedValue: number | string | BN
+    ): NonPayableTransactionObject<boolean>;
 
-    owner(): NonPayableTransactionObject<string>;
+    name(): NonPayableTransactionObject<string>;
+
+    symbol(): NonPayableTransactionObject<string>;
 
     totalSupply(): NonPayableTransactionObject<string>;
 
     transfer(
-      _to: string,
-      _value: number | string | BN
-    ): NonPayableTransactionObject<void>;
-
-    transferByLegacy(
-      from: string,
       to: string,
-      value: number | string | BN
-    ): NonPayableTransactionObject<void>;
+      amount: number | string | BN
+    ): NonPayableTransactionObject<boolean>;
 
     transferFrom(
-      _from: string,
-      _to: string,
-      _value: number | string | BN
-    ): NonPayableTransactionObject<void>;
-
-    transferFromByLegacy(
-      sender: string,
       from: string,
-      spender: string,
-      value: number | string | BN
-    ): NonPayableTransactionObject<void>;
-
-    transferOwnership(newOwner: string): NonPayableTransactionObject<void>;
+      to: string,
+      amount: number | string | BN
+    ): NonPayableTransactionObject<boolean>;
   };
   events: {
     Approval(cb?: Callback<Approval>): EventEmitter;

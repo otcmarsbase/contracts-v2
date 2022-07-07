@@ -13,7 +13,7 @@ import type {
   BlockType,
   ContractEventLog,
   BaseContract,
-} from "../types";
+} from "../../../types";
 
 export interface EventOptions {
   filter?: object;
@@ -38,14 +38,16 @@ export type Transfer = ContractEventLog<{
   2: string;
 }>;
 
-export interface USDT extends BaseContract {
+export interface ERC20 extends BaseContract {
   constructor(
     jsonInterface: any[],
     address?: string,
     options?: ContractOptions
-  ): USDT;
-  clone(): USDT;
+  ): ERC20;
+  clone(): ERC20;
   methods: {
+    _totalSupply(): NonPayableTransactionObject<string>;
+
     allowance(
       owner: string,
       spender: string
@@ -53,39 +55,23 @@ export interface USDT extends BaseContract {
 
     approve(
       spender: string,
-      amount: number | string | BN
-    ): NonPayableTransactionObject<boolean>;
+      value: number | string | BN
+    ): NonPayableTransactionObject<void>;
 
-    balanceOf(account: string): NonPayableTransactionObject<string>;
-
-    decimals(): NonPayableTransactionObject<string>;
-
-    decreaseAllowance(
-      spender: string,
-      subtractedValue: number | string | BN
-    ): NonPayableTransactionObject<boolean>;
-
-    increaseAllowance(
-      spender: string,
-      addedValue: number | string | BN
-    ): NonPayableTransactionObject<boolean>;
-
-    name(): NonPayableTransactionObject<string>;
-
-    symbol(): NonPayableTransactionObject<string>;
+    balanceOf(who: string): NonPayableTransactionObject<string>;
 
     totalSupply(): NonPayableTransactionObject<string>;
 
     transfer(
       to: string,
-      amount: number | string | BN
-    ): NonPayableTransactionObject<boolean>;
+      value: number | string | BN
+    ): NonPayableTransactionObject<void>;
 
     transferFrom(
       from: string,
       to: string,
-      amount: number | string | BN
-    ): NonPayableTransactionObject<boolean>;
+      value: number | string | BN
+    ): NonPayableTransactionObject<void>;
   };
   events: {
     Approval(cb?: Callback<Approval>): EventEmitter;

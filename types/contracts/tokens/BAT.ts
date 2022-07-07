@@ -13,7 +13,7 @@ import type {
   BlockType,
   ContractEventLog,
   BaseContract,
-} from "../types";
+} from "../../types";
 
 export interface EventOptions {
   filter?: object;
@@ -38,13 +38,13 @@ export type Transfer = ContractEventLog<{
   2: string;
 }>;
 
-export interface EPICCoin extends BaseContract {
+export interface BAT extends BaseContract {
   constructor(
     jsonInterface: any[],
     address?: string,
     options?: ContractOptions
-  ): EPICCoin;
-  clone(): EPICCoin;
+  ): BAT;
+  clone(): BAT;
   methods: {
     allowance(
       owner: string,

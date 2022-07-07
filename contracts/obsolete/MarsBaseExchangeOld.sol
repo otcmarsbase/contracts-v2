@@ -2,8 +2,8 @@
 pragma solidity >=0.8.0 <0.9.0;
 
 import "./MarsBase.sol";
-import "./MarsBaseCommon.sol";
-import "./IMarsbaseExchange.sol";
+import "../MarsBaseCommon.sol";
+import "../IMarsbaseExchange.sol";
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 

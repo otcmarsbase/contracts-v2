@@ -13,7 +13,7 @@ import type {
   BlockType,
   ContractEventLog,
   BaseContract,
-} from "../../types";
+} from "../../../types";
 
 export interface EventOptions {
   filter?: object;
@@ -30,24 +30,34 @@ export type Transfer = ContractEventLog<{
   2: string;
 }>;
 
-export interface ERC20Basic extends BaseContract {
+export interface BasicToken extends BaseContract {
   constructor(
     jsonInterface: any[],
     address?: string,
     options?: ContractOptions
-  ): ERC20Basic;
-  clone(): ERC20Basic;
+  ): BasicToken;
+  clone(): BasicToken;
   methods: {
     _totalSupply(): NonPayableTransactionObject<string>;
 
-    balanceOf(who: string): NonPayableTransactionObject<string>;
+    balanceOf(_owner: string): NonPayableTransactionObject<string>;
+
+    balances(arg0: string): NonPayableTransactionObject<string>;
+
+    basisPointsRate(): NonPayableTransactionObject<string>;
+
+    maximumFee(): NonPayableTransactionObject<string>;
+
+    owner(): NonPayableTransactionObject<string>;
 
     totalSupply(): NonPayableTransactionObject<string>;
 
     transfer(
-      to: string,
-      value: number | string | BN
+      _to: string,
+      _value: number | string | BN
     ): NonPayableTransactionObject<void>;
+
+    transferOwnership(newOwner: string): NonPayableTransactionObject<void>;
   };
   events: {
     Transfer(cb?: Callback<Transfer>): EventEmitter;
