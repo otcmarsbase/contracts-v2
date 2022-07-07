@@ -7,7 +7,7 @@ const { checkEvent, checkEventExists, checkEventDoesntExist } = require('../even
 const { mintAll, approveMany, expectBalances } = require('../token-utils')
 const { prepareEnvironment, ZERO, getOfferIdFromTx, getOfferDataFromTx, skipTime, skipTimeTo, getLastBlockTime } = require("../utils")
 
-describe.only("missing/eth", () =>
+describe("missing/eth", () =>
 {
 	it("should create an offer with eth as tokenAlice")
 	it("should create an offer with eth as one of tokenBob")
