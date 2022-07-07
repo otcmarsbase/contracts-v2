@@ -80,4 +80,5 @@ describe("missing/fee", () =>
 			}
 		})
 	})
+	it("should not deduct fee if no commissionWallet is set")
 })

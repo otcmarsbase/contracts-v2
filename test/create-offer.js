@@ -1,4 +1,4 @@
-const { getLastBlockTime } = require("./utils")
+const { getLastBlockTime, ZERO } = require("./utils")
 
 const sensibleOfferDefaults = () => ({
 	modifyEnabled: false,
@@ -11,6 +11,8 @@ const sensibleOfferDefaults = () => ({
 	deadline: Math.floor((Date.now() / 1000) + 86400),
 })
 
+const isEth = (token) => token == ZERO
+
 async function createOfferTokenToken(contract, tokenAlice, amountAlice, tokenBob, amountBob, params = sensibleOfferDefaults())
 {
 	let smallestChunkSize = amountAlice.substring(0, amountAlice.length - 2)
@@ -20,7 +22,9 @@ async function createOfferTokenToken(contract, tokenAlice, amountAlice, tokenBob
 		smallestChunkSize,
 		...params,
 	}
-	let txCreate = await contract.createOffer(tokenAlice, [tokenBob], amountAlice, [amountBob], details)
+	let txCreate = await contract.createOffer(tokenAlice, [tokenBob], amountAlice, [amountBob], details, {
+		value: isEth(tokenAlice) ? amountAlice : "0",
+	})
 	let receipt = await txCreate.wait()
 	let offerCreatedEvent = receipt.events.find(x => x.event == "OfferCreated")
 	expect(offerCreatedEvent).not.undefined
