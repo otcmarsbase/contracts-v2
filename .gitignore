@@ -1,10 +1,12 @@
 node_modules/
 build/
-.env
 artifacts/
 cache/
+coverage/
 
+.env
 .accounts
 .etherscan
 .infuraid
 .secret
+coverage.json

@@ -20,6 +20,7 @@ require("@nomiclabs/hardhat-etherscan");
 require('@typechain/hardhat');
 require("hardhat-gas-reporter");
 require('hardhat-contract-sizer');
+require('solidity-coverage');
 
 async function lockContract(exchangeAddress) {
   const MarsBaseExchange = await ethers.getContractFactory("MarsBaseExchange");
