@@ -1,434 +1,792 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0 <0.9.0;
 
-import "./MarsBase.sol";
 import "./MarsBaseCommon.sol";
+import "./IMarsbaseExchange.sol";
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
+// import "hardhat/console.sol";
 
 /// @title MarsBaseExchange
 /// @author dOTC Marsbase
 /// @notice This contract contains the public facing elements of the marsbase exchange. 
-contract MarsBaseExchange {
-    /// Emitted when an offer is created
-    event OfferCreated(
-        uint256 offerId,
-        address sender,
-        uint256 blockTimestamp,
-        MarsBaseCommon.MBOffer offer
-    );
-
-    /// Emitted when an offer has it's parameters or capabilities modified
-    event OfferModified(
-        uint256 offerId,
-        address sender,
-        uint256 blockTimestamp,
-        MarsBaseCommon.OfferParams offerParameters
-    );
-
-    /// Emitted when an offer is accepted.
-    /// This includes partial transactions, where the whole offer is not bought out and those where the exchange is not finallized immediatley.
-    event OfferAccepted(
-        uint256 offerId,
-        address sender,
-        uint256 blockTimestamp,
-        uint256 amountAliceReceived,
-        uint256 amountBobReceived,
-        address tokenAddressAlice,
-        address tokenAddressBob,
-        MarsBaseCommon.OfferType offerType,
-        uint256 feeAlice,
-        uint256 feeBob
-    );
-
-    /// Emitted when the offer is cancelled either by the creator or because of an unsuccessful auction
-    event OfferCancelled(
-        uint256 offerId,
-        address sender,
-        uint256 blockTimestamp
-    );
-
-    event OfferClosed(
-        uint256 offerId,
-        MarsBaseCommon.OfferCloseReason reason,
-        uint256 blockTimestamp
-    );
-
-    event ContractMigrated();
-
-    /// Emitted when a buyer cancels their bid for a offer were tokens have not been exchanged yet and are still held by the contract.
-    event BidCancelled(uint256 offerId, address sender, uint256 blockTimestamp);
-
-    /// Emitted only for testing usage
-    event Log(uint256 log);
-
-    address marsBaseOffersAddress;
-    address marsBaseMinimumOffersAddress;
+contract MarsBaseExchange is IMarsbaseExchange
+{
     address owner;
 
-    uint256 nextOfferId;
+    uint256 nextOfferId = 0;
+	uint256 activeOffersCount = 0;
 
     uint256 minimumFee = 0;
 
     address commissionWallet;
     address commissionExchanger;
-
-    bool locked;
+	
+    bool locked = false;
 
     mapping(uint256 => MarsBaseCommon.MBOffer) public offers;
 
-    /// Constructor sets owner and commission wallet to the contract creator initially.
     constructor() {
-        owner = msg.sender;
-        commissionWallet = msg.sender;
-        locked = false;
+		owner = msg.sender;
+		commissionWallet = msg.sender;
     }
 
-    struct MBAddresses {
-        address offersContract;
-        address minimumOffersContract;
-    }
-
-    modifier unlocked {
-        require(locked == false, "S9");
-        _;
-    }
-
-    /// Updates the address where the commisions are sent
-    /// Can only be called by the owner
-    function setCommissionAddress(address wallet) unlocked public {
-        require(msg.sender == owner, "S7");
-
-        commissionWallet = wallet;
-    }
-
-    /// Updates the address where the commisions are exchanged
-    /// Can only be called by the owner
-    function setExchangerAddress(address exchangeContract) unlocked public {
-        require(msg.sender == owner, "S7");
-
-        commissionExchanger = exchangeContract;
-    }
-
-    /// Updates the minimum fee amount
-    /// Can be only called by the owner
-    /// Is in the format of an integer, with a maximum of 1000.
-    /// For example, 1% fee is 10, 100% is 1000 and 0.1% is 1.
-    function setMinimumFee(uint256 _minimumFee) unlocked public {
-        require(msg.sender == owner, "S7");
-
-        minimumFee = _minimumFee;
-    }
-	function getMinimumFee() public view returns (uint256) {
+	// onlyOwner modifier
+	modifier onlyOwner {
+		require(msg.sender == owner, "403");
+		_;
+	}
+	modifier unlocked {
+		require(!locked, "409");
+		_;
+	}
+	
+	function setCommissionAddress(address wallet) onlyOwner public
+	{
+		commissionWallet = wallet;
+	}
+	function getCommissionAddress() public view returns (address)
+	{
+		return commissionWallet;
+	}
+	function setExchangerAddress(address exchangeContract) onlyOwner public
+	{
+		commissionExchanger = exchangeContract;
+	}
+	function getExchangerAddress() public view returns (address)
+	{
+		return commissionExchanger;
+	}
+	function setMinimumFee(uint256 _minimumFee) onlyOwner public
+	{
+		minimumFee = _minimumFee;
+	}
+	function getMinimumFee() public view returns (uint256)
+	{
 		return minimumFee;
 	}
+	function setNextOfferId(uint256 _nextOfferId) onlyOwner public
+	{
+		nextOfferId = _nextOfferId;
+	}
+	function getNextOfferId() public view returns (uint256)
+	{
+		return nextOfferId;
+	}
+	function getOffer(uint256 offerId) public view returns (MarsBaseCommon.MBOffer memory)
+	{
+		return offers[offerId];
+	}
+	function getOwner() public view returns (address)
+	{
+		return owner;
+	}
+	function changeOwner(address newOwner) onlyOwner public
+	{
+		owner = newOwner;
+	}
 
-    function setNextOfferId(uint256 _nextOfferId) unlocked public {
-        require(msg.sender == owner, "S7");
+	uint256 constant MAX_UINT256 = type(uint256).max;
 
-        nextOfferId = _nextOfferId;
-    }
+	uint256 constant POW_2_128 = 2**128;
+	uint256 constant POW_2_64 = 2**64;
+	uint256 constant POW_2_32 = 2**32;
+	uint256 constant POW_2_16 = 2**16;
+	uint256 constant POW_2_8 = 2**8;
+	uint256 constant POW_2_4 = 2**4;
+	uint256 constant POW_2_2 = 2**2;
+	uint256 constant POW_2_1 = 2**1;
+	
+	function log2(uint256 x) public pure returns (uint8 n)
+	{
+		if (x >= POW_2_128) { x >>= 128; n += 128; }
+		if (x >= POW_2_64) { x >>= 64; n += 64; }
+		if (x >= POW_2_32) { x >>= 32; n += 32; }
+		if (x >= POW_2_16) { x >>= 16; n += 16; }
+		if (x >= POW_2_8) { x >>= 8; n += 8; }
+		if (x >= POW_2_4) { x >>= 4; n += 4; }
+		if (x >= POW_2_2) { x >>= 2; n += 2; }
+		if (x >= 2) { n += 1; }
+	}
 
-    /// Gets an offer by its id
-    function getOffer(uint256 offerId)
-        public
-        view
-        returns (MarsBaseCommon.MBOffer memory)
-    {
-        return offers[offerId];
-    }
+	/**
+		Price calculation is approximate, but it's good enough for our purposes.
+		We don't need the exact amount of tokens, we just need a close enough approximation.
+	*/
+	function price(
+		uint256 amountAlice,
+		uint256 offerAmountAlice,
+		uint256 offerAmountBob
+	) public pure returns (uint256)
+	{
+		uint16 amountAliceLog2 = log2(amountAlice);
+		uint16 offerAmountBobLog2 = log2(offerAmountBob);
 
-    /// Gets the next offer ID
-    /// This should return the amount of offers that have ever been created, including those that are no longer active.
-    function getNextOfferId() public view returns (uint256) {
-        return nextOfferId;
-    }
+		if ((amountAliceLog2 + offerAmountBobLog2) < 240) // TODO: check bounds for 255 instead of 240
+		{
+			return (amountAlice * offerAmountBob) / offerAmountAlice;
 
+			// uint256 numerator = amountAlice * offerAmountBob;
+			// uint256 finalPrice = numerator / offerAmountAlice;
+			// return finalPrice;
+		}
 
-    /// Return the address of the current owner.
-    function getOwner() public view returns (address) {
-        return owner;
-    }
+		// otherwise, just divide the bigger value
+		if (amountAlice >= offerAmountBob)
+		{
+			// return (amountAlice * offerAmountBob) / offerAmountAlice;
+			// return amountAlice * offerAmountBob / offerAmountAlice;
+			// return amountAlice / offerAmountAlice * offerAmountBob;
+			// return (amountAlice / offerAmountAlice) * offerAmountBob;
+			return (amountAlice / offerAmountAlice) * offerAmountBob;
+		}
+		else
+		{
+			// return (amountAlice * offerAmountBob) / offerAmountAlice;
+			// return amountAlice * offerAmountBob / offerAmountAlice;
+			// return amountAlice * offerAmountBob / offerAmountAlice;
+			// return amountAlice * (offerAmountBob / offerAmountAlice);
+			return amountAlice * (offerAmountBob / offerAmountAlice);
+		}
+	}
 
-    /// Change the owner address
-    function changeOwner(address newOwner) public {
-        require(msg.sender == owner, "S7");
-        require(newOwner != address(0), "T0");
+	// max safe uint256 constant that can be calculated for 1e4 fee
+	uint256 constant MAX_SAFE_TARGET_AMOUNT = MAX_UINT256 / (1e4);
 
-        owner = newOwner;
-    }
+	function afterFee(uint256 amountBeforeFee, uint256 feePercent) public pure returns (uint256 amountAfterFee, uint256 fee)
+	{
+		return _afterFee(amountBeforeFee, feePercent, 1e3, MAX_SAFE_TARGET_AMOUNT);
+	}
+	function _afterFee(uint256 amountBeforeFee, uint256 feePercent, uint256 scale, uint256 safeAmount) public pure returns (uint256 amountAfterFee, uint256 fee)
+	{
+		if (feePercent == 0)
+			return (amountBeforeFee, 0);
 
-    /// Swaps commission for a token to USDT and sends it to the commission wallet
-    /// If no exchange contract is set the commission is sent to the commsiion wallet
-    function swapCommission(uint256 amount, address token) internal {
+		if (feePercent >= scale)
+			return (0, amountBeforeFee);
 
-        if (amount == 0 || commissionWallet == address(0)) {
-            return;
-        }
+		if (amountBeforeFee < safeAmount)
+			fee = (amountBeforeFee * feePercent) / scale;
+		else
+			fee = (amountBeforeFee / scale) * feePercent;
 
-        if (token != address(0)) {
-            uint256 balance = IERC20(token).balanceOf(address(this));
+		amountAfterFee = amountBeforeFee - fee;
+		return (amountAfterFee, fee);
+	}
 
-            if (balance < amount) {
-               amount = balance;
-            }
-        }
-
-        if (commissionExchanger != address(0)) {
-            IERC20(token).approve(commissionExchanger, amount);
-            IMarsbaseSink(commissionExchanger).liquidateToken(msg.sender, token, amount, commissionWallet);
-        } else {
-            if (token != address(0)) {
-                IERC20(token).transfer(commissionWallet, amount);
-            } else {
-                commissionWallet.call{value: amount};
-            }
-        }
-    }
-
-    // Gets a list of all active offers
-    function getAllOffers()
-        public
-        view
-        returns (MarsBaseCommon.MBOffer[] memory)
-    {
-        MarsBaseCommon.MBOffer[]
-            memory openOffers = new MarsBaseCommon.MBOffer[](nextOfferId);
-        uint256 counter = 0;
-
-        for (uint256 index = 0; index < nextOfferId; index++) {
-            if (getOffer(index).active == true) {
-                openOffers[counter] = getOffer(index);
-                counter++;
-            }
-        }
-
-        return openOffers;
-    }
-
-
-    /// Creates an offer
-    /// tokenAlice - the address of the token that will be put up for sale
-    /// tokenBob - a list of tokens that we are willing to accept in exchange for token alice.
-    /// NOTE: If the user would like to accept native ether, token bob should have an element with a zero address. This indicates that we accept native ether.
-    /// amountAlice - the amount of tokenAlice we are putting for sale, in wei.
-    /// amountBob - a list of the amounts we are willing to accept for each token bob. This is then compared with amountAlice to generate a fixed exchange rate.
-    /// offerParamaters - The configureation parameters for the offer to set the conditions for the sale. 
-    function createOffer(
+	// TODO: rename to `getAllActiveOffers`
+	function getAllOffers() public view returns (MarsBaseCommon.MBOffer[] memory)
+	{
+		MarsBaseCommon.MBOffer[] memory offersArray = new MarsBaseCommon.MBOffer[](activeOffersCount);
+		uint256 i = 0;
+		for (uint256 offerId = 0; offerId < nextOfferId; offerId++)
+		{
+			if (offers[offerId].active)
+			{
+				offersArray[i] = offers[offerId];
+				i++;
+			}
+		}
+		return offersArray;
+	}
+	function limitMinimumSize9999(uint256 minimumSize, uint256 amountAlice) public pure returns (uint256)
+	{
+		if (minimumSize == 0)
+			return minimumSize;
+		
+		(uint256 amountAfterFee, ) = _afterFee(amountAlice, 1, 1e4, MAX_UINT256 / 1e5);
+		if (minimumSize > amountAfterFee)
+		{
+			minimumSize = amountAfterFee;
+		}
+		return minimumSize;
+	}
+	function createOffer(
         address tokenAlice,
         address[] calldata tokenBob,
         uint256 amountAlice,
         uint256[] calldata amountBob,
         MarsBaseCommon.OfferParams calldata offerParameters
-    ) unlocked public payable {
-        require(
-            offerParameters.feeAlice + offerParameters.feeBob >= minimumFee,
-            "M0"
-        );
+    ) unlocked public payable
+	{
+		// require(!offerParameters.cancelEnabled, "NI - cancelEnabled");
+		require(!offerParameters.modifyEnabled, "NI-ME"); // Modify Enabled
+		// require(!offerParameters.holdTokens, "NI - holdTokens");
+		// require(offerParameters.feeAlice == 0, "NI - feeAlice");
+		// require(offerParameters.feeBob == 0, "NI - feeBob");
+		// require(offerParameters.smallestChunkSize == 0, "NI - smallestChunkSize");
+		// require(offerParameters.deadline == 0, "NI - deadline");
+		// require(offerParameters.minimumSize == 0, "NI - minimumSize");
+		if (offerParameters.deadline > 0)
+			require(offerParameters.deadline > block.timestamp, "405-OD");
+		
+		// require(tokenAlice != address(0), "NI - tokenAlice ETH");
+		require(amountAlice > 0, "400-AAL");
 
-        offers[nextOfferId] = MarsBase.createOffer(
-            nextOfferId,
-            tokenAlice,
-            tokenBob,
-            amountAlice,
-            amountBob,
-            offerParameters
-        );
-        emit OfferCreated(
-            nextOfferId,
-            msg.sender,
-            block.timestamp,
-            offers[nextOfferId]
-        );
+		require(tokenBob.length > 0, "400-BE");
+		require(amountBob.length == tokenBob.length, "400-BLMM"); // Bob Length MisMatch
+		// for (uint256 i = 0; i < tokenBob.length; i++)
+		// {
+		// 	require(tokenBob[i] != address(0), "NI - tokenBob ETH");
+		// }
 
-        nextOfferId++;
-    }
+		// take tokens from alice
+		if (tokenAlice == address(0))
+			require(amountAlice == msg.value, "402-E");
+		else
+			require(IERC20(tokenAlice).transferFrom(msg.sender, address(this), amountAlice), "402");
 
-    /// Cancels the offer at the provided ID
-    /// Must be the offer creator.
-    function cancelOffer(uint256 offerId) public {
-        offers[offerId] = MarsBase.cancelOffer(offers[offerId]);
-        emit OfferCancelled(offerId, msg.sender, block.timestamp);
-        emit OfferClosed(offerId, MarsBaseCommon.OfferCloseReason.CancelledBySeller, block.timestamp);
-    }
+		// create offer object
+		uint256 offerId = nextOfferId++;
+		activeOffersCount++;
 
-    /// Calculate the price for a given situarion
-    function price(
-        uint256 amountAlice,
-        uint256 offerAmountAlice,
-        uint256 offerAmountBob
-    ) public pure returns (uint256) {
-        return MarsBase.price(amountAlice, offerAmountAlice, offerAmountBob);
-    }
+		offers[offerId] = MarsBaseCommon.MBOffer(
+			true,
+			false,
+			MarsBaseCommon.OfferType.MinimumChunkedPurchase,
+			offerId,
+			amountAlice,
+			offerParameters.feeAlice,
+			offerParameters.feeBob,
+			limitMinimumSize9999(offerParameters.smallestChunkSize, amountAlice),
+			limitMinimumSize9999(offerParameters.minimumSize, amountAlice),
+			offerParameters.deadline,
+			amountAlice,
+			msg.sender,
+			msg.sender,
+			tokenAlice,
+			[offerParameters.modifyEnabled, offerParameters.cancelEnabled, offerParameters.holdTokens],
+			amountBob,
+			new uint256[](0),
+			new uint256[](0),
+			new address[](0),
+			new address[](0),
+			tokenBob
+		);
 
-    /// Accepts an offer
-    /// This can be either in full or partially. Uses the provided token and amount.
-    /// NOTE: for native ether, tokenBob should be a zero address. amountBob is set by the transaction value automatically, but should match the amount provided when calling.
-    /// The proper function to handle the proccess is selected automatically.
-    function acceptOffer(
+		// console.log(amountAlice);
+
+		emit OfferCreated(offerId, msg.sender, block.timestamp, offers[offerId]);
+	}
+	function sendTokensAfterFeeFrom(
+		address token,
+		uint256 amount,
+		address from,
+		address to,
+		uint256 feePercent
+	) private returns (uint256 /* amountAfterFee */, uint256 /* fee */)
+	{
+		if (commissionWallet == address(0))
+			feePercent = 0;
+
+		(uint256 amountAfterFee, uint256 fee) = afterFee(amount, feePercent);
+
+		// send tokens to receiver
+		if (from == address(this))
+			require(IERC20(token).transfer(to, amountAfterFee), "403-R1");
+		else
+			require(IERC20(token).transferFrom(from, to, amountAfterFee), "403-R2");
+
+		if (fee > 0)
+		{
+			require(commissionExchanger == address(0), "NI - commissionExchanger");
+
+			// send fee to commission wallet
+			if (from == address(this))
+				require(IERC20(token).transfer(commissionWallet, fee), "403-C1");
+			else
+				require(IERC20(token).transferFrom(from, commissionWallet, fee), "403-C2");
+		}
+		return (amountAfterFee, fee);
+	}
+	function _sendEthAfterFee(
+		uint256 amount,
+		address to,
+		uint256 feePercent
+	) private returns (uint256 /* amountAfterFee */, uint256 /* fee */)
+	{
+		if (commissionWallet == address(0))
+			feePercent = 0;
+		
+		(uint256 amountAfterFee, uint256 fee) = afterFee(amount, feePercent);
+
+		(bool success, ) = to.call{value: amountAfterFee, gas: 30000}("");
+		require(success, "404-C1");
+
+		if (fee > 0)
+		{
+			require(commissionExchanger == address(0), "NI - commissionExchanger");
+
+			// send fee to commission wallet
+			(bool success2, ) = commissionWallet.call{value: fee, gas: 30000}("");
+			require(success2, "404-C2");
+		}
+		return (amountAfterFee, fee);
+	}
+	function acceptOffer(
         uint256 offerId,
         address tokenBob,
         uint256 amountBob
-    ) unlocked public payable {
-        MarsBaseCommon.MBOffer memory offer = offers[offerId];
-        MarsBaseCommon.OfferType offerType = offer.offerType;
+    ) unlocked public payable
+	{
+		require(amountBob > 0, "400-ABL");
+		MarsBaseCommon.MBOffer memory offer = offers[offerId];
+		require(offer.active, "404");
 
-        bool shouldSwap = true;
+		// check that deadline has not passed
+		if (offer.deadline > 0)
+			require(offer.deadline >= block.timestamp, "405-D"); // deadline has passed
 
-        if (tokenBob == address(0)) {
-            amountBob = msg.value;
-        }
-		require(amountBob > 0, "M6");
+		// check that tokenBob is accepted in the offer
+		uint256 offerAmountBob = 0;
+		{ // split to block to prevent solidity stack issues
+			bool accepted = false;
+			for (uint256 i = 0; i < offer.tokenBob.length; i++)
+			{
+				if (offer.tokenBob[i] == tokenBob)
+				{
+					accepted = true;
+					offerAmountBob = offer.amountBob[i];
+					break;
+				}
+			}
+			require(accepted, "404-TBI"); // Token Bob is Incorrect
+		}
+		
+		// calculate how much tokenAlice should be sent
+		uint256 amountAlice = price(amountBob, offerAmountBob, offer.amountAlice);
 
-        if (
-            MarsBase.contractType(offerType) ==
-            MarsBaseCommon.ContractType.Offers
-        ) {
-            if (
-                offerType == MarsBaseCommon.OfferType.FullPurchase ||
-                offerType == MarsBaseCommon.OfferType.LimitedTime
-            ) {
-                offers[offerId] = MarsBase.acceptOffer(
-                    offer,
-                    tokenBob,
-                    amountBob
-                );
-            } else {
-                offers[offerId] = MarsBase.acceptOfferPart(
-                    offer,
-                    tokenBob,
-                    amountBob
-                );
-            }
-        } else {
-            offers[offerId] = MarsBase.acceptOfferPartWithMinimum(
-                offer,
-                tokenBob,
-                amountBob
-            );
+		// check that amountAlice is not too low (if smallestChunkSize is 0 it's also okay)
+		require(amountAlice >= min(offer.smallestChunkSize, offer.amountRemaining), "400-AAL");
 
-            shouldSwap = offers[offerId].minimumMet;
-        }
+		// check that amountAlice is not too high
+		require(amountAlice <= offer.amountRemaining, "400-AAH"); // Amount Alice is too High
+		// we don't throw here so it's possible to "overspend"
+		// e.g.:
+		// swap 100 $ALICE to 33 $BOB
+		// 1 $BOB = 3.333 $ALICE (rounded to 3 due to integer arithmetics)
+		// minbid is 11 $BOB
+		// Bob buys 33 $ALICE for 11 $BOB (67 $ALICE remaining)
+		// Charlie buys 33 $ALICE for 11 $BOB (34 $ALICE remaining)
+		// David wants to buy all 34 $ALICE, but:
+		// if he tries to send 11 $BOB he will receive only 33 $ALICE
+		// if he tries to send 12 $BOB, amountAlice will be 36 $ALICE and tx will revert
+		// so we need to let David send a little more $BOB than the limit
+		// if (amountAlice > offer.amountRemaining)
+		// 	amountAlice = offer.amountRemaining;
+		// unfortunately, to prevent front-running we need to make sure
+		// that the bidder really expects to get less tokens
+		// TODO: we can enable this functionality by providing expected amountAlice into this method (dex-style)
 
-        uint256 amountTransacted = offer.amountRemaining - offers[offerId].amountRemaining;
-        uint256 feeAlice = amountTransacted - (amountTransacted * (1000-offer.feeAlice) / 1000);
-        uint256 feeBob = amountBob - (amountBob * (1000-offer.feeBob) / 1000);
 
-        if (shouldSwap == true) {
-            swapCommission(feeAlice, offer.tokenAlice);
-            swapCommission(feeBob, tokenBob);
-        }
+		// update offer
+		offers[offerId].amountRemaining -= amountAlice;
+		
+		offer = offers[offerId];
 
-        emit OfferAccepted(
-            offerId,
-            msg.sender,
-            block.timestamp,
-            amountTransacted,
-            amountBob,
-            offer.tokenAlice,
-            tokenBob,
-            offerType,
-            feeAlice,
-            feeBob
-        );
+		// send tokens to participants or schedule for sending later
+		bool holdTokens = offer.capabilities[2];
 
-        if (offers[offerId].active == false) {
-            emit OfferClosed(offerId, MarsBaseCommon.OfferCloseReason.Success, block.timestamp);
-        }
-    }
+		if (!holdTokens && minimumCovered(offer))
+		{
+			// console.log("instant");
+			// console.log(amountBob);
+			// console.log(amountAlice);
+			_swapAllHeldTokens(offers[offerId]);
+			_swapInstantTokens(offer, tokenBob, amountBob, amountAlice);
+		}
+		else
+		{
+			// console.log("hold");
+			// console.log(amountBob);
+			// console.log(amountAlice);
+			_scheduleTokenSwap(offer, tokenBob, amountBob, amountAlice, msg.sender);
+		}
+		
+		offer = offers[offerId];
 
-    /// Allows the offer creator to set the offer parameters after creation.
-    function changeOfferParams(
+		if (offer.amountRemaining <= (offer.amountAlice / 10000))
+		{
+			_swapAllHeldTokens(offers[offerId]);
+			_destroyOffer(offerId, MarsBaseCommon.OfferCloseReason.Success);
+		}
+	}
+	function max(uint256 a, uint256 b) public pure returns (uint256)
+	{
+		return a >= b ? a : b;
+	}
+	function min(uint256 a, uint256 b) public pure returns (uint256)
+	{
+		return a >= b ? b : a;
+	}
+	function minimumCovered(MarsBaseCommon.MBOffer memory offer) pure public returns (bool result)
+	{
+		uint256 amountSold = offer.amountAlice - offer.amountRemaining;
+		result = amountSold >= offer.minimumSize;
+	}
+	function isEligibleToPayout(MarsBaseCommon.MBOffer memory offer) pure public returns (bool eligible)
+	{
+		return minimumCovered(offer);
+	}
+	function cancelOffer(uint256 offerId) unlocked public payable
+	{
+		MarsBaseCommon.MBOffer memory offer = offers[offerId];
+		require(offer.active, "404");
+		require(offer.capabilities[1], "400-CE");
+		require(offer.offerer == msg.sender, "403");
+
+		if (isEligibleToPayout(offer))
+			_swapAllHeldTokens(offer);
+
+		_destroyOffer(offerId, MarsBaseCommon.OfferCloseReason.CancelledBySeller);
+	}
+	function _emitOfferAcceptedForScheduledSwap(
+		MarsBaseCommon.MBOffer memory offer,
+		uint256 i
+	) private
+	{
+		(uint256 aliceSentToBob, uint256 feeAliceDeducted) = afterFee(offer.minimumOrderAmountsAlice[i], offer.feeAlice);
+		(uint256 bobSentToAlice, uint256 feeBobDeducted) = afterFee(offer.minimumOrderAmountsBob[i], offer.feeBob);
+
+		// emit event
+		emit OfferAccepted(
+			// uint256 offerId,
+			offer.offerId,
+			// address sender,
+			offer.minimumOrderAddresses[i],
+			// uint256 blockTimestamp,
+			block.timestamp,
+			// uint256 amountAliceReceived,
+			aliceSentToBob,
+			// uint256 amountBobReceived,
+			bobSentToAlice,
+			// address tokenAddressAlice,
+			offer.tokenAlice,
+			// address tokenAddressBob,
+			offer.minimumOrderTokens[i],
+			// MarsBaseCommon.OfferType offerType,
+			offer.offerType,
+			// uint256 feeAlice,
+			feeAliceDeducted,
+			// uint256 feeBob
+			feeBobDeducted
+		);
+	}
+	function _scheduleTokenSwap(
+		MarsBaseCommon.MBOffer memory offer,
+		address tokenBob,
+		uint256 amountBob,
+		uint256 amountAlice,
+		address bob
+	) private
+	{
+		uint256 index = offers[offer.offerId].minimumOrderAddresses.length;
+
+		// console.log("_scheduleTokenSwap");
+		// console.log(amountBob);
+
+		if (tokenBob == address(0))
+		{
+			require(msg.value == amountBob, "403-C1");
+		}
+		else
+		{
+			IERC20(tokenBob).transferFrom(bob, address(this), amountBob);
+		}
+
+		offers[offer.offerId].minimumOrderAmountsAlice.push(amountAlice);
+		offers[offer.offerId].minimumOrderAmountsBob.push(amountBob);
+		offers[offer.offerId].minimumOrderAddresses.push(bob);
+		offers[offer.offerId].minimumOrderTokens.push(tokenBob);
+
+		_emitOfferAcceptedForScheduledSwap(offers[offer.offerId], index);
+	}
+	function _swapInstantTokens(
+		MarsBaseCommon.MBOffer memory offer,
+		address tokenBob,
+		uint256 amountBob,
+		uint256 amountAlice
+	) private
+	{
+		// send Bob tokens to Alice
+		uint256 bobSentToAlice;
+		uint256 feeBobDeducted;
+		if (tokenBob == address(0))
+		{
+			(bobSentToAlice, feeBobDeducted) = _sendEthAfterFee(amountBob, offer.offerer, offer.feeBob);
+		}
+		else
+		{
+			(bobSentToAlice, feeBobDeducted) = sendTokensAfterFeeFrom(
+				// address token,
+				tokenBob,
+				// uint256 amount,
+				amountBob,
+				// address from,
+				msg.sender,
+				// address to,
+				offer.offerer,
+				// uint256 feePercent
+				offer.feeBob
+			);
+		}
+
+		// send Alice tokens to Bob
+		uint256 aliceSentToBob;
+		uint256 feeAliceDeducted;
+		if (offer.tokenAlice == address(0))
+		{
+			(aliceSentToBob, feeAliceDeducted) = _sendEthAfterFee(amountAlice, msg.sender, offer.feeAlice);
+		}
+		else
+		{
+			(aliceSentToBob, feeAliceDeducted) = sendTokensAfterFeeFrom(
+				// address token,
+				offer.tokenAlice,
+				// uint256 amount,
+				amountAlice,
+				// address from,
+				address(this),
+				// address to,
+				msg.sender,
+				// uint256 feePercent
+				offer.feeAlice
+			);
+		}
+
+		// emit event
+		emit OfferAccepted(
+			// uint256 offerId,
+			offer.offerId,
+			// address sender,
+			msg.sender,
+			// uint256 blockTimestamp,
+			block.timestamp,
+			// uint256 amountAliceReceived,
+			aliceSentToBob,
+			// uint256 amountBobReceived,
+			bobSentToAlice,
+			// address tokenAddressAlice,
+			offer.tokenAlice,
+			// address tokenAddressBob,
+			tokenBob,
+			// MarsBaseCommon.OfferType offerType,
+			offer.offerType,
+			// uint256 feeAlice,
+			feeAliceDeducted,
+			// uint256 feeBob
+			feeBobDeducted
+		);
+	}
+	function _swapAllHeldTokens(MarsBaseCommon.MBOffer memory offer) private
+	{
+		uint256 offerId = offer.offerId;
+
+		// trade all remaining tokens
+		for (uint256 i = 0; i < offer.minimumOrderTokens.length; i++)
+		{
+			// address tokenBob = offer.minimumOrderTokens[i];
+			// uint256 amountBob = offer.minimumOrderAmountsBob[i];
+			uint256 amountAlice = offer.minimumOrderAmountsAlice[i];
+
+			require(amountAlice > 0, "500-AAL"); // Amount Alice is too Low
+			
+			// just to future-proof double entry protection in case of refactoring
+			offers[offerId].minimumOrderAmountsAlice[i] = 0;
+
+			_swapHeldTokens(offer, i);
+		}
+		// drop used arrays
+		offers[offerId].minimumOrderAmountsAlice = new uint256[](0);
+		offers[offerId].minimumOrderAmountsBob = new uint256[](0);
+		offers[offerId].minimumOrderAddresses = new address[](0);
+		offers[offerId].minimumOrderTokens = new address[](0);
+	}
+	function _swapHeldTokens(MarsBaseCommon.MBOffer memory offer, uint256 i) private
+	{
+		// send Bob tokens to Alice
+		if (offer.minimumOrderTokens[i] == address(0))
+		{
+			_sendEthAfterFee(offer.minimumOrderAmountsBob[i], offer.offerer, offer.feeBob);
+		}
+		else
+		{
+			sendTokensAfterFeeFrom(
+				// address token,
+				offer.minimumOrderTokens[i],
+				// uint256 amount,
+				offer.minimumOrderAmountsBob[i],
+				// address from,
+				address(this),
+				// address to,
+				offer.offerer,
+				// uint256 feePercent
+				offer.feeBob
+			);
+		}
+
+		// send Alice tokens to Bob
+		if (offer.tokenAlice == address(0))
+		{
+			_sendEthAfterFee(offer.minimumOrderAmountsAlice[i], offer.minimumOrderAddresses[i], offer.feeAlice);
+		}
+		else
+		{
+			sendTokensAfterFeeFrom(
+				// address token,
+				offer.tokenAlice,
+				// uint256 amount,
+				offer.minimumOrderAmountsAlice[i],
+				// address from,
+				address(this),
+				// address to,
+				offer.minimumOrderAddresses[i],
+				// uint256 feePercent
+				offer.feeAlice
+			);
+		}
+
+		// do not emit event (it was emit before)
+
+		// // emit event
+		// emit OfferAccepted(
+		// 	// uint256 offerId,
+		// 	offer.offerId,
+		// 	// address sender,
+		// 	msg.sender,
+		// 	// uint256 blockTimestamp,
+		// 	block.timestamp,
+		// 	// uint256 amountAliceReceived,
+		// 	aliceSentToBob,
+		// 	// uint256 amountBobReceived,
+		// 	bobSentToAlice,
+		// 	// address tokenAddressAlice,
+		// 	offer.tokenAlice,
+		// 	// address tokenAddressBob,
+		// 	offer.minimumOrderTokens[i],
+		// 	// MarsBaseCommon.OfferType offerType,
+		// 	offer.offerType,
+		// 	// uint256 feeAlice,
+		// 	feeAliceDeducted,
+		// 	// uint256 feeBob
+		// 	feeBobDeducted
+		// );
+	}
+	function closeExpiredOffer(uint256 offerId) unlocked public
+	{
+		MarsBaseCommon.MBOffer memory offer = offers[offerId];
+		require(offer.active, "404");
+
+		// require offer to be expired
+		require((offer.deadline > 0) && (offer.deadline < block.timestamp), "400-NE"); // Not Expired
+		
+		// if minimum covered
+		// uint256 amountSold = offer.amountAlice - offer.amountRemaining;
+		// bool minimumCovered = amountSold >= offer.minimumSize;
+		// bool minimumCovered = (offer.amountAlice - offer.amountRemaining) >= offer.minimumSize;
+		if ((offer.amountAlice - offer.amountRemaining) < offer.minimumSize)
+		{
+			_destroyOffer(offerId, MarsBaseCommon.OfferCloseReason.DeadlinePassed);
+			return;
+		}
+
+		// if any tokens are still held in the offer
+		if (offer.minimumOrderTokens.length > 0)
+		{
+			_swapAllHeldTokens(offer);
+		}
+
+		_destroyOffer(offerId, MarsBaseCommon.OfferCloseReason.Success);
+	}
+	function _destroyOffer(uint256 offerId, MarsBaseCommon.OfferCloseReason reason) private
+	{
+		MarsBaseCommon.MBOffer memory offer = offers[offerId];
+
+		require(offer.active, "404");
+
+		// require(offer.minimumSize == 0, "NI - offer.minimumSize");
+
+		// is this excessive for double-entry prevention?
+		offers[offerId].active = false;
+
+		// send remaining tokens to Alice
+		if (offer.amountRemaining > 0)
+		{
+			if (offer.tokenAlice == address(0))
+				_sendEthAfterFee(offer.amountRemaining, offer.offerer, 0);
+			else
+				IERC20(offer.tokenAlice).transfer(offer.offerer, offer.amountRemaining);
+		}
+
+		// if any tokens are still held in the offer
+		if (offer.minimumOrderTokens.length > 0)
+		{
+			// revert all tokens to their owners
+			for (uint256 i = 0; i < offer.minimumOrderTokens.length; i++)
+			{
+				if (offer.minimumOrderTokens[i] == address(0))
+					_sendEthAfterFee(offer.minimumOrderAmountsBob[i], offer.minimumOrderAddresses[i], 0);
+				else
+					IERC20(offer.minimumOrderTokens[i]).transfer(offer.minimumOrderAddresses[i], offer.minimumOrderAmountsBob[i]);
+				
+				if (offer.tokenAlice == address(0))
+					_sendEthAfterFee(offer.minimumOrderAmountsAlice[i], offer.offerer, 0);
+				else
+					IERC20(offer.tokenAlice).transfer(offer.offerer, offer.minimumOrderAmountsAlice[i]);
+			}
+		}
+
+		delete offers[offerId];
+		activeOffersCount--;
+		
+		emit OfferClosed(
+			// uint256 offerId,
+			offerId,
+			// MarsBaseCommon.OfferCloseReason reason,
+			reason,
+			// uint256 blockTimestamp
+			block.timestamp
+		);
+	}
+	function changeOfferParams(
         uint256 offerId,
         address[] calldata tokenBob,
         uint256[] calldata amountBob,
         MarsBaseCommon.OfferParams calldata offerParameters
-    ) unlocked public {
-        offers[offerId] = MarsBase.changeOfferParams(
-            offers[offerId],
-            tokenBob,
-            amountBob,
-            offerParameters
-        );
-
-        emit OfferModified(
-            offerId,
-            msg.sender,
-            block.timestamp,
-            offerParameters
-        );
-    }
-
-    /// Allows the buyer to cancel his bid in situations where the exchange has not occured yet.
-    /// This applys only to offers where minimumSize is greater than zero and the minimum has not been met.
-    function cancelBid(uint256 offerId) public {
-        offers[offerId] = MarsBase.cancelBid(offers[offerId]);
-
-        emit BidCancelled(offerId, msg.sender, block.timestamp);
-    }
-
-    /// A function callable by the contract owner to cancel all offers where the time has expired.
-    function cancelExpiredOffers() public payable {
-        require(msg.sender == owner, "S8");
-
-        for (uint256 index = 0; index < nextOfferId; index++) {
-            if (
-                block.timestamp >= offers[index].deadline &&
-                offers[index].deadline != 0 &&
-                MarsBase.contractType(offers[index].offerType) == MarsBaseCommon.ContractType.Offers
-            ) {
-                offers[index] = MarsBase.cancelExpiredOffer(offers[index]);
-                emit OfferClosed(index, MarsBaseCommon.OfferCloseReason.DeadlinePassed, block.timestamp);
-            } else {
-                offers[index] = MarsBase.cancelExpiredMinimumOffer(offers[index]);
-                emit OfferClosed(index, MarsBaseCommon.OfferCloseReason.DeadlinePassed, block.timestamp);
-
-            }
-        }
-    }
-
-    function migrateContract() unlocked public payable {
-        require(msg.sender == owner, "S8");
-
-        for (uint256 index = 0; index < nextOfferId; index++) {
-            if (
-                offers[index].active == true &&
-                MarsBase.contractType(offers[index].offerType) == MarsBaseCommon.ContractType.Offers
-            ) {
-                offers[index] = MarsBase.cancelExpiredOffer(offers[index]);
-                emit OfferClosed(index, MarsBaseCommon.OfferCloseReason.DeadlinePassed, block.timestamp);
-            } else if (offers[index].active == true) {
-                offers[index] = MarsBase.cancelExpiredMinimumOffer(offers[index]);
-                emit OfferClosed(index, MarsBaseCommon.OfferCloseReason.DeadlinePassed, block.timestamp);
-            }
-        }
-
-        locked = true;
-
-        emit ContractMigrated();
-    }
-	function lockContract() unlocked public {
-		require(msg.sender == owner, "S8");
-
-        locked = true;
-
-		emit ContractMigrated();
+    ) unlocked public
+	{
+		require(false, "NI - changeOfferParams");
 	}
-	function cancelOffers(uint256 from, uint256 to) public payable {
-		require(locked == true, "S10");
-
-		for (uint256 index = from; index < to; index++) {
-            if (
-                offers[index].active == true &&
-                MarsBase.contractType(offers[index].offerType) == MarsBaseCommon.ContractType.Offers
-            ) {
-                offers[index] = MarsBase.cancelExpiredOffer(offers[index]);
-                emit OfferClosed(index, MarsBaseCommon.OfferCloseReason.DeadlinePassed, block.timestamp);
-            } else if (offers[index].active == true) {
-                offers[index] = MarsBase.cancelExpiredMinimumOffer(offers[index]);
-                emit OfferClosed(index, MarsBaseCommon.OfferCloseReason.DeadlinePassed, block.timestamp);
-            }
-        }
+	function cancelBid(uint256 offerId) unlocked public
+	{
+		require(false, "NI - cancelBid");
+	}
+	function cancelExpiredOffers() public payable
+	{
+		require(false, "NI - cancelExpiredOffers");
+	}
+	function migrateContract() onlyOwner unlocked public payable
+	{
+		lockContract();
+		cancelOffers(0, nextOfferId);
+	}
+	function lockContract() onlyOwner public
+	{
+		locked = true;
+	}
+	function cancelOffers(uint256 from, uint256 to) onlyOwner public payable
+	{
+		for (uint256 i = from; i < to; i++)
+		{
+			MarsBaseCommon.MBOffer memory offer = offers[i];
+			if (offer.active)
+			{
+				if (isEligibleToPayout(offer))
+					_swapAllHeldTokens(offer);
+					
+				_destroyOffer(i, MarsBaseCommon.OfferCloseReason.CancelledBySeller);
+			}
+		}
 	}
 }

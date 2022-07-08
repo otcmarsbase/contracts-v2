@@ -154,19 +154,39 @@ export interface MarsBaseExchange extends BaseContract {
   ): MarsBaseExchange;
   clone(): MarsBaseExchange;
   methods: {
+    _afterFee(
+      amountBeforeFee: number | string | BN,
+      feePercent: number | string | BN,
+      scale: number | string | BN,
+      safeAmount: number | string | BN
+    ): NonPayableTransactionObject<{
+      amountAfterFee: string;
+      fee: string;
+      0: string;
+      1: string;
+    }>;
+
     acceptOffer(
       offerId: number | string | BN,
       tokenBob: string,
       amountBob: number | string | BN
     ): PayableTransactionObject<void>;
 
+    afterFee(
+      amountBeforeFee: number | string | BN,
+      feePercent: number | string | BN
+    ): NonPayableTransactionObject<{
+      amountAfterFee: string;
+      fee: string;
+      0: string;
+      1: string;
+    }>;
+
     cancelBid(offerId: number | string | BN): NonPayableTransactionObject<void>;
 
     cancelExpiredOffers(): PayableTransactionObject<void>;
 
-    cancelOffer(
-      offerId: number | string | BN
-    ): NonPayableTransactionObject<void>;
+    cancelOffer(offerId: number | string | BN): PayableTransactionObject<void>;
 
     cancelOffers(
       from: number | string | BN,
@@ -190,6 +210,10 @@ export interface MarsBaseExchange extends BaseContract {
     ): NonPayableTransactionObject<void>;
 
     changeOwner(newOwner: string): NonPayableTransactionObject<void>;
+
+    closeExpiredOffer(
+      offerId: number | string | BN
+    ): NonPayableTransactionObject<void>;
 
     createOffer(
       tokenAlice: string,
@@ -234,6 +258,10 @@ export interface MarsBaseExchange extends BaseContract {
       ][]
     >;
 
+    getCommissionAddress(): NonPayableTransactionObject<string>;
+
+    getExchangerAddress(): NonPayableTransactionObject<string>;
+
     getMinimumFee(): NonPayableTransactionObject<string>;
 
     getNextOfferId(): NonPayableTransactionObject<string>;
@@ -268,9 +296,78 @@ export interface MarsBaseExchange extends BaseContract {
 
     getOwner(): NonPayableTransactionObject<string>;
 
+    isEligibleToPayout(
+      offer: [
+        boolean,
+        boolean,
+        number | string | BN,
+        number | string | BN,
+        number | string | BN,
+        number | string | BN,
+        number | string | BN,
+        number | string | BN,
+        number | string | BN,
+        number | string | BN,
+        number | string | BN,
+        string,
+        string,
+        string,
+        boolean[],
+        (number | string | BN)[],
+        (number | string | BN)[],
+        (number | string | BN)[],
+        string[],
+        string[],
+        string[]
+      ]
+    ): NonPayableTransactionObject<boolean>;
+
+    limitMinimumSize9999(
+      minimumSize: number | string | BN,
+      amountAlice: number | string | BN
+    ): NonPayableTransactionObject<string>;
+
     lockContract(): NonPayableTransactionObject<void>;
 
+    log2(x: number | string | BN): NonPayableTransactionObject<string>;
+
+    max(
+      a: number | string | BN,
+      b: number | string | BN
+    ): NonPayableTransactionObject<string>;
+
     migrateContract(): PayableTransactionObject<void>;
+
+    min(
+      a: number | string | BN,
+      b: number | string | BN
+    ): NonPayableTransactionObject<string>;
+
+    minimumCovered(
+      offer: [
+        boolean,
+        boolean,
+        number | string | BN,
+        number | string | BN,
+        number | string | BN,
+        number | string | BN,
+        number | string | BN,
+        number | string | BN,
+        number | string | BN,
+        number | string | BN,
+        number | string | BN,
+        string,
+        string,
+        string,
+        boolean[],
+        (number | string | BN)[],
+        (number | string | BN)[],
+        (number | string | BN)[],
+        string[],
+        string[],
+        string[]
+      ]
+    ): NonPayableTransactionObject<boolean>;
 
     offers(arg0: number | string | BN): NonPayableTransactionObject<{
       active: boolean;

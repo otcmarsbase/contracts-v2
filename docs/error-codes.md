@@ -42,3 +42,8 @@
 `S8` --- Invalid Permissions (must be DEX)
 `S9` --- Contract locked
 `S10` --- Contract should be locked, but is not
+
+## Sanity checks
+
+`HH1a` --- minimum offer payout sanity check (Alice tokens)
+`HH1b` --- minimum offer payout sanity check (Bob tokens)

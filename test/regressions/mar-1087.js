@@ -2,32 +2,15 @@ const assert = require ('assert/strict')
 const BigNumber = require ('bignumber.js')
 const { expect } = require ("chai")
 const { ethers } = require ("hardhat")
+const { prepareEnvironment, getLastBlockTime } = require("../utils")
 
 const ETH = "0x0000000000000000000000000000000000000000"
-
-const tomorrow = (now = Date.now()) => Math.floor(now / 1000 + 86400)
 
 describe("MAR-1087", () => 
 {
     it("should not allow static offers to have bids placed after the deadline is passed", async () =>
     {
-        const [owner, alice, bob] = await ethers.getSigners()
-
-        const MarsBase = await ethers.getContractFactory("MarsBase")
-        const m = await MarsBase.deploy()
-
-        const MarsBaseExchange = await ethers.getContractFactory("MarsBaseExchange", {
-            libraries: {
-                MarsBase: m.address
-            }
-        })
-        const dex = await MarsBaseExchange.deploy()
-
-        const USDT = await ethers.getContractFactory("USDT")
-        const BAT = await ethers.getContractFactory("BAT18")
-
-        const usdt = await USDT.deploy()
-        const bat = await BAT.deploy()
+        const { owner, alice, bob, usdt, bat, dex, parseLogs } = await prepareEnvironment()
         
         // console.log(99)
         
@@ -41,12 +24,12 @@ describe("MAR-1087", () =>
 
         let tx = await dex.connect(alice).createOffer(bat.address, [usdt.address], batAmount, [usdtAmount], {
             cancelEnabled: true,
-            modifyEnabled: true,
+            modifyEnabled: false,
             holdTokens: true,
             feeAlice: 5,
             feeBob: 5,
             smallestChunkSize: "0",
-            deadline: Math.floor(Date.now() / 1000) + 1000,
+            deadline: await getLastBlockTime() + 1000,
             minimumSize: "1000000000000000000"
         })
         // console.log(96)
@@ -62,6 +45,6 @@ describe("MAR-1087", () =>
         await network.provider.send("evm_increaseTime", [3600]);
         await network.provider.send("evm_mine");
 
-        await expect(dex.connect(bob).acceptOffer(id, usdt.address, "60000000000000000")).to.be.revertedWith("M2")
+        await expect(dex.connect(bob).acceptOffer(id, usdt.address, "60000000000000000")).to.be.revertedWith("405-D")
     })
 });

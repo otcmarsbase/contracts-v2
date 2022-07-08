@@ -6,12 +6,10 @@
 2. Set env variables in the `.env` file
 3. Cleanup previous builds if they exist
 4. Build & test contracts locally
-5. Deploy library contract with Hardhat
-6. Deploy exchange contract with Hardhat
-7. Verify library contract code on Etherscan
-8. Verify exchange contract code on Etherscan
-9. Set minimum fee
-10. Done 😊
+5. Deploy exchange contract with Hardhat
+6. Verify exchange contract code on Etherscan
+7. Set minimum fee
+8. Done 😊
 
 ### Supported networks
 
@@ -47,38 +45,20 @@ rm -rf ./artifacts ./cache
 yarn test
 ```
 
-### 5. Deploy Marsbase Library contract
+### 5. Deploy Marsbase Exchange contract
 
 ```shell
-yarn hardhat deploy-lib --network marsbase
+yarn hardhat deploy-exchange --network marsbase
 ```
 
-### 6. Deploy Marsbase Exchange contract
-
-```shell
-yarn hardhat deploy-exchange --library <LIBRARY_ADDRESS> --network marsbase
-```
-
-### (optional) Deploy both contracts in one line
-
-```shell
-yarn hardhat deploy-all --network marsbase
-```
-
-### 7. Verify Marsbase Library source code on Etherscan
-
-```shell
-yarn hardhat verify --network mainnet <LIBRARY_ADDRESS>
-```
-
-### 8. Verify Marsbase Exchange source code on Etherscan
+### 6. Verify Marsbase Exchange source code on Etherscan
 
 ```shell
 yarn hardhat verify --network mainnet <EXCHANGE_ADDRESS>
 ```
 
-### 9. Set minimum fee
+### 7. Set minimum fee
 
 ```
-yarn hardhat set-minimum-fee --library <LIBRARY_ADDRESS> --exchange <EXCHANGE_ADDRESS> --fee 0.5% --network marsbase
+yarn hardhat set-minimum-fee --exchange <EXCHANGE_ADDRESS> --fee 0.5% --network marsbase
 ```

@@ -2,31 +2,15 @@ const assert = require ('assert/strict')
 const BigNumber = require ('bignumber.js')
 const { expect } = require ("chai")
 const { ethers } = require ("hardhat")
-const { prepareEnvironment } = require("../utils")
+const { prepareEnvironment, getLastBlockTime } = require("../utils")
 
 const ETH = "0x0000000000000000000000000000000000000000"
-
-const tomorrow = (now = Date.now()) => Math.floor(now / 1000 + 86400)
 
 describe("MAR-1125", () => 
 {
     it("should send back remaining ETH in a static offer after bid", async () =>
     {
-        const [owner, alice, bob] = await ethers.getSigners()
-
-        const MarsBase = await ethers.getContractFactory("MarsBase")
-        const m = await MarsBase.deploy()
-
-        const MarsBaseExchange = await ethers.getContractFactory("MarsBaseExchange", {
-            libraries: {
-                MarsBase: m.address
-            }
-        })
-        const dex = await MarsBaseExchange.deploy()
-
-        const USDT = await ethers.getContractFactory("USDT")
-
-        const usdt = await USDT.deploy()
+        const { owner, alice, bob, usdt, bat, dex, parseLogs } = await prepareEnvironment()
         
         // console.log(99)
 
@@ -89,12 +73,12 @@ describe("MAR-1125", () =>
 
 		let txCreate = await dex.connect(alice).createOffer(ETH, [usdt.address], "200000000000000000", ["62232606000000000000"], {
             cancelEnabled: true,
-            modifyEnabled: true,
+            modifyEnabled: false,
             holdTokens: false,
             feeAlice: "5",
             feeBob: "5",
             smallestChunkSize: "2000000000000000",
-            deadline: Math.floor((Date.now() / 1000) + (1655207697 - 1655121337)),
+            deadline: await getLastBlockTime() + (1655207697 - 1655121337),
             minimumSize: "0"
         }, {
 			value: "200000000000000000"
@@ -191,13 +175,13 @@ describe("MAR-1125", () =>
 		let { owner, alice, bob, dex, usdt, MarsBase } = await prepareEnvironment()
 
 		let txCreate = await dex.connect(alice).createOffer(ETH, [usdt.address], offer.amountAlice, offer.amountBob, {
-            modifyEnabled: offer.capabilities[0],
+            modifyEnabled: false,
             cancelEnabled: offer.capabilities[1],
             holdTokens: offer.capabilities[2],
             feeAlice: offer.feeAlice,
             feeBob: offer.feeBob,
             smallestChunkSize: offer.smallestChunkSize,
-            deadline: Math.floor((Date.now() / 1000) + 86400),
+            deadline: await getLastBlockTime() + 86400,
             minimumSize: offer.minimumSize
         }, {
 			value: offer.amountAlice
@@ -235,7 +219,7 @@ describe("MAR-1125", () =>
 
         await usdt.connect(bob).approve(dex.address, txParamsBob3.amountBob)
 		let txBid3 = dex.connect(bob).acceptOffer(id, usdt.address, txParamsBob3.amountBob)
-		await expect(txBid3).revertedWith("M10")
+		await expect(txBid3).revertedWith("400-AAH")
 
 		let amountBobWithoutOverflow = "12965126249999994000"
 		let txBid4 = await dex.connect(bob).acceptOffer(id, usdt.address, amountBobWithoutOverflow)
