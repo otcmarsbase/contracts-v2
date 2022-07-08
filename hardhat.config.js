@@ -115,9 +115,47 @@ async function sendTestTokensToAccount(tokenAddress, account, amount)
   return tx;
 }
 
+const keypress = async () =>
+{
+	process.stdin.setRawMode(true)
+	return new Promise(resolve => process.stdin.once('data', data =>
+	{
+		const byteArray = [...data]
+		if (byteArray.length > 0 && byteArray[0] === 3)
+		{
+			console.log('^C')
+			process.exit(1)
+		}
+		process.stdin.setRawMode(false)
+		resolve()
+	}))
+}
+
+async function estimateDeployGas(factory)
+{
+	const deploymentData = factory.getDeployTransaction().data
+	const estimatedGas = await ethers.provider.estimateGas({ data: deploymentData })
+
+	const gasPrice = await ethers.provider.getGasPrice()
+
+	return {
+		gas: estimatedGas,
+		gasPrice,
+		totalGas: estimatedGas.mul(gasPrice)
+	}
+}
+
 async function deployExchange()
 {
 	const MarsBaseExchange = await ethers.getContractFactory("MarsBaseExchange");
+
+	// console.log("Calculating deploy gas price...")
+	
+	let estimate = await estimateDeployGas(MarsBaseExchange)
+	// console.log(estimate)
+	console.log(`Estimated deploy price: ${ethers.utils.formatEther(estimate.totalGas)} ETH`)
+	console.log(`Press any key to deploy`)
+	await keypress()
 
 	console.log("Deploying Exchange Contract...")
 	let dex = await MarsBaseExchange.deploy()
