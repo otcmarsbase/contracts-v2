@@ -71,4 +71,60 @@ library MarsBaseCommon {
     address[] minimumOrderTokens;
     address[] tokenBob;
   }
+  /// Emitted when an offer is created
+    event OfferCreated(
+        uint256 offerId,
+        address sender,
+        uint256 blockTimestamp,
+        MarsBaseCommon.MBOffer offer
+    );
+	
+	/// Emitted when an offer has it's parameters or capabilities modified
+    event OfferModified(
+        uint256 offerId,
+        address sender,
+        uint256 blockTimestamp,
+        MarsBaseCommon.OfferParams offerParameters
+    );
+
+    /// Emitted when an offer is accepted.
+    /// This includes partial transactions, where the whole offer is not bought out and those where the exchange is not finallized immediatley.
+    event OfferAccepted(
+        uint256 offerId,
+        address sender,
+        uint256 blockTimestamp,
+        uint256 amountAliceReceived,
+        uint256 amountBobReceived,
+        address tokenAddressAlice,
+        address tokenAddressBob,
+        MarsBaseCommon.OfferType offerType,
+        uint256 feeAlice,
+        uint256 feeBob
+    );
+
+    /// Emitted when the offer is cancelled either by the creator or because of an unsuccessful auction
+    event OfferCancelled(
+        uint256 offerId,
+        address sender,
+        uint256 blockTimestamp
+    );
+
+    event OfferClosed(
+        uint256 offerId,
+        MarsBaseCommon.OfferCloseReason reason,
+        uint256 blockTimestamp
+    );
+
+    event ContractMigrated();
+
+    /// Emitted when a buyer cancels their bid for a offer were tokens have not been exchanged yet and are still held by the contract.
+    event BidCancelled(uint256 offerId, address sender, uint256 blockTimestamp);
+
+    /// Emitted only for testing usage
+    event Log(uint256 log);
+	
+    struct MBAddresses {
+        address offersContract;
+        address minimumOffersContract;
+    }
 }

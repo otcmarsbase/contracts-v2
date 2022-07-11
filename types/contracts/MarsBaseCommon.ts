@@ -13,7 +13,7 @@ import type {
   BlockType,
   ContractEventLog,
   BaseContract,
-} from "../../types";
+} from "../types";
 
 export interface EventOptions {
   filter?: object;
@@ -146,181 +146,14 @@ export type OfferModified = ContractEventLog<{
   3: [boolean, boolean, boolean, string, string, string, string, string];
 }>;
 
-export interface MarsBaseExchangeOld extends BaseContract {
+export interface MarsBaseCommon extends BaseContract {
   constructor(
     jsonInterface: any[],
     address?: string,
     options?: ContractOptions
-  ): MarsBaseExchangeOld;
-  clone(): MarsBaseExchangeOld;
-  methods: {
-    acceptOffer(
-      offerId: number | string | BN,
-      tokenBob: string,
-      amountBob: number | string | BN
-    ): PayableTransactionObject<void>;
-
-    cancelBid(offerId: number | string | BN): NonPayableTransactionObject<void>;
-
-    cancelExpiredOffers(): PayableTransactionObject<void>;
-
-    cancelOffer(offerId: number | string | BN): PayableTransactionObject<void>;
-
-    cancelOffers(
-      from: number | string | BN,
-      to: number | string | BN
-    ): PayableTransactionObject<void>;
-
-    changeOfferParams(
-      offerId: number | string | BN,
-      tokenBob: string[],
-      amountBob: (number | string | BN)[],
-      offerParameters: [
-        boolean,
-        boolean,
-        boolean,
-        number | string | BN,
-        number | string | BN,
-        number | string | BN,
-        number | string | BN,
-        number | string | BN
-      ]
-    ): NonPayableTransactionObject<void>;
-
-    changeOwner(newOwner: string): NonPayableTransactionObject<void>;
-
-    createOffer(
-      tokenAlice: string,
-      tokenBob: string[],
-      amountAlice: number | string | BN,
-      amountBob: (number | string | BN)[],
-      offerParameters: [
-        boolean,
-        boolean,
-        boolean,
-        number | string | BN,
-        number | string | BN,
-        number | string | BN,
-        number | string | BN,
-        number | string | BN
-      ]
-    ): PayableTransactionObject<void>;
-
-    getAllOffers(): NonPayableTransactionObject<
-      [
-        boolean,
-        boolean,
-        string,
-        string,
-        string,
-        string,
-        string,
-        string,
-        string,
-        string,
-        string,
-        string,
-        string,
-        string,
-        boolean[],
-        string[],
-        string[],
-        string[],
-        string[],
-        string[],
-        string[]
-      ][]
-    >;
-
-    getMinimumFee(): NonPayableTransactionObject<string>;
-
-    getNextOfferId(): NonPayableTransactionObject<string>;
-
-    getOffer(
-      offerId: number | string | BN
-    ): NonPayableTransactionObject<
-      [
-        boolean,
-        boolean,
-        string,
-        string,
-        string,
-        string,
-        string,
-        string,
-        string,
-        string,
-        string,
-        string,
-        string,
-        string,
-        boolean[],
-        string[],
-        string[],
-        string[],
-        string[],
-        string[],
-        string[]
-      ]
-    >;
-
-    getOwner(): NonPayableTransactionObject<string>;
-
-    lockContract(): NonPayableTransactionObject<void>;
-
-    migrateContract(): PayableTransactionObject<void>;
-
-    offers(arg0: number | string | BN): NonPayableTransactionObject<{
-      active: boolean;
-      minimumMet: boolean;
-      offerType: string;
-      offerId: string;
-      amountAlice: string;
-      feeAlice: string;
-      feeBob: string;
-      smallestChunkSize: string;
-      minimumSize: string;
-      deadline: string;
-      amountRemaining: string;
-      offerer: string;
-      payoutAddress: string;
-      tokenAlice: string;
-      0: boolean;
-      1: boolean;
-      2: string;
-      3: string;
-      4: string;
-      5: string;
-      6: string;
-      7: string;
-      8: string;
-      9: string;
-      10: string;
-      11: string;
-      12: string;
-      13: string;
-    }>;
-
-    price(
-      amountAlice: number | string | BN,
-      offerAmountAlice: number | string | BN,
-      offerAmountBob: number | string | BN
-    ): NonPayableTransactionObject<string>;
-
-    setCommissionAddress(wallet: string): NonPayableTransactionObject<void>;
-
-    setExchangerAddress(
-      exchangeContract: string
-    ): NonPayableTransactionObject<void>;
-
-    setMinimumFee(
-      _minimumFee: number | string | BN
-    ): NonPayableTransactionObject<void>;
-
-    setNextOfferId(
-      _nextOfferId: number | string | BN
-    ): NonPayableTransactionObject<void>;
-  };
+  ): MarsBaseCommon;
+  clone(): MarsBaseCommon;
+  methods: {};
   events: {
     BidCancelled(cb?: Callback<BidCancelled>): EventEmitter;
     BidCancelled(

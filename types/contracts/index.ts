@@ -10,4 +10,5 @@ export type { obsolete };
 import type * as tokens from "./tokens";
 export type { tokens };
 export type { IMarsbaseExchange } from "./IMarsbaseExchange";
+export type { MarsBaseCommon } from "./MarsBaseCommon";
 export type { MarsBaseExchange } from "./MarsBaseExchange";

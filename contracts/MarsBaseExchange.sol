@@ -5,13 +5,16 @@ import "./MarsBaseCommon.sol";
 import "./IMarsbaseExchange.sol";
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+
+using SafeERC20 for IERC20;
 
 // import "hardhat/console.sol";
 
 /// @title MarsBaseExchange
 /// @author dOTC Marsbase
 /// @notice This contract contains the public facing elements of the marsbase exchange. 
-contract MarsBaseExchange is IMarsbaseExchange
+contract MarsBaseExchange //is IMarsbaseExchange
 {
     address owner;
 
@@ -235,7 +238,7 @@ contract MarsBaseExchange is IMarsbaseExchange
 		if (tokenAlice == address(0))
 			require(amountAlice == msg.value, "402-E");
 		else
-			require(IERC20(tokenAlice).transferFrom(msg.sender, address(this), amountAlice), "402");
+			IERC20(tokenAlice).safeTransferFrom(msg.sender, address(this), amountAlice);
 
 		// create offer object
 		uint256 offerId = nextOfferId++;
@@ -267,7 +270,7 @@ contract MarsBaseExchange is IMarsbaseExchange
 
 		// console.log(amountAlice);
 
-		emit OfferCreated(offerId, msg.sender, block.timestamp, offers[offerId]);
+		emit MarsBaseCommon.OfferCreated(offerId, msg.sender, block.timestamp, offers[offerId]);
 	}
 	function sendTokensAfterFeeFrom(
 		address token,
@@ -284,9 +287,9 @@ contract MarsBaseExchange is IMarsbaseExchange
 
 		// send tokens to receiver
 		if (from == address(this))
-			require(IERC20(token).transfer(to, amountAfterFee), "403-R1");
+			IERC20(token).safeTransfer(to, amountAfterFee);
 		else
-			require(IERC20(token).transferFrom(from, to, amountAfterFee), "403-R2");
+			IERC20(token).safeTransferFrom(from, to, amountAfterFee);
 
 		if (fee > 0)
 		{
@@ -294,9 +297,9 @@ contract MarsBaseExchange is IMarsbaseExchange
 
 			// send fee to commission wallet
 			if (from == address(this))
-				require(IERC20(token).transfer(commissionWallet, fee), "403-C1");
+				IERC20(token).safeTransfer(commissionWallet, fee);
 			else
-				require(IERC20(token).transferFrom(from, commissionWallet, fee), "403-C2");
+				IERC20(token).safeTransferFrom(from, commissionWallet, fee);
 		}
 		return (amountAfterFee, fee);
 	}
@@ -450,7 +453,7 @@ contract MarsBaseExchange is IMarsbaseExchange
 		(uint256 bobSentToAlice, uint256 feeBobDeducted) = afterFee(offer.minimumOrderAmountsBob[i], offer.feeBob);
 
 		// emit event
-		emit OfferAccepted(
+		emit MarsBaseCommon.OfferAccepted(
 			// uint256 offerId,
 			offer.offerId,
 			// address sender,
@@ -492,7 +495,7 @@ contract MarsBaseExchange is IMarsbaseExchange
 		}
 		else
 		{
-			IERC20(tokenBob).transferFrom(bob, address(this), amountBob);
+			IERC20(tokenBob).safeTransferFrom(bob, address(this), amountBob);
 		}
 
 		offers[offer.offerId].minimumOrderAmountsAlice.push(amountAlice);
@@ -556,7 +559,7 @@ contract MarsBaseExchange is IMarsbaseExchange
 		}
 
 		// emit event
-		emit OfferAccepted(
+		emit MarsBaseCommon.OfferAccepted(
 			// uint256 offerId,
 			offer.offerId,
 			// address sender,
@@ -716,7 +719,7 @@ contract MarsBaseExchange is IMarsbaseExchange
 			if (offer.tokenAlice == address(0))
 				_sendEthAfterFee(offer.amountRemaining, offer.offerer, 0);
 			else
-				IERC20(offer.tokenAlice).transfer(offer.offerer, offer.amountRemaining);
+				IERC20(offer.tokenAlice).safeTransfer(offer.offerer, offer.amountRemaining);
 		}
 
 		// if any tokens are still held in the offer
@@ -728,19 +731,19 @@ contract MarsBaseExchange is IMarsbaseExchange
 				if (offer.minimumOrderTokens[i] == address(0))
 					_sendEthAfterFee(offer.minimumOrderAmountsBob[i], offer.minimumOrderAddresses[i], 0);
 				else
-					IERC20(offer.minimumOrderTokens[i]).transfer(offer.minimumOrderAddresses[i], offer.minimumOrderAmountsBob[i]);
+					IERC20(offer.minimumOrderTokens[i]).safeTransfer(offer.minimumOrderAddresses[i], offer.minimumOrderAmountsBob[i]);
 				
 				if (offer.tokenAlice == address(0))
 					_sendEthAfterFee(offer.minimumOrderAmountsAlice[i], offer.offerer, 0);
 				else
-					IERC20(offer.tokenAlice).transfer(offer.offerer, offer.minimumOrderAmountsAlice[i]);
+					IERC20(offer.tokenAlice).safeTransfer(offer.offerer, offer.minimumOrderAmountsAlice[i]);
 			}
 		}
 
 		delete offers[offerId];
 		activeOffersCount--;
 		
-		emit OfferClosed(
+		emit MarsBaseCommon.OfferClosed(
 			// uint256 offerId,
 			offerId,
 			// MarsBaseCommon.OfferCloseReason reason,
@@ -749,23 +752,23 @@ contract MarsBaseExchange is IMarsbaseExchange
 			block.timestamp
 		);
 	}
-	function changeOfferParams(
-        uint256 offerId,
-        address[] calldata tokenBob,
-        uint256[] calldata amountBob,
-        MarsBaseCommon.OfferParams calldata offerParameters
-    ) unlocked public
-	{
-		require(false, "NI - changeOfferParams");
-	}
-	function cancelBid(uint256 offerId) unlocked public
-	{
-		require(false, "NI - cancelBid");
-	}
-	function cancelExpiredOffers() public payable
-	{
-		require(false, "NI - cancelExpiredOffers");
-	}
+	// function changeOfferParams(
+    //     uint256 offerId,
+    //     address[] calldata tokenBob,
+    //     uint256[] calldata amountBob,
+    //     MarsBaseCommon.OfferParams calldata offerParameters
+    // ) unlocked public
+	// {
+	// 	require(false, "NI - changeOfferParams");
+	// }
+	// function cancelBid(uint256 offerId) unlocked public
+	// {
+	// 	require(false, "NI - cancelBid");
+	// }
+	// function cancelExpiredOffers() public payable
+	// {
+	// 	require(false, "NI - cancelExpiredOffers");
+	// }
 	function migrateContract() onlyOwner unlocked public payable
 	{
 		lockContract();
