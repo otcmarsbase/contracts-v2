@@ -34,13 +34,12 @@ describe("MAR-842", () =>
         let receipt = await tx.wait()
         // console.log(95)
         // console.log(receipt.events)
-        let id = receipt.events.find(x => x.event == "OfferCreated").args[0]
         // console.log(94)
         // console.log(`id: ${id}`)
 
         await usdt.connect(bob).approve(dex.address, usdtAmount)
 
-        tx = await dex.connect(bob).acceptOffer(id, usdt.address, "60000000000000000")
+        tx = await dex.connect(bob).acceptOffer(0, usdt.address, "60000000000000000")
         
         receipt = await tx.wait()
 		
@@ -76,11 +75,10 @@ describe("MAR-842", () =>
         let receipt = await tx.wait()
         // console.log(95)
         // console.log(receipt.events)
-        let id = receipt.events.find(x => x.event == "OfferCreated").args[0]
         // console.log(94)
         // console.log(`id: ${id}`)
 
-        let ptx = dex.connect(alice).acceptOffer(id, ETH, "60000000000000000")
+        let ptx = dex.connect(alice).acceptOffer(0, ETH, "60000000000000000")
 
 		await expect(ptx).to.be.revertedWith("403-C1")
 	})
@@ -107,11 +105,10 @@ describe("MAR-842", () =>
         let receipt = await tx.wait()
         // console.log(95)
         // console.log(receipt.events)
-        let id = receipt.events.find(x => x.event == "OfferCreated").args[0]
         // console.log(94)
         // console.log(`id: ${id}`)
 
-        tx = await dex.connect(alice).acceptOffer(id, ETH, "60000000000000000", {value: "60000000000000000"})
+        tx = await dex.connect(alice).acceptOffer(0, ETH, "60000000000000000", {value: "60000000000000000"})
         
         receipt = await tx.wait()
         

@@ -38,13 +38,12 @@ describe("MAR-975", () =>
         let receipt = await tx.wait()
         // console.log(95)
         // console.log(receipt.events)
-        let id = receipt.events.find(x => x.event == "OfferCreated").args[0]
         // console.log(94)
         // console.log(`id: ${id}`)
 
         await usdt.connect(bob).approve(dex.address, usdtAmount)
 
-        tx = await dex.connect(bob).acceptOffer(id, usdt.address, "60000000000000000")
+        tx = await dex.connect(bob).acceptOffer(0, usdt.address, "60000000000000000")
         
         receipt = await tx.wait()
 		

@@ -37,16 +37,15 @@ describe("MAR-1110", () =>
         let receipt = await tx.wait()
         // console.log(95)
         // console.log(receipt.events)
-        let id = receipt.events.find(x => x.event == "OfferCreated").args[0]
         // console.log(94)
         // console.log(`id: ${id}`)
 
         await usdt.connect(bob).approve(dex.address, usdtAmount)
 
-        tx = await dex.connect(bob).acceptOffer(id, usdt.address, usdtAmount);
+        tx = await dex.connect(bob).acceptOffer(0, usdt.address, usdtAmount);
         tx.wait();
 
-        let offer = await dex.getOffer(id);
+        let offer = await dex.getOffer(0);
         expect(offer.active).to.equal(false);
     })
 });

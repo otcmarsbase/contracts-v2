@@ -36,7 +36,6 @@ describe("MAR-1087", () =>
         let receipt = await tx.wait()
         // console.log(95)
         // console.log(receipt.events)
-        let id = receipt.events.find(x => x.event == "OfferCreated").args[0]
         // console.log(94)
         // console.log(`id: ${id}`)
 
@@ -45,6 +44,6 @@ describe("MAR-1087", () =>
         await network.provider.send("evm_increaseTime", [3600]);
         await network.provider.send("evm_mine");
 
-        await expect(dex.connect(bob).acceptOffer(id, usdt.address, "60000000000000000")).to.be.revertedWith("405-D")
+        await expect(dex.connect(bob).acceptOffer(0, usdt.address, "60000000000000000")).to.be.revertedWith("405-D")
     })
 });

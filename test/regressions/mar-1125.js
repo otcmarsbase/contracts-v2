@@ -84,7 +84,8 @@ describe("MAR-1125", () =>
 			value: "200000000000000000"
 		})
         let receipt = await txCreate.wait()
-		let offerCreatedEvent = receipt.events.find(x => x.event == "OfferCreated")
+		let logs = parseLogs(receipt.logs)
+		let offerCreatedEvent = logs.find(x => x.name == "OfferCreated")
         let id = offerCreatedEvent.args[0]
 		expect(id).equal(0)
 
@@ -172,7 +173,7 @@ describe("MAR-1125", () =>
 			amountBob: "12965126249999997000",
 		}
 
-		let { owner, alice, bob, dex, usdt, MarsBase } = await prepareEnvironment()
+		let { owner, alice, bob, dex, usdt, MarsBase, parseLogs } = await prepareEnvironment()
 
 		let txCreate = await dex.connect(alice).createOffer(ETH, [usdt.address], offer.amountAlice, offer.amountBob, {
             modifyEnabled: false,
@@ -187,7 +188,8 @@ describe("MAR-1125", () =>
 			value: offer.amountAlice
 		})
         let receipt = await txCreate.wait()
-		let offerCreatedEvent = receipt.events.find(x => x.event == "OfferCreated")
+		let logs = parseLogs(receipt.logs)
+		let offerCreatedEvent = logs.find(x => x.name == "OfferCreated")
         let id = offerCreatedEvent.args[0]
 		expect(id).equal(0)
 

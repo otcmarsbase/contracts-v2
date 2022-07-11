@@ -3,6 +3,7 @@ const BigNumber = require ('bignumber.js')
 const { expect } = require ("chai")
 const { ethers } = require ("hardhat")
 const { createOfferTokenToken } = require('../create-offer')
+const { tryParseLog, PUBLIC_ABIS } = require('../events')
 const { mintAll, expectBalances } = require('../token-utils')
 const { prepareEnvironment, getLastBlockTime } = require("../utils")
 
@@ -30,7 +31,8 @@ async function createOfferEthSell(contract, amountAlice, tokenBob, amountBob, pa
 		value: amountAlice
 	})
 	let receipt = await txCreate.wait()
-	let offerCreatedEvent = receipt.events.find(x => x.event == "OfferCreated")
+	let logs = receipt.logs.map(tryParseLog(contract.interface, ...PUBLIC_ABIS))
+	let offerCreatedEvent = logs.find(x => x.name == "OfferCreated")
 	expect(offerCreatedEvent).not.undefined
 	let id = offerCreatedEvent.args[0]
 	return {

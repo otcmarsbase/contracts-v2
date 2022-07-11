@@ -61,7 +61,8 @@ async function getOfferIdFromTx(txCreate)
 async function getOfferDataFromTx(txCreate)
 {
 	let receipt = await (await txCreate).wait()
-	let offerCreatedEvent = receipt.events.find(x => x.event == "OfferCreated")
+	let logs = receipt.logs.map(tryParseLog(...PUBLIC_ABIS))
+	let offerCreatedEvent = logs.find(x => x.name == "OfferCreated")
 	expect(offerCreatedEvent, `OfferCreated event not found`).not.undefined
 	return offerCreatedEvent.args
 }

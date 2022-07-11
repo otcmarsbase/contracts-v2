@@ -1,3 +1,4 @@
+const { tryParseLog, PUBLIC_ABIS } = require("./events")
 const { getLastBlockTime, ZERO } = require("./utils")
 
 const sensibleOfferDefaults = () => ({
@@ -26,9 +27,10 @@ async function createOfferTokenToken(contract, tokenAlice, amountAlice, tokenBob
 		value: isEth(tokenAlice) ? amountAlice : "0",
 	})
 	let receipt = await txCreate.wait()
-	let offerCreatedEvent = receipt.events.find(x => x.event == "OfferCreated")
+	let logs = receipt.logs.map(tryParseLog(contract.interface, ...PUBLIC_ABIS))
+	let offerCreatedEvent = logs.find(x => x.name == "OfferCreated")
 	expect(offerCreatedEvent).not.undefined
-	let id = offerCreatedEvent.args[0]
+	let id = offerCreatedEvent.args[0].toString()
 	return {
 		id,
 		tokenAlice,

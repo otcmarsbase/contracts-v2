@@ -54,13 +54,17 @@ const erc20Abi = new ethers.utils.Interface(
 		"function transferFrom(address from, address to, uint256 amount) external returns (bool)",
 	]
 )
-const iMarsbaseExchangeAbi = new ethers.utils.Interface(
+const contractAbis = [
+	"IMarsbaseExchange",
+	"MarsBaseCommon",
+	"MarsBaseExchange",
+].map(x => new ethers.utils.Interface(
 	JSON.parse(
 		require('fs').readFileSync(
-				require("path").resolve("artifacts/contracts/IMarsbaseExchange.sol/IMarsbaseExchange.json")
+				require("path").resolve(`artifacts/contracts/${x}.sol/${x}.json`)
 		)
 	).abi
-)
+))
 const tryParseLog = (...interfaces) => (log) =>
 {
 	for (let interface of interfaces)
@@ -77,7 +81,7 @@ const tryParseLog = (...interfaces) => (log) =>
 }
 const PUBLIC_ABIS = [
 	erc20Abi,
-	iMarsbaseExchangeAbi,
+	...contractAbis,
 ]
 
 module.exports = {
