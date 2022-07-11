@@ -30,9 +30,11 @@ async function prepareEnvironment()
 
 	const USDT = await ethers.getContractFactory("USDT")
 	const BAT = await ethers.getContractFactory("BAT18")
+	const Tether = await ethers.getContractFactory("TetherToken")
 
 	const usdt = await USDT.deploy()
 	const bat = await BAT.deploy()
+	const tether = await Tether.deploy("100000000000", "Tether USD", "USDT", 6)
 	
 	return {
 		owner, alice, bob, charlie, derek,
@@ -40,9 +42,11 @@ async function prepareEnvironment()
 		dex,
 		usdt,
 		bat,
+		tether,
 		mint: {
 			usdt: async (address, amount) => await usdt.transfer(address, amount),
 			bat: async (address, amount) => await bat.transfer(address, amount),
+			tether: async (address, amount) => { await tether.issue(amount), await tether.transfer(address, amount)},
 		},
 		parseLogs: (logs) =>
 			logs.map(tryParseLog(m.interface, dex.interface, ...PUBLIC_ABIS))

@@ -5,7 +5,7 @@ async function expectBalances(env, balances)
 		{
 			let balance = (token == "eth")
 				? await env[name].getBalance()
-				: await env[token].balanceOf(env[name].address)
+				: await env[token].callStatic.balanceOf(env[name].address)
 				
 			expect(balance, `${name} ${token} balance`).to.eq(balances[name][token] + "")
 		}
