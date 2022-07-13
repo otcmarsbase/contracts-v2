@@ -54,7 +54,7 @@ yarn hardhat deploy-exchange --offerid 0 --network marsbase
 ### 6. Verify Marsbase Exchange source code on Etherscan
 
 ```shell
-yarn hardhat verify --network mainnet <EXCHANGE_ADDRESS>
+yarn hardhat verify --network mainnet <EXCHANGE_ADDRESS> <startOfferId>
 ```
 
 ### 7. Set minimum fee

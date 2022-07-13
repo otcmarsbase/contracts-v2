@@ -52,7 +52,7 @@
         {
             "language": "markdown",
             "source": [
-                "### 6. Verify Marsbase Exchange source code on Etherscan\n\n```shell\nyarn hardhat verify --network mainnet <EXCHANGE_ADDRESS>\n```"
+                "### 6. Verify Marsbase Exchange source code on Etherscan\n\n```shell\nyarn hardhat verify --network mainnet <EXCHANGE_ADDRESS> <startOfferId>\n```"
             ],
             "outputs": []
         },
