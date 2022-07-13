@@ -48,7 +48,7 @@ yarn test
 ### 5. Deploy Marsbase Exchange contract
 
 ```shell
-yarn hardhat deploy-exchange --network marsbase
+yarn hardhat deploy-exchange --offerid 0 --network marsbase
 ```
 
 ### 6. Verify Marsbase Exchange source code on Etherscan

@@ -22,6 +22,8 @@ require("hardhat-gas-reporter");
 require('hardhat-contract-sizer');
 require('solidity-coverage');
 
+const NETWORK = (hre) => console.log(`\n${hre.network.name.toUpperCase()} ${hre.network.name.toUpperCase()} ${hre.network.name.toUpperCase()}\n`)
+
 async function lockContract(exchangeAddress) {
   const MarsBaseExchange = await ethers.getContractFactory("MarsBaseExchange");
 
@@ -131,9 +133,9 @@ const keypress = async () =>
 	}))
 }
 
-async function estimateDeployGas(factory)
+async function estimateDeployGas(factory, ...args)
 {
-	const deploymentData = factory.getDeployTransaction().data
+	const deploymentData = factory.getDeployTransaction(...args).data
 	const estimatedGas = await ethers.provider.estimateGas({ data: deploymentData })
 
 	const gasPrice = await ethers.provider.getGasPrice()
@@ -145,20 +147,20 @@ async function estimateDeployGas(factory)
 	}
 }
 
-async function deployExchange()
+async function deployExchange(startOfferId)
 {
 	const MarsBaseExchange = await ethers.getContractFactory("MarsBaseExchange");
 
-	// console.log("Calculating deploy gas price...")
+	console.log(`starting offer id = ${startOfferId}\nCalculating deploy gas price...`)
 	
-	let estimate = await estimateDeployGas(MarsBaseExchange)
+	let estimate = await estimateDeployGas(MarsBaseExchange, startOfferId)
 	// console.log(estimate)
 	console.log(`Estimated deploy price: ${ethers.utils.formatEther(estimate.totalGas)} ETH`)
 	console.log(`Press any key to deploy`)
 	await keypress()
 
 	console.log("Deploying Exchange Contract...")
-	let dex = await MarsBaseExchange.deploy()
+	let dex = await MarsBaseExchange.deploy(startOfferId)
 	console.log(`Marsbase Exchange address: ${dex.address}`)
 	return {
 		contract: dex,
@@ -188,14 +190,18 @@ const printDeployerInfo = async (print = true) =>
 
 task("lock-contract", "Lock a deployed contract")
   .addParam("exchange", "Exchange Address")
-  .setAction(async (params) => {
+  .setAction(async (params, hre) => {
+	NETWORK(hre)
+	
     await lockContract(params.exchange);
   });
 
 task("set-next-offer-id", "Set Next Offer ID for new contract")
   .addParam("exchange", "Exchange Address")
   .addParam("nextofferid", "Next Offer ID")
-  .setAction(async (params) => {
+  .setAction(async (params, hre) => {
+	NETWORK(hre)
+
 	expect(typeof params.nextofferid == "string")
 	expect(parseInt(params.nextofferid) + "").equal(params.nextofferid)
     await configureNewContract(params.exchange, params.nextofferid);
@@ -203,14 +209,18 @@ task("set-next-offer-id", "Set Next Offer ID for new contract")
 
 task("disable-commission", "Disable the commission on the exchange contract")
   .addParam("exchange", "Exchange Address")
-  .setAction(async (params) => {
+  .setAction(async (params, hre) => {
+	NETWORK(hre)
+
     await disableCommission(params.exchange);
   });
 
 task("set-minimum-fee", "Set minimum fee size on the MarsbaseExchange contract")
   .addParam("exchange", "MarsbaseExchange contract address")
   .addParam("fee", "Fee in percent (e.g. '0.5%')")
-  .setAction(async (params) => {
+  .setAction(async (params, hre) => {
+	NETWORK(hre)
+
 	expect(typeof params.fee == "string")
 	expect(params.fee.endsWith("%"))
 
@@ -225,16 +235,24 @@ task("set-minimum-fee", "Set minimum fee size on the MarsbaseExchange contract")
     await setMinimumFee(params.exchange, feeInTenths);
   });
 
-task("deploy-all", "Deploys both contracts").setAction(async () => {
-	const { printEthBalance, balance, getEthBalance } = await printDeployerInfo()
-	const { contract: exchange, address: exchangeAddress } = await deployExchange()
-	await exchange.deployed()
-	await printEthBalance()
-	console.log(`gas spent: ${weiToEth(balance.sub(await getEthBalance()))}`)
-});
+task("deploy-all", "Deploys both contracts")
+	.addParam("offerid", "Starting offer id")
+	.setAction(async (_, hre) => {
+		NETWORK(hre)
 
-task("deploy-test-tokens", "Deploys Test Tokens").setAction(async () =>
+		expect(typeof params.offerid == "string")
+		expect(parseInt(params.offerid).toString() == params.offerid)
+
+		const { printEthBalance, balance, getEthBalance } = await printDeployerInfo()
+		const { contract: exchange, address: exchangeAddress } = await deployExchange(params.offerid)
+		await exchange.deployed()
+		await printEthBalance()
+		console.log(`gas spent: ${weiToEth(balance.sub(await getEthBalance()))}`)
+	});
+
+task("deploy-test-tokens", "Deploys Test Tokens").setAction(async (_, hre) =>
 {
+	NETWORK(hre)
   await deployTestTokens();
   console.log("Test Tokens deployed!");
 })
@@ -243,7 +261,9 @@ task('send-test-tokens', 'Sends test tokens to account')
   .addParam("tokenAddress", "Token Address")
   .addParam("to", "Address to send tokens to")
   .addParam("amount", "Amount of tokens to send")
-  .setAction(async (params) => {
+  .setAction(async (params, hre) =>
+  {
+	NETWORK(hre)
 
     let tx = await sendTestTokensToAccount(params.tokenAddress, params.to, params.amount);
     console.log("Test Tokens sent! Transaction hash: ", tx.hash);
@@ -251,11 +271,17 @@ task('send-test-tokens', 'Sends test tokens to account')
   });
 
 task("deploy-exchange", "Deploys Marsbase Exchange contract")
-	.setAction(async params =>
+	.addParam("offerid", "Starting offer id")
+	.setAction(async (params, hre) =>
 	{
+		NETWORK(hre)
+
+		expect(typeof params.offerid == "string")
+		expect(parseInt(params.offerid).toString() == params.offerid)
+
 		console.log("deploying exchange")
 		const { printEthBalance, balance, getEthBalance } = await printDeployerInfo()
-		const { contract: exchange, address: exchangeAddress } = await deployExchange()
+		const { contract: exchange, address: exchangeAddress } = await deployExchange(params.offerid)
 		await exchange.deployed()
 		await printEthBalance()
 		console.log(`gas spent: ${weiToEth(balance.sub(await getEthBalance()))}`)

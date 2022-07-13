@@ -10,7 +10,7 @@
         {
             "language": "markdown",
             "source": [
-                "\n### How to migrate\n1. **`NEW`** [Deploy new contract](./deploy-contract.nnb)\n2. **`NEW`** Configure minimum fee size on the new contract (same as old contract)\n3. **`NEW`** Configure comission wallet on the new contract (same as old contract)\n4. **`NEW`** Configure comission exchanger on the new contract (same as old contract)\n5. *`OLD`* Stop all trading on the old contract\n6. **`NEW`** Set next offer id on the new contract based on last offer id\n7. *`OLD`* Check that no tokens are left on the old contract\n8. Done 😊"
+                "\n### How to migrate\n1. **`NEW`** [Deploy new contract](./deploy-contract.nnb)\n2. **`NEW`** Configure minimum fee size on the new contract (same as old contract)\n3. **`NEW`** Configure comission wallet on the new contract (same as old contract)\n4. **`NEW`** Configure comission exchanger on the new contract (same as old contract)\n5. *`OLD`* Stop all trading on the old contract\n6. *`OLD`* Check that no tokens are left on the old contract\n7. Done 😊"
             ],
             "outputs": []
         },
@@ -38,7 +38,7 @@
         {
             "language": "markdown",
             "source": [
-                "### 3. **`NEW`** Configure comission wallet on the new contract (same as old contract)\n\n```\n<<< TODO >>>\n```\n\n### 4. **`NEW`** Configure comission exchanger on the new contract (same as old contract)\n\n```\n<<< TODO >>>\n```"
+                "### 3. **`NEW`** Configure commission wallet on the new contract (same as old contract)\n\n```\n<<< TODO >>>\n```\n\n### 4. **`NEW`** Configure commission exchanger on the new contract (same as old contract)\n\n```\n<<< TODO >>>\n```"
             ],
             "outputs": []
         },
@@ -52,14 +52,7 @@
         {
             "language": "markdown",
             "source": [
-                "### 6. **`NEW`** Set next offer id on the new contract based on last offer id\n\n#### Get last offer id from the old contract\n\n`getNextOfferId` on Etherscan/Bscscan\n\n```\n<<< TODO: script >>>\n```\n\n#### Set new offer id on the new contract\n\n```\nyarn hardhat set-next-offer-id \\\n\t--exchange <EXCHANGE_ADDRESS> \\\n\t--nextofferid <NEXT_OFFER_ID> \\\n\t--network marsbase\n```"
-            ],
-            "outputs": []
-        },
-        {
-            "language": "markdown",
-            "source": [
-                "### 7. *`OLD`* Check that no tokens are left on the old contract\n\n```\n<<< TODO >>>\n```\n\n### 8. Done 😊"
+                "### 6. *`OLD`* Check that no tokens are left on the old contract\n\n```\n<<< TODO >>>\n```\n\n### 7. Done 😊"
             ],
             "outputs": []
         }

@@ -7,9 +7,8 @@
 3. **`NEW`** Configure comission wallet on the new contract (same as old contract)
 4. **`NEW`** Configure comission exchanger on the new contract (same as old contract)
 5. *`OLD`* Stop all trading on the old contract
-6. **`NEW`** Set next offer id on the new contract based on last offer id
-7. *`OLD`* Check that no tokens are left on the old contract
-8. Done 😊
+6. *`OLD`* Check that no tokens are left on the old contract
+7. Done 😊
 
 ## Migration
 
@@ -28,13 +27,13 @@ Set new contract fee
 yarn hardhat set-minimum-fee --library <LIBRARY_ADDRESS> --exchange <EXCHANGE_ADDRESS> --fee 0.5% --network marsbase
 ```
 
-### 3. **`NEW`** Configure comission wallet on the new contract (same as old contract)
+### 3. **`NEW`** Configure commission wallet on the new contract (same as old contract)
 
 ```
 <<< TODO >>>
 ```
 
-### 4. **`NEW`** Configure comission exchanger on the new contract (same as old contract)
+### 4. **`NEW`** Configure commission exchanger on the new contract (same as old contract)
 
 ```
 <<< TODO >>>
@@ -46,29 +45,10 @@ yarn hardhat set-minimum-fee --library <LIBRARY_ADDRESS> --exchange <EXCHANGE_AD
 yarn hardhat lock-contract --exchange <EXCHANGE_ADDRESS> --network marsbase
 ```
 
-### 6. **`NEW`** Set next offer id on the new contract based on last offer id
-
-#### Get last offer id from the old contract
-
-`getNextOfferId` on Etherscan/Bscscan
-
-```
-<<< TODO: script >>>
-```
-
-#### Set new offer id on the new contract
-
-```
-yarn hardhat set-next-offer-id \
-	--exchange <EXCHANGE_ADDRESS> \
-	--nextofferid <NEXT_OFFER_ID> \
-	--network marsbase
-```
-
-### 7. *`OLD`* Check that no tokens are left on the old contract
+### 6. *`OLD`* Check that no tokens are left on the old contract
 
 ```
 <<< TODO >>>
 ```
 
-### 8. Done 😊
+### 7. Done 😊

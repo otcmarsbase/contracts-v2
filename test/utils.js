@@ -14,7 +14,7 @@ async function prepareJustContracts()
 	// 		MarsBase: m.address,
 	// 	}
 	// })
-	const dex = await MarsBaseExchange.deploy()
+	const dex = await MarsBaseExchange.deploy("0")
 	return {
 		MarsBase,
 		m,

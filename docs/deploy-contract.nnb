@@ -45,7 +45,7 @@
         {
             "language": "markdown",
             "source": [
-                "### 5. Deploy Marsbase Exchange contract\n\n```shell\nyarn hardhat deploy-exchange --network marsbase\n```"
+                "### 5. Deploy Marsbase Exchange contract\n\n```shell\nyarn hardhat deploy-exchange --offerid 0 --network marsbase\n```"
             ],
             "outputs": []
         },

@@ -30,9 +30,10 @@ contract MarsBaseExchange //is IMarsbaseExchange
 
     mapping(uint256 => MarsBaseCommon.MBOffer) public offers;
 
-    constructor() {
+    constructor(uint256 startOfferId) {
 		owner = msg.sender;
 		commissionWallet = msg.sender;
+		nextOfferId = startOfferId;
     }
 
 	// onlyOwner modifier
