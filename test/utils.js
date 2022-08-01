@@ -15,18 +15,24 @@ async function prepareJustContracts()
 	// 	}
 	// })
 	const dex = await MarsBaseExchange.deploy("0")
+
+	const BestBid = await ethers.getContractFactory("MarsbaseBestBid")
+	const bestBid = await BestBid.deploy("0")
+
 	return {
 		MarsBase,
 		m,
 		MarsBaseExchange,
 		dex,
+		BestBid,
+		bestBid,
 	}
 }
 async function prepareEnvironment()
 {
 	const [owner, alice, bob, charlie, derek] = await ethers.getSigners()
 
-	const { m, dex } = await prepareJustContracts()
+	const { m, dex, bestBid } = await prepareJustContracts()
 
 	const USDT = await ethers.getContractFactory("USDT")
 	const BAT = await ethers.getContractFactory("BAT18")
@@ -40,6 +46,7 @@ async function prepareEnvironment()
 		owner, alice, bob, charlie, derek,
 		MarsBase: m,
 		dex,
+		bb: bestBid,
 		usdt,
 		bat,
 		tether,
@@ -60,11 +67,16 @@ async function getOfferIdFromTx(txCreate)
 }
 async function getOfferDataFromTx(txCreate)
 {
-	let receipt = await (await txCreate).wait()
-	let logs = receipt.logs.map(tryParseLog(...PUBLIC_ABIS))
+	let logs = getLogsFromTx(txCreate)
 	let offerCreatedEvent = logs.find(x => x.name == "OfferCreated")
 	expect(offerCreatedEvent, `OfferCreated event not found`).not.undefined
 	return offerCreatedEvent.args
+}
+async function getLogsFromTx(txCreate)
+{
+	let receipt = await (await txCreate).wait()
+	let logs = receipt.logs.map(tryParseLog(...PUBLIC_ABIS))
+	return logs
 }
 
 async function skipTimeTo(timestamp)
@@ -89,6 +101,7 @@ module.exports = {
 	prepareEnvironment,
 	getOfferIdFromTx,
 	getOfferDataFromTx,
+	getLogsFromTx,
 	skipTime,
 	skipTimeTo,
 	getLastBlockTime,
