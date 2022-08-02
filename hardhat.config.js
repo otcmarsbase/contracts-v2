@@ -168,6 +168,27 @@ async function deployExchange(startOfferId)
 	}
 }
 
+async function deployBestbid(startOfferId)
+{
+	const BestBid = await ethers.getContractFactory("MarsbaseBestBid");
+
+	console.log(`starting offer id = ${startOfferId}\nCalculating deploy gas price...`)
+	
+	let estimate = await estimateDeployGas(BestBid, startOfferId)
+	// console.log(estimate)
+	console.log(`Estimated deploy price: ${ethers.utils.formatEther(estimate.totalGas)} ETH`)
+	console.log(`Press any key to deploy`)
+	await keypress()
+
+	console.log("Deploying BestBid Contract...")
+	let bb = await BestBid.deploy(startOfferId)
+	console.log(`Marsbase BestBid address: ${bb.address}`)
+	return {
+		contract: bb,
+		address: bb.address,
+	}
+}
+
 const weiToEth = (wei) => ethers.utils.formatEther(wei)
 
 const printDeployerInfo = async (print = true) =>
@@ -283,6 +304,23 @@ task("deploy-exchange", "Deploys Marsbase Exchange contract")
 		const { printEthBalance, balance, getEthBalance } = await printDeployerInfo()
 		const { contract: exchange, address: exchangeAddress } = await deployExchange(params.offerid)
 		await exchange.deployed()
+		await printEthBalance()
+		console.log(`gas spent: ${weiToEth(balance.sub(await getEthBalance()))}`)
+	})
+
+task("deploy-bestbid", "Deploys Marsbase Best Bid contract")
+	.addParam("offerid", "Starting offer id")
+	.setAction(async (params, hre) =>
+	{
+		NETWORK(hre)
+
+		expect(typeof params.offerid == "string")
+		expect(parseInt(params.offerid).toString() == params.offerid)
+
+		console.log("deploying bestbid")
+		const { printEthBalance, balance, getEthBalance } = await printDeployerInfo()
+		const { contract: bb } = await deployBestbid(params.offerid)
+		await bb.deployed()
 		await printEthBalance()
 		console.log(`gas spent: ${weiToEth(balance.sub(await getEthBalance()))}`)
 	})
