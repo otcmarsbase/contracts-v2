@@ -36,7 +36,7 @@ export type BidAccepted = ContractEventLog<{
     string,
     string
   ];
-  bid: [string, string, string, string];
+  bid: [string, string, string, string, string];
   0: string;
   1: string;
   2: string;
@@ -51,7 +51,7 @@ export type BidAccepted = ContractEventLog<{
     string,
     string
   ];
-  7: [string, string, string, string];
+  7: [string, string, string, string, string];
 }>;
 export type BidCancelled = ContractEventLog<{
   offerId: string;
@@ -60,14 +60,14 @@ export type BidCancelled = ContractEventLog<{
   reason: string;
   bidIdx: string;
   bidId: string;
-  bid: [string, string, string, string];
+  bid: [string, string, string, string, string];
   0: string;
   1: string;
   2: string;
   3: string;
   4: string;
   5: string;
-  6: [string, string, string, string];
+  6: [string, string, string, string, string];
 }>;
 export type BidCreated = ContractEventLog<{
   offerId: string;
@@ -75,13 +75,13 @@ export type BidCreated = ContractEventLog<{
   tokenBob: string;
   bidIdx: string;
   bidId: string;
-  bid: [string, string, string, string];
+  bid: [string, string, string, string, string];
   0: string;
   1: string;
   2: string;
   3: string;
   4: string;
-  5: [string, string, string, string];
+  5: [string, string, string, string, string];
 }>;
 export type OfferClosed = ContractEventLog<{
   id: string;
@@ -197,7 +197,7 @@ export interface MarsbaseBestBid extends BaseContract {
 
     getActiveBidsForOffer(
       offerId: number | string | BN
-    ): NonPayableTransactionObject<[string, string, string, string][]>;
+    ): NonPayableTransactionObject<[string, string, string, string, string][]>;
 
     getActiveOffers(): NonPayableTransactionObject<
       [
@@ -238,6 +238,7 @@ export interface MarsbaseBestBid extends BaseContract {
 
     offerBids(arg0: string | number[]): NonPayableTransactionObject<{
       offerId: string;
+      bidIdx: string;
       bobAddress: string;
       tokenBob: string;
       amountBob: string;
@@ -245,6 +246,7 @@ export interface MarsbaseBestBid extends BaseContract {
       1: string;
       2: string;
       3: string;
+      4: string;
     }>;
 
     offers(arg0: number | string | BN): NonPayableTransactionObject<{

@@ -14,6 +14,8 @@ interface IMarsbaseBestBid
 	struct BBBid
 	{
 		uint256 offerId;
+		uint256 bidIdx;
+
 		address bobAddress;
 
 		address tokenBob;
@@ -257,6 +259,7 @@ contract MarsbaseBestBid is IMarsbaseBestBid
 		
 		offerBids[bidId] = BBBid({
 			offerId: offerId,
+			bidIdx: bidIdx,
 			bobAddress: msg.sender,
 			tokenBob: tokenBob,
 			amountBob: amountBob
