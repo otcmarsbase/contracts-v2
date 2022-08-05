@@ -456,6 +456,7 @@ contract MarsbaseBestBid is IMarsbaseBestBid
 		
 		// destroy offer
 		delete offers[offerId];
+		activeOffersCount--;
 
 		// emit offer closed event
 		emit OfferClosed({
@@ -489,6 +490,7 @@ contract MarsbaseBestBid is IMarsbaseBestBid
 			IERC20(offer.params.tokenAlice).safeTransfer(offer.aliceAddress, offer.params.amountAlice);
 		
 		delete offers[offerId];
+		activeOffersCount--;
 		
 		// emit offer closed event
 		emit OfferClosed({
