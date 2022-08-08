@@ -184,7 +184,73 @@ describe("static offers with deadlines", () =>
 {
 	it("should not bid in an expired offer")
 	it("should take out money from a successful expired offer as offermaker")
-	it("should take out money from a successful expired offer as a bidder")
+	it("should take out money from a successful expired offer as a bidder", async () =>
+	{
+		let env = await prepareEnvironment()
+		let { dex, mint, alice, bob, charlie, derek, bat, usdt, parseLogs } = env
+
+		await approveMany(env, await mintAll(env, {
+			alice: {
+				usdt: "100",
+			},
+			bob: {
+				bat: "50",
+			},
+		}))
+
+		let deadline = await getLastBlockTime() + 5
+
+		let tx = await dex.connect(alice).createOffer(usdt.address, [bat.address], "100", ["200"], {
+			...sensibleOfferDefaults(),
+			holdTokens: true,
+			deadline: deadline.toString(),
+		})
+		await tx.wait()
+		await expectBalances(env, {
+			alice: {
+				usdt: "0",
+				bat: "0",
+			},
+			bob: {
+				usdt: "0",
+				bat: "50",
+			},
+		})
+		let txBid = await dex.connect(bob).acceptOffer("0", bat.address, "25")
+		await txBid.wait()
+
+		await skipTimeTo(deadline - 2)
+
+		let txBid2 = await dex.connect(bob).acceptOffer("0", bat.address, "25")
+		await txBid2.wait()
+
+		await skipTimeTo(deadline + 1)
+
+		await expectBalances(env, {
+			alice: {
+				usdt: "0",
+				bat: "0",
+			},
+			bob: {
+				usdt: "0",
+				bat: "0",
+			},
+		})
+		
+		let txClose = await dex.connect(bob).closeExpiredOffer("0")
+		await txClose.wait()
+		
+		await expectBalances(env, {
+			alice: {
+				usdt: "76",
+				bat: "50",
+			},
+			bob: {
+				usdt: "24",
+				bat: "0",
+			},
+		})
+	})
 	it("should revert money from cancelled expired offer as offermaker")
 	it("should revert money from cancelled expired offer as a bidder")
 })
