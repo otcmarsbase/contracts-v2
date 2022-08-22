@@ -26,6 +26,7 @@
 		"ethereum-waffle": "^3.4.4",
 		"ethers": "^5.6.1",
 		"hardhat": "^2.8.3",
+		"hardhat-abi-exporter": "^2.10.0",
 		"hardhat-contract-sizer": "^2.5.0",
 		"hardhat-gas-reporter": "^1.0.8",
 		"solc-0.8": "npm:solc@^0.8.12",

@@ -21,6 +21,7 @@ require('@typechain/hardhat');
 require("hardhat-gas-reporter");
 require('hardhat-contract-sizer');
 require('solidity-coverage');
+require('hardhat-abi-exporter');
 
 const NETWORK = (hre) => console.log(`\n${hre.network.name.toUpperCase()} ${hre.network.name.toUpperCase()} ${hre.network.name.toUpperCase()}\n`)
 
@@ -353,6 +354,10 @@ module.exports = {
   typechain: {
     outDir: 'types',
     target: 'web3-v1'
+  },
+  abiExporter: {
+	runOnCompile: true,
+	clear: true,
   },
   networks: {
     // Useful for testing. The `development` name is special - truffle uses it by default
