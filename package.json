@@ -1,6 +1,6 @@
 {
 	"name": "@otcmarsbase/contracts-v2-types",
-	"version": "1.2.4",
+	"version": "1.2.5",
 	"description": "",
 	"main": "types/index.ts",
 	"peerDependencies": {
@@ -39,7 +39,8 @@
 		"init-secret": "touch .secret && touch .infuraid && touch .etherscan",
 		"build": "hardhat compile",
 		"nnb2md": "node docs/convert-nnb.js docs",
-		"test": "hardhat test"
+		"test": "hardhat test",
+		"types-ethers": "typechain --target=ethers-v5 --out-dir='types/ethers' --discriminate-types --always-generate-overloads 'abi/**/*.json'"
 	},
 	"author": "",
 	"license": "ISC",
