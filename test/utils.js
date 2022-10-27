@@ -19,6 +19,9 @@ async function prepareJustContracts()
 	const BestBid = await ethers.getContractFactory("MarsbaseBestBid")
 	const bestBid = await BestBid.deploy("0")
 
+	const Marketplace = await ethers.getContractFactory("MarsbaseMarketplace")
+	const mplace = await Marketplace.deploy("0")
+
 	return {
 		MarsBase,
 		m,
@@ -26,13 +29,15 @@ async function prepareJustContracts()
 		dex,
 		BestBid,
 		bestBid,
+		Marketplace,
+		mplace,
 	}
 }
 async function prepareEnvironment()
 {
 	const [owner, alice, bob, charlie, derek] = await ethers.getSigners()
 
-	const { m, dex, bestBid } = await prepareJustContracts()
+	const { m, dex, bestBid, mplace } = await prepareJustContracts()
 
 	const USDT = await ethers.getContractFactory("USDT")
 	const BAT = await ethers.getContractFactory("BAT18")
@@ -47,6 +52,7 @@ async function prepareEnvironment()
 		MarsBase: m,
 		dex,
 		bb: bestBid,
+		mplace,
 		usdt,
 		bat,
 		tether,

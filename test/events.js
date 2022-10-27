@@ -59,6 +59,7 @@ const contractAbis = [
 	"MarsBaseCommon",
 	"MarsBaseExchange",
 	"MarsbaseBestBid",
+	"MarsbaseMarketplace",
 ].map(x => new ethers.utils.Interface(
 	JSON.parse(
 		require('fs').readFileSync(
