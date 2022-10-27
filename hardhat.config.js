@@ -189,6 +189,26 @@ async function deployBestbid(startOfferId)
 		address: bb.address,
 	}
 }
+async function deployMarketplace(startOfferId)
+{
+	const Marketplace = await ethers.getContractFactory("MarsbaseMarketplace");
+
+	console.log(`starting offer id = ${startOfferId}\nCalculating deploy gas price...`)
+	
+	let estimate = await estimateDeployGas(Marketplace, startOfferId)
+	// console.log(estimate)
+	console.log(`Estimated deploy price: ${ethers.utils.formatEther(estimate.totalGas)} ETH`)
+	console.log(`Press any key to deploy`)
+	await keypress()
+
+	console.log("Deploying Marketplace Contract...")
+	let mp = await Marketplace.deploy(startOfferId)
+	console.log(`Marsbase Marketplace address: ${mp.address}`)
+	return {
+		contract: mp,
+		address: mp.address,
+	}
+}
 
 const weiToEth = (wei) => ethers.utils.formatEther(wei)
 
@@ -322,6 +342,23 @@ task("deploy-bestbid", "Deploys Marsbase Best Bid contract")
 		const { printEthBalance, balance, getEthBalance } = await printDeployerInfo()
 		const { contract: bb } = await deployBestbid(params.offerid)
 		await bb.deployed()
+		await printEthBalance()
+		console.log(`gas spent: ${weiToEth(balance.sub(await getEthBalance()))}`)
+	})
+
+task("deploy-marketplace", "Deploys Marsbase Marketplace contract")
+	.addParam("offerid", "Starting offer id")
+	.setAction(async (params, hre) =>
+	{
+		NETWORK(hre)
+
+		expect(typeof params.offerid == "string")
+		expect(parseInt(params.offerid).toString() == params.offerid)
+
+		console.log("deploying marketplace")
+		const { printEthBalance, balance, getEthBalance } = await printDeployerInfo()
+		const { contract: mp } = await deployMarketplace(params.offerid)
+		await mp.deployed()
 		await printEthBalance()
 		console.log(`gas spent: ${weiToEth(balance.sub(await getEthBalance()))}`)
 	})
