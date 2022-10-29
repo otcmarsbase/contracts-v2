@@ -435,9 +435,15 @@ module.exports = {
     rinkeby: {
       accounts,
       url: `https://rinkeby.infura.io/v3/` + infuraId,
-      chainId: 4,       // Ropsten's id
-      gas: "auto",        // Ropsten has a lower block limit than mainnet
+      chainId: 4,
+      gas: "auto",
     },
+	goerli: {
+		accounts,
+		url: `https://rpc.ankr.com/eth_goerli`,
+		chainId: 5,
+		gas: "auto",
+	},
     mainnet: {
       accounts,
       url: `https://mainnet.infura.io/v3/` + infuraId,
