@@ -6,7 +6,7 @@ const { checkEvent, checkEventExists, checkEventDoesntExist } = require('../even
 const { mintAll, expectBalances, approveMany } = require('../token-utils')
 const { prepareEnvironment, getLastBlockTime, getOfferIdFromTx, getLogsFromTx } = require("../utils")
 
-describe.only("marketplace/basic", () =>
+describe("marketplace/basic", () =>
 {
 	it("should create an offer and accept bid", async () =>
 	{
