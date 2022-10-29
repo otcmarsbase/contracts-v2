@@ -22,43 +22,48 @@
 
 ### 1. Install deps
 
-```shell
-yarn
-```
-
 It's best to cleanup first, and to install with frozen lockfile:
 
-```shell
+```sh
 rm -rf node_modules
 yarn --frozen-lockfile
 ```
 
+Or you can do a simple yarn install:
+
+```sh
+yarn
+```
+
 ### 3. Cleanup previous builds if they exist
 
-```shell
+```sh
 rm -rf ./artifacts ./cache
 ```
 
 ### 4. Build & test contracts locally
 
-```shell
+```sh
 yarn test
 ```
 
 ### 5. Deploy Marsbase Exchange contract
 
-```shell
-yarn hardhat deploy-exchange --offerid 0 --network marsbase
+```sh
+export CONTRACT_NETWORK="marsbase"
+export EXCHANGE_OFFER_ID="0"
+yarn hardhat deploy-exchange --offerid $EXCHANGE_OFFER_ID --network $CONTRACT_NETWORK
 ```
 
 ### 6. Verify Marsbase Exchange source code on Etherscan
 
-```shell
-yarn hardhat verify --network mainnet <EXCHANGE_ADDRESS> <startOfferId>
+```sh
+export EXCHANGE_ADDRESS="marsbase exchange address from previous step"
+yarn hardhat verify --network $CONTRACT_NETWORK $EXCHANGE_ADDRESS $EXCHANGE_OFFER_ID
 ```
 
 ### 7. Set minimum fee
 
-```
-yarn hardhat set-minimum-fee --exchange <EXCHANGE_ADDRESS> --fee 0.5% --network marsbase
+```sh
+yarn hardhat set-minimum-fee --exchange $EXCHANGE_ADDRESS --fee 0.5% --network $CONTRACT_NETWORK
 ```
