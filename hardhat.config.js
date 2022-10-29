@@ -380,6 +380,7 @@ module.exports = {
 		mainnet: etherscanKey,
 		rinkeby: etherscanKey,
 		ropsten: etherscanKey,
+		goerli: etherscanKey,
 		bsc: bscscanKey,
 		bscTestnet: bscscanKey,
 	}
