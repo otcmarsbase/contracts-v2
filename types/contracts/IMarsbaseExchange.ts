@@ -2,170 +2,174 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import type BN from "bn.js";
-import type { ContractOptions } from "web3-eth-contract";
-import type { EventLog } from "web3-core";
-import type { EventEmitter } from "events";
+import type BN from "bn.js"
+import type { ContractOptions } from "web3-eth-contract"
+import type { EventLog } from "web3-core"
+import type { EventEmitter } from "events"
 import type {
-  Callback,
-  PayableTransactionObject,
-  NonPayableTransactionObject,
-  BlockType,
-  ContractEventLog,
-  BaseContract,
-} from "../types";
+	Callback,
+	PayableTransactionObject,
+	NonPayableTransactionObject,
+	BlockType,
+	ContractEventLog,
+	BaseContract,
+} from "../types"
 
 export interface EventOptions {
-  filter?: object;
-  fromBlock?: BlockType;
-  topics?: string[];
+	filter?: object
+	fromBlock?: BlockType
+	topics?: string[]
 }
 
 export interface IMarsbaseExchange extends BaseContract {
-  constructor(
-    jsonInterface: any[],
-    address?: string,
-    options?: ContractOptions
-  ): IMarsbaseExchange;
-  clone(): IMarsbaseExchange;
-  methods: {
-    acceptOffer(
-      offerId: number | string | BN,
-      tokenBob: string,
-      amountBob: number | string | BN
-    ): PayableTransactionObject<void>;
+	constructor(
+		jsonInterface: any[],
+		address?: string,
+		options?: ContractOptions
+	): IMarsbaseExchange
+	clone(): IMarsbaseExchange
+	methods: {
+		acceptOffer(
+			offerId: number | string | BN,
+			tokenBob: string,
+			amountBob: number | string | BN
+		): PayableTransactionObject<void>
 
-    cancelBid(offerId: number | string | BN): NonPayableTransactionObject<void>;
+		cancelBid(
+			offerId: number | string | BN
+		): NonPayableTransactionObject<void>
 
-    cancelExpiredOffers(): PayableTransactionObject<void>;
+		cancelExpiredOffers(): PayableTransactionObject<void>
 
-    cancelOffer(offerId: number | string | BN): PayableTransactionObject<void>;
+		cancelOffer(
+			offerId: number | string | BN
+		): PayableTransactionObject<void>
 
-    cancelOffers(
-      from: number | string | BN,
-      to: number | string | BN
-    ): PayableTransactionObject<void>;
+		cancelOffers(
+			from: number | string | BN,
+			to: number | string | BN
+		): PayableTransactionObject<void>
 
-    changeOfferParams(
-      offerId: number | string | BN,
-      tokenBob: string[],
-      amountBob: (number | string | BN)[],
-      offerParameters: [
-        boolean,
-        boolean,
-        boolean,
-        number | string | BN,
-        number | string | BN,
-        number | string | BN,
-        number | string | BN,
-        number | string | BN
-      ]
-    ): NonPayableTransactionObject<void>;
+		changeOfferParams(
+			offerId: number | string | BN,
+			tokenBob: string[],
+			amountBob: (number | string | BN)[],
+			offerParameters: [
+				boolean,
+				boolean,
+				boolean,
+				number | string | BN,
+				number | string | BN,
+				number | string | BN,
+				number | string | BN,
+				number | string | BN
+			]
+		): NonPayableTransactionObject<void>
 
-    changeOwner(newOwner: string): NonPayableTransactionObject<void>;
+		changeOwner(newOwner: string): NonPayableTransactionObject<void>
 
-    createOffer(
-      tokenAlice: string,
-      tokenBob: string[],
-      amountAlice: number | string | BN,
-      amountBob: (number | string | BN)[],
-      offerParameters: [
-        boolean,
-        boolean,
-        boolean,
-        number | string | BN,
-        number | string | BN,
-        number | string | BN,
-        number | string | BN,
-        number | string | BN
-      ]
-    ): PayableTransactionObject<void>;
+		createOffer(
+			tokenAlice: string,
+			tokenBob: string[],
+			amountAlice: number | string | BN,
+			amountBob: (number | string | BN)[],
+			offerParameters: [
+				boolean,
+				boolean,
+				boolean,
+				number | string | BN,
+				number | string | BN,
+				number | string | BN,
+				number | string | BN,
+				number | string | BN
+			]
+		): PayableTransactionObject<void>
 
-    getAllOffers(): NonPayableTransactionObject<
-      [
-        boolean,
-        boolean,
-        string,
-        string,
-        string,
-        string,
-        string,
-        string,
-        string,
-        string,
-        string,
-        string,
-        string,
-        string,
-        boolean[],
-        string[],
-        string[],
-        string[],
-        string[],
-        string[],
-        string[]
-      ][]
-    >;
+		getAllOffers(): NonPayableTransactionObject<
+			[
+				boolean,
+				boolean,
+				string,
+				string,
+				string,
+				string,
+				string,
+				string,
+				string,
+				string,
+				string,
+				string,
+				string,
+				string,
+				boolean[],
+				string[],
+				string[],
+				string[],
+				string[],
+				string[],
+				string[]
+			][]
+		>
 
-    getMinimumFee(): NonPayableTransactionObject<string>;
+		getMinimumFee(): NonPayableTransactionObject<string>
 
-    getNextOfferId(): NonPayableTransactionObject<string>;
+		getNextOfferId(): NonPayableTransactionObject<string>
 
-    getOffer(
-      offerId: number | string | BN
-    ): NonPayableTransactionObject<
-      [
-        boolean,
-        boolean,
-        string,
-        string,
-        string,
-        string,
-        string,
-        string,
-        string,
-        string,
-        string,
-        string,
-        string,
-        string,
-        boolean[],
-        string[],
-        string[],
-        string[],
-        string[],
-        string[],
-        string[]
-      ]
-    >;
+		getOffer(
+			offerId: number | string | BN
+		): NonPayableTransactionObject<
+			[
+				boolean,
+				boolean,
+				string,
+				string,
+				string,
+				string,
+				string,
+				string,
+				string,
+				string,
+				string,
+				string,
+				string,
+				string,
+				boolean[],
+				string[],
+				string[],
+				string[],
+				string[],
+				string[],
+				string[]
+			]
+		>
 
-    getOwner(): NonPayableTransactionObject<string>;
+		getOwner(): NonPayableTransactionObject<string>
 
-    lockContract(): NonPayableTransactionObject<void>;
+		lockContract(): NonPayableTransactionObject<void>
 
-    migrateContract(): PayableTransactionObject<void>;
+		migrateContract(): PayableTransactionObject<void>
 
-    price(
-      amountAlice: number | string | BN,
-      offerAmountAlice: number | string | BN,
-      offerAmountBob: number | string | BN
-    ): NonPayableTransactionObject<string>;
+		price(
+			amountAlice: number | string | BN,
+			offerAmountAlice: number | string | BN,
+			offerAmountBob: number | string | BN
+		): NonPayableTransactionObject<string>
 
-    setCommissionAddress(wallet: string): NonPayableTransactionObject<void>;
+		setCommissionAddress(wallet: string): NonPayableTransactionObject<void>
 
-    setExchangerAddress(
-      exchangeContract: string
-    ): NonPayableTransactionObject<void>;
+		setExchangerAddress(
+			exchangeContract: string
+		): NonPayableTransactionObject<void>
 
-    setMinimumFee(
-      _minimumFee: number | string | BN
-    ): NonPayableTransactionObject<void>;
+		setMinimumFee(
+			_minimumFee: number | string | BN
+		): NonPayableTransactionObject<void>
 
-    setNextOfferId(
-      _nextOfferId: number | string | BN
-    ): NonPayableTransactionObject<void>;
-  };
-  events: {
-    allEvents(options?: EventOptions, cb?: Callback<EventLog>): EventEmitter;
-  };
+		setNextOfferId(
+			_nextOfferId: number | string | BN
+		): NonPayableTransactionObject<void>
+	}
+	events: {
+		allEvents(options?: EventOptions, cb?: Callback<EventLog>): EventEmitter
+	}
 }
