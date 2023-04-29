@@ -1,4 +1,4 @@
-pragma solidity >=0.8.0 <0.9.0;
+pragma solidity 0.8.19;
 
 import "./MarsBaseCommon.sol";
 import "./IMarsbaseBestBid.sol";
@@ -128,6 +128,8 @@ contract MarsbaseMarketplace is IMarsbaseMarketplace
 
 	bool public locked = false;
 
+	uint256 public maxBidsCount = 50;
+
 	mapping(uint256 => BBOffer) public offers;
 	mapping(bytes32 => BBBid) public offerBids;
 
@@ -159,6 +161,12 @@ contract MarsbaseMarketplace is IMarsbaseMarketplace
 	function changeOwner(address newOwner) onlyOwner public
 	{
 		owner = newOwner;
+	}
+
+	function setMaxBidsCount(uint256 _maxBidsCount) onlyOwner public
+	{
+		require(_maxBidsCount > 0, "Maximum bid number must be greater than 0.");
+		maxBidsCount = _maxBidsCount;
 	}
 
 	function getActiveOffers() external view returns (BBOffer[] memory)
@@ -264,6 +272,11 @@ contract MarsbaseMarketplace is IMarsbaseMarketplace
 		// 	require(amountBob == msg.value, "402-E");
 		// else
 		// 	IERC20(tokenBob).safeTransferFrom(msg.sender, address(this), amountBob);
+
+		require(
+    		offers[offerId].totalBidsCount < maxBidsCount && offers[offerId].activeBidsCount < maxBidsCount,
+			"Maximum bids count exceeded."
+		);
 
 		uint256 bidIdx = offers[offerId].totalBidsCount++;
 		bytes32 bidId = getBidId(offerId, bidIdx);

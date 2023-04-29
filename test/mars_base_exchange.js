@@ -2,7 +2,7 @@ const assert = require('assert/strict');
 const { default: BigNumber } = require('bignumber.js');
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
-const { prepareJustContracts, getLastBlockTime } = require("./utils")
+const { prepareJustContracts, getLastBlockTime, prepareEnvironment } = require("./utils")
 
 /*
  * uncomment accounts to access the test accounts made available by the
@@ -924,6 +924,35 @@ contract("MarsBaseExchange", async function () {
     
   });
 
+  it("should fail if maximum minimumOrderTokens's length reached", async function () {
+    const feeAlice = 10;
+    const feeBob = 20;
+    const smallestChunkSize = ethers.utils.parseEther("1");
+    const minimumSale = ethers.utils.parseEther("20");
+    const deadline = 0;
+    
+    await dex.setMaxMinimumOrderTokensLength(1);
+
+    expect(await dex.maxMinimumOrderTokensLength()).equal("1")
+
+    // Create the offer
+    await dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, {feeAlice: feeAlice, feeBob: feeBob, smallestChunkSize: smallestChunkSize.toString(), deadline: deadline, cancelEnabled: false, modifyEnabled: false, minimumSize: minimumSale.toString(), holdTokens: true});
+
+    // Ensure the offer is active
+    let offer = await dex.getOffer(0);
+    assert.equal(offer.active, true);
+
+    // Ensure the offerType has been correctly calculated
+    // 3 is Chunked Order with Minimum and No Expiration Time
+
+    // Accept part of the offer without going over the minimum
+    await dex.acceptOffer(0, tokensBob[0], smallestChunkSize);
+    expect(dex.acceptOffer(0, tokensBob[1], smallestChunkSize)).to.be.revertedWith("Maximum minimumOrderTokens's length exceeded.")
+
+    return;
+    
+  });
+
   it("should send tokens if the order minimum is reached", async function () {
     const feeAlice = 10;
     const feeBob = 20;
@@ -1197,5 +1226,21 @@ contract("MarsBaseExchange", async function () {
     return;
     
   });
+
+
+	describe("setMaxMinimumOrderTokensLength", () => {
+		it("should allow owner to call", async () => {
+			await dex.setMaxMinimumOrderTokensLength(100);
+			expect(await dex.maxMinimumOrderTokensLength()).equal("100")
+		})
+		it("should fail if attempt to set the value to 0", async () => {
+			expect(dex.setMaxMinimumOrderTokensLength(0)).to.be.revertedWith("The maximum length of the minimumOrderTokens arrays must be greater than 0.")
+		})
+		it("should fail if a non-owner try to call", async () => {
+			let env = await prepareEnvironment()
+			let { alice } = env
+			expect(dex.connect(alice).setMaxMinimumOrderTokensLength(100)).to.be.revertedWith("403")
+		})
+	})
 
 });

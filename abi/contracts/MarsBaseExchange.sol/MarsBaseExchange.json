@@ -746,6 +746,19 @@
   },
   {
     "inputs": [],
+    "name": "maxMinimumOrderTokensLength",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "migrateContract",
     "outputs": [],
     "stateMutability": "payable",
@@ -1036,6 +1049,19 @@
       }
     ],
     "name": "setExchangerAddress",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_maxMinimumOrderTokensLength",
+        "type": "uint256"
+      }
+    ],
+    "name": "setMaxMinimumOrderTokensLength",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

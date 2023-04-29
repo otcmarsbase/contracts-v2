@@ -191,6 +191,8 @@ export interface MarsBaseExchange extends BaseContract {
       b: number | string | BN
     ): NonPayableTransactionObject<string>;
 
+    maxMinimumOrderTokensLength(): NonPayableTransactionObject<string>;
+
     migrateContract(): PayableTransactionObject<void>;
 
     min(
@@ -265,6 +267,10 @@ export interface MarsBaseExchange extends BaseContract {
 
     setExchangerAddress(
       exchangeContract: string
+    ): NonPayableTransactionObject<void>;
+
+    setMaxMinimumOrderTokensLength(
+      _maxMinimumOrderTokensLength: number | string | BN
     ): NonPayableTransactionObject<void>;
 
     setMinimumFee(

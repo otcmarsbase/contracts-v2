@@ -947,6 +947,19 @@
   },
   {
     "inputs": [],
+    "name": "maxBidsCount",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "minimumFee",
     "outputs": [
       {
@@ -1103,6 +1116,19 @@
       }
     ],
     "name": "setCommissionAddress",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_maxBidsCount",
+        "type": "uint256"
+      }
+    ],
+    "name": "setMaxBidsCount",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

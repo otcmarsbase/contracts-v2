@@ -1,4 +1,4 @@
-pragma solidity >=0.8.0 <0.9.0;
+pragma solidity 0.8.19;
 
 import "./MarsBaseCommon.sol";
 import "./IMarsbaseBestBid.sol";
@@ -11,7 +11,7 @@ using SafeERC20 for IERC20;
 // import "hardhat/console.sol";
 
 contract MarsbaseBestBid is IMarsbaseBestBid
-{
+{	
 	address public owner;
 
 	uint256 public nextOfferId = 0;
@@ -23,6 +23,9 @@ contract MarsbaseBestBid is IMarsbaseBestBid
 	// address public commissionExchanger;
 
 	bool public locked = false;
+
+	uint256 public maxBidsCount = 50;
+
 
 	mapping(uint256 => BBOffer) public offers;
 	mapping(bytes32 => BBBid) public offerBids;
@@ -54,6 +57,12 @@ contract MarsbaseBestBid is IMarsbaseBestBid
 	function changeOwner(address newOwner) onlyOwner public
 	{
 		owner = newOwner;
+	}
+
+	function setMaxBidsCount(uint256 _maxBidsCount) onlyOwner public
+	{
+		require(_maxBidsCount > 0, "Maximum bid number must be greater than 0.");
+		maxBidsCount = _maxBidsCount;
 	}
 
 	function getActiveOffers() external view returns (BBOffer[] memory)
@@ -157,7 +166,13 @@ contract MarsbaseBestBid is IMarsbaseBestBid
 		else
 			IERC20(tokenBob).safeTransferFrom(msg.sender, address(this), amountBob);
 
-		uint256 bidIdx = offers[offerId].totalBidsCount++;
+
+		require(
+    		offers[offerId].totalBidsCount < maxBidsCount && offers[offerId].activeBidsCount < maxBidsCount,
+			"Maximum bids count exceeded."
+		);
+
+		uint256 bidIdx = offers[offerId].totalBidsCount++; // set bidIx to be the current totalBidsCount and increase totalBidsCount
 		bytes32 bidId = getBidId(offerId, bidIdx);
 		offers[offerId].activeBidsCount++;
 		

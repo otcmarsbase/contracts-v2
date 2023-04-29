@@ -365,7 +365,7 @@ task("deploy-marketplace", "Deploys Marsbase Marketplace contract")
 
 module.exports = {
   solidity: {
-    version: "0.8.13",
+    version: "0.8.19",
     settings: {
       optimizer: {
         enabled: true,

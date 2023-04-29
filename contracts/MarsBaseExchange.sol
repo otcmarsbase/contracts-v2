@@ -28,6 +28,8 @@ contract MarsBaseExchange //is IMarsbaseExchange
 	
     bool locked = false;
 
+	uint256 public maxMinimumOrderTokensLength = 50;
+
     mapping(uint256 => MarsBaseCommon.MBOffer) public offers;
 
     constructor(uint256 startOfferId) {
@@ -89,6 +91,11 @@ contract MarsBaseExchange //is IMarsbaseExchange
 	function changeOwner(address newOwner) onlyOwner public
 	{
 		owner = newOwner;
+	}
+	function setMaxMinimumOrderTokensLength(uint256 _maxMinimumOrderTokensLength) onlyOwner public
+	{
+		require(_maxMinimumOrderTokensLength > 0, "The maximum length of the minimumOrderTokens arrays must be greater than 0.");
+		maxMinimumOrderTokensLength = _maxMinimumOrderTokensLength;
 	}
 
 	uint256 constant MAX_UINT256 = type(uint256).max;
@@ -498,6 +505,11 @@ contract MarsBaseExchange //is IMarsbaseExchange
 		{
 			IERC20(tokenBob).safeTransferFrom(bob, address(this), amountBob);
 		}
+
+		require(
+			offers[offer.offerId].minimumOrderTokens.length < maxMinimumOrderTokensLength,
+			"Maximum minimumOrderTokens's length exceeded."
+		);
 
 		offers[offer.offerId].minimumOrderAmountsAlice.push(amountAlice);
 		offers[offer.offerId].minimumOrderAmountsBob.push(amountBob);
