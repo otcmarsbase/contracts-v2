@@ -213,7 +213,7 @@ contract MarsbaseMarketplace is IMarsbaseMarketplace
 		require(offer.amountAlice > 0, "400-AAL");
 		require(offer.tokensBob.length > 0, "400-BE");
 		// require(offer.depositedAlice > offer.amountAlice / 10, "400-DAL");
-		require(offer.feeAlice + offer.feeBob >= minimumFee, "400-FL");
+		require(offer.feeAlice + offer.feeBob >= minimumFee, "400-FI");
 
 		// check for enough ETH sent
 		require(msg.value >= lifetimePrice(offer.deadline, block.timestamp), "400-NE");

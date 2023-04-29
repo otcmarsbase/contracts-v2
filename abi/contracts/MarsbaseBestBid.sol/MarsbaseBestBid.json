@@ -446,6 +446,19 @@
     "type": "event"
   },
   {
+    "inputs": [],
+    "name": "SCALE",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [
       {
         "internalType": "uint256",
@@ -960,6 +973,19 @@
   },
   {
     "inputs": [],
+    "name": "maximumFee",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "minimumFee",
     "outputs": [
       {
@@ -1129,6 +1155,19 @@
       }
     ],
     "name": "setMaxBidsCount",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_maximumFee",
+        "type": "uint256"
+      }
+    ],
+    "name": "setMaximumFee",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

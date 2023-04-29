@@ -603,7 +603,56 @@ describe("bestbid/basic", () =>
 
 		let bid3Tx = bb.connect(derek).createBid(offerId, tether.address, "450")
 		expect(bid3Tx).to.be.revertedWith("Maximum bids count exceeded.")
-	} )
+	})
+	it("should fail if use feeAlice and feeBob that are greater than the maximum fee", async () =>
+	{
+		let env = await prepareEnvironment()
+		let { bb, alice, bat, usdt, tether } = env
+
+
+		await approveMany(env, await mintAll(env, {
+			alice: {
+				bat: "100",
+			},
+		}), bb.address)
+
+		let failedOffer = bb.connect(alice).createOffer({
+			tokenAlice: bat.address,
+			amountAlice: "100",
+
+			tokensBob: [usdt.address, tether.address],
+
+			feeAlice: "2000", // 2%
+			feeBob: "0",
+		})
+
+		await expect(failedOffer).to.be.revertedWith("400-FI")
+	})
+	it("should fail if use feeAlice and feeBob that are smaller than the minimum fee", async () =>
+	{
+		let env = await prepareEnvironment()
+		let { bb, alice, bat, usdt, tether } = env
+		
+		await bb.setMinimumFee(500); //0.5% 
+		
+		await approveMany(env, await mintAll(env, {
+			alice: {
+				bat: "100",
+			},
+		}), bb.address)
+
+		let failedOffer = bb.connect(alice).createOffer({
+			tokenAlice: bat.address,
+			amountAlice: "100",
+
+			tokensBob: [usdt.address, tether.address],
+
+			feeAlice: "200", 
+			feeBob: "200",
+		})
+
+		await expect(failedOffer).to.be.revertedWith("400-FI")
+	})
 
 	describe("setMaxBidsCount", () => {
 		it("should allow owner to call", async () => {
@@ -615,12 +664,13 @@ describe("bestbid/basic", () =>
 		it("should fail if attempt to set the value to 0", async () => {
 			let env = await prepareEnvironment()
 			let { bb } = env
-			expect(bb.setMaxBidsCount(0)).to.be.revertedWith("Maximum bid number must be greater than 0.")
+			await expect(bb.setMaxBidsCount(0)).to.be.revertedWith("Maximum bid number must be greater than 0.")
 		})
 		it("should fail if a non-owner try to call", async () => {
 			let env = await prepareEnvironment()
 			let { bb, alice } = env
-			expect(bb.connect(alice).setMaxBidsCount(100)).to.be.revertedWith("403")
+			await expect(bb.connect(alice).setMaxBidsCount(100)).to.be.revertedWith("403")
 		})
 	})
+	
 })

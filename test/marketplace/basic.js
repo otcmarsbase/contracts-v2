@@ -63,11 +63,10 @@ describe("marketplace/basic", () =>
 	})
 	it("should fail if maximum bids count reached", async () =>{
 		let env = await prepareEnvironment()
-		let { bb, mint, alice, bob, charlie, derek, bat, usdt, tether, parseLogs } = env
-		await bb.setMaxBidsCount(2);
+		let { mplace, mint, alice, bob, charlie, derek, bat, usdt, tether, parseLogs } = env
+		await mplace.setMaxBidsCount(2);
 
-		expect(await bb.maxBidsCount()).equal("2")
-
+		expect(await mplace.maxBidsCount()).equal("2")
 		await approveMany(env, await mintAll(env, {
 			alice: {
 				bat: "100",
@@ -81,9 +80,9 @@ describe("marketplace/basic", () =>
 			derek: {
 				tether: "500",
 			}
-		}), bb.address)
+		}), mplace.address)
 
-		let offerTx = await bb.connect(alice).createOffer({
+		let offerTx = await mplace.connect(alice).createOffer({
 			tokenAlice: bat.address,
 			amountAlice: "100",
 
@@ -91,39 +90,40 @@ describe("marketplace/basic", () =>
 
 			feeAlice: "0",
 			feeBob: "0",
+
+			deadline: (await getLastBlockTime()) + 86400 * 7,
 		})
 		let offerId = (await getLogsFromTx(offerTx)).find(x => x.name == "OfferCreated").args.id
 		expect(offerId).equal("0")
-
 		// create bids
-		let bidTx = await bb.connect(bob).createBid(offerId, usdt.address, "250")
+		let bidTx = await mplace.connect(bob).createBid(offerId, usdt.address, "250")
 		let bidId = (await getLogsFromTx(bidTx)).find(x => x.name == "BidCreated").args.bidIdx
 		expect(bidId).equal("0")
 
-		let bid2Tx = await bb.connect(charlie).createBid(offerId, tether.address, "350")
+		let bid2Tx = await mplace.connect(charlie).createBid(offerId, tether.address, "350")
 		let bid2Id = (await getLogsFromTx(bid2Tx)).find(x => x.name == "BidCreated").args.bidIdx
 		expect(bid2Id).equal("1")
 
-		let bid3Tx = bb.connect(derek).createBid(offerId, tether.address, "450")
+		let bid3Tx = mplace.connect(derek).createBid(offerId, tether.address, "450")
 		expect(bid3Tx).to.be.revertedWith("Maximum bids count exceeded.")
 	})
 
 	describe("setMaxBidsCount", () => {
 		it("should allow owner to call", async () => {
 			let env = await prepareEnvironment()
-			let { bb } = env
-			await bb.setMaxBidsCount(100);
-			expect(await bb.maxBidsCount()).equal("100")
+			let { mplace } = env
+			await mplace.setMaxBidsCount(100);
+			expect(await mplace.maxBidsCount()).equal("100")
 		})
 		it("should fail if attempt to set the value to 0", async () => {
 			let env = await prepareEnvironment()
-			let { bb } = env
-			expect(bb.setMaxBidsCount(0)).to.be.revertedWith("Maximum bid number must be greater than 0.")
+			let { mplace } = env
+			expect(mplace.setMaxBidsCount(0)).to.be.revertedWith("Maximum bid number must be greater than 0.")
 		})
 		it("should fail if a non-owner try to call", async () => {
 			let env = await prepareEnvironment()
-			let { bb, alice } = env
-			expect(bb.connect(alice).setMaxBidsCount(100)).to.be.revertedWith("403")
+			let { mplace, alice } = env
+			expect(mplace.connect(alice).setMaxBidsCount(100)).to.be.revertedWith("403")
 		})
 	})
 

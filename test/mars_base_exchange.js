@@ -953,6 +953,39 @@ contract("MarsBaseExchange", async function () {
     
   });
 
+  it("should fail if use feeAlice and feeBob that are greater than the maximum fee", async function () {
+    const feeAlice = 1200;
+    const feeBob = 300;
+    const smallestChunkSize = ethers.utils.parseEther("1");
+    const minimumSale = ethers.utils.parseEther("20");
+    const deadline = 0;
+    
+    // Create the offer
+    const failedOffer = dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, {feeAlice: feeAlice, feeBob: feeBob, smallestChunkSize: smallestChunkSize.toString(), deadline: deadline, cancelEnabled: false, modifyEnabled: false, minimumSize: minimumSale.toString(), holdTokens: true});
+    
+    await expect(failedOffer).to.be.revertedWith("400-FI")
+
+    return;
+  });
+
+  it("should fail if use feeAlice and feeBob that are smaller than the minimum fee", async function () {
+    const feeAlice = 1;
+    const feeBob = 2;
+    const smallestChunkSize = ethers.utils.parseEther("1");
+    const minimumSale = ethers.utils.parseEther("20");
+    const deadline = 0;
+
+    await dex.setMinimumFee(5) // 0.5%
+    
+    // Create the offer
+    const failedOffer = dex.createOffer(testToken.address, tokensBob, amountAlice, amountBob, {feeAlice: feeAlice, feeBob: feeBob, smallestChunkSize: smallestChunkSize.toString(), deadline: deadline, cancelEnabled: false, modifyEnabled: false, minimumSize: minimumSale.toString(), holdTokens: true});
+    
+    await expect(failedOffer).to.be.revertedWith("400-FI")
+
+    return;
+  });
+
+
   it("should send tokens if the order minimum is reached", async function () {
     const feeAlice = 10;
     const feeBob = 20;
@@ -1234,12 +1267,12 @@ contract("MarsBaseExchange", async function () {
 			expect(await dex.maxMinimumOrderTokensLength()).equal("100")
 		})
 		it("should fail if attempt to set the value to 0", async () => {
-			expect(dex.setMaxMinimumOrderTokensLength(0)).to.be.revertedWith("The maximum length of the minimumOrderTokens arrays must be greater than 0.")
+			await expect(dex.setMaxMinimumOrderTokensLength(0)).to.be.revertedWith("The maximum length of the minimumOrderTokens arrays must be greater than 0.")
 		})
 		it("should fail if a non-owner try to call", async () => {
 			let env = await prepareEnvironment()
 			let { alice } = env
-			expect(dex.connect(alice).setMaxMinimumOrderTokensLength(100)).to.be.revertedWith("403")
+			await expect(dex.connect(alice).setMaxMinimumOrderTokensLength(100)).to.be.revertedWith("403")
 		})
 	})
 

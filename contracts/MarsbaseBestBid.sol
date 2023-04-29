@@ -16,7 +16,9 @@ contract MarsbaseBestBid is IMarsbaseBestBid
 
 	uint256 public nextOfferId = 0;
 	uint256 public activeOffersCount = 0;
-
+	
+	uint256 constant public SCALE = 1e5;
+	uint256 public maximumFee = 1000; // 1% 
 	uint256 public minimumFee = 0;
 
 	address public commissionWallet;
@@ -25,7 +27,6 @@ contract MarsbaseBestBid is IMarsbaseBestBid
 	bool public locked = false;
 
 	uint256 public maxBidsCount = 50;
-
 
 	mapping(uint256 => BBOffer) public offers;
 	mapping(bytes32 => BBBid) public offerBids;
@@ -46,14 +47,27 @@ contract MarsbaseBestBid is IMarsbaseBestBid
 		require(!locked, "409");
 		_;
 	}
+
+	modifier validFee(uint256 fee) {
+		require(fee <= SCALE, "Invalid fee.");
+		_;
+	}
+
 	function setCommissionAddress(address wallet) onlyOwner public
 	{
 		commissionWallet = wallet;
 	}
-	function setMinimumFee(uint256 _minimumFee) onlyOwner public
+	function setMinimumFee(uint256 _minimumFee) onlyOwner validFee(_minimumFee) public
 	{
+		require(_minimumFee < maximumFee, "Minimum fee must be smaller than maximum fee.");
 		minimumFee = _minimumFee;
 	}
+
+	function setMaximumFee(uint256 _maximumFee) onlyOwner validFee(_maximumFee) public
+	{	
+		require(_maximumFee > minimumFee, "Maximum fee must be greater than minimum fee.");
+		maximumFee = _maximumFee;
+	} 
 	function changeOwner(address newOwner) onlyOwner public
 	{
 		owner = newOwner;
@@ -64,6 +78,8 @@ contract MarsbaseBestBid is IMarsbaseBestBid
 		require(_maxBidsCount > 0, "Maximum bid number must be greater than 0.");
 		maxBidsCount = _maxBidsCount;
 	}
+
+	
 
 	function getActiveOffers() external view returns (BBOffer[] memory)
 	{
@@ -109,7 +125,7 @@ contract MarsbaseBestBid is IMarsbaseBestBid
 		require(offer.amountAlice > 0, "400-AAL");
 		require(offer.tokensBob.length > 0, "400-BE");
 		// require(offer.depositedAlice > offer.amountAlice / 10, "400-DAL");
-		require(offer.feeAlice + offer.feeBob >= minimumFee, "400-FL");
+		require(offer.feeAlice + offer.feeBob >= minimumFee && offer.feeAlice + offer.feeBob <= maximumFee, "400-FI");
 
 		// transfer deposit
 		if (offer.tokenAlice == address(0))
@@ -257,7 +273,7 @@ contract MarsbaseBestBid is IMarsbaseBestBid
 		if (feePercent == 0)
 			return (amountBeforeFee, 0);
 		
-		return _afterFee(amountBeforeFee, feePercent, 1e5, MAX_SAFE_TARGET_AMOUNT);
+		return _afterFee(amountBeforeFee, feePercent, SCALE, MAX_SAFE_TARGET_AMOUNT);
 	}
 	function _afterFee(uint256 amountBeforeFee, uint256 feePercent, uint256 scale, uint256 safeAmount) public pure returns (uint256 amountAfterFee, uint256 fee)
 	{

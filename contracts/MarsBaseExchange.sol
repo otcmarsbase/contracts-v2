@@ -21,8 +21,10 @@ contract MarsBaseExchange //is IMarsbaseExchange
     uint256 nextOfferId = 0;
 	uint256 activeOffersCount = 0;
 
+	uint256 constant public SCALE = 1e3;
+	uint256 public maximumFee = 10; // 1% 
     uint256 minimumFee = 0;
-
+	
     address commissionWallet;
     address commissionExchanger;
 	
@@ -48,6 +50,11 @@ contract MarsBaseExchange //is IMarsbaseExchange
 		_;
 	}
 	
+	modifier validFee(uint256 fee) {
+		require(fee <= SCALE, "Invalid fee.");
+		_;
+	}
+	
 	function setCommissionAddress(address wallet) onlyOwner public
 	{
 		commissionWallet = wallet;
@@ -64,10 +71,17 @@ contract MarsBaseExchange //is IMarsbaseExchange
 	{
 		return commissionExchanger;
 	}
-	function setMinimumFee(uint256 _minimumFee) onlyOwner public
+	function setMinimumFee(uint256 _minimumFee) onlyOwner validFee(_minimumFee) public
 	{
 		minimumFee = _minimumFee;
 	}
+
+	function setMaximumFee(uint256 _maximumFee) onlyOwner validFee(_maximumFee) public
+	{	
+
+		maximumFee = _maximumFee;
+	}
+
 	function getMinimumFee() public view returns (uint256)
 	{
 		return minimumFee;
@@ -167,7 +181,7 @@ contract MarsBaseExchange //is IMarsbaseExchange
 
 	function afterFee(uint256 amountBeforeFee, uint256 feePercent) public pure returns (uint256 amountAfterFee, uint256 fee)
 	{
-		return _afterFee(amountBeforeFee, feePercent, 1e3, MAX_SAFE_TARGET_AMOUNT);
+		return _afterFee(amountBeforeFee, feePercent, SCALE, MAX_SAFE_TARGET_AMOUNT);
 	}
 	function _afterFee(uint256 amountBeforeFee, uint256 feePercent, uint256 scale, uint256 safeAmount) public pure returns (uint256 amountAfterFee, uint256 fee)
 	{
@@ -229,6 +243,8 @@ contract MarsBaseExchange //is IMarsbaseExchange
 		// require(offerParameters.smallestChunkSize == 0, "NI - smallestChunkSize");
 		// require(offerParameters.deadline == 0, "NI - deadline");
 		// require(offerParameters.minimumSize == 0, "NI - minimumSize");
+		require(offerParameters.feeAlice + offerParameters.feeBob >= minimumFee && offerParameters.feeAlice + offerParameters.feeBob <= maximumFee, "400-FI");
+		
 		if (offerParameters.deadline > 0)
 			require(offerParameters.deadline > block.timestamp, "405-OD");
 		
