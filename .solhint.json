@@ -1,0 +1,18 @@
+{
+  "extends": "solhint:recommended",
+  "plugins": ["prettier"],
+  "rules": {
+    "prettier/prettier": "error",
+    "func-order": "off",
+    "mark-callable-contracts": "off",
+    "no-empty-blocks": "off",
+    "compiler-version": "off",
+    "private-vars-leading-underscore": "off",
+    "reason-string": "off",
+    "func-visibility": ["error", { "ignoreConstructors": true }],
+    "indent": "off",
+    "quotes": ["warn", "single"],
+    "var-name-mixedcase": "off",
+    "no-global-import": "off"
+  }
+}
