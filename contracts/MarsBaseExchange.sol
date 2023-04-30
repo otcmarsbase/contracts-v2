@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >=0.8.0 <0.9.0;
+pragma solidity 0.8.19;
 
 import "./MarsBaseCommon.sol";
 import "./IMarsbaseExchange.sol";
@@ -88,6 +88,7 @@ contract MarsBaseExchange //is IMarsbaseExchange
 	}
 	function setNextOfferId(uint256 _nextOfferId) onlyOwner public
 	{
+		require(_nextOfferId > nextOfferId, "400-OII");
 		nextOfferId = _nextOfferId;
 	}
 	function getNextOfferId() public view returns (uint256)

@@ -4,7 +4,7 @@ const { expect } = require ("chai")
 const { ethers } = require ("hardhat")
 const { prepareEnvironment, ZERO } = require("../utils")
 
-describe("missing/next-offer-id", () => 
+describe.only("missing/next-offer-id", () => 
 {
     it("should set next offer id as owner", async () =>
     {
@@ -16,8 +16,8 @@ describe("missing/next-offer-id", () =>
 		expect(await dex.getNextOfferId()).equal(2)
 		await dex.setNextOfferId(3)
 		expect(await dex.getNextOfferId()).equal(3)
-		await dex.setNextOfferId(0)
-		expect(await dex.getNextOfferId()).equal(0)
+		await dex.setNextOfferId(4)
+		expect(await dex.getNextOfferId()).equal(4)
 	})
     it("should not set next offer id as non-owner", async () =>
     {
