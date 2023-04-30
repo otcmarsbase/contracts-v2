@@ -4,7 +4,7 @@ const { expect } = require ("chai")
 const { ethers } = require ("hardhat")
 const { prepareEnvironment, ZERO } = require("../utils")
 
-describe.only("missing/next-offer-id", () => 
+describe("missing/next-offer-id", () => 
 {
     it("should set next offer id as owner", async () =>
     {

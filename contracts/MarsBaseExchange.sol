@@ -51,7 +51,7 @@ contract MarsBaseExchange //is IMarsbaseExchange
 	}
 	
 	modifier validFee(uint256 fee) {
-		require(fee <= SCALE, "Invalid fee.");
+		require(fee <= SCALE, "400-IFS");
 		_;
 	}
 	
@@ -109,7 +109,7 @@ contract MarsBaseExchange //is IMarsbaseExchange
 	}
 	function setMaxMinimumOrderTokensLength(uint256 _maxMinimumOrderTokensLength) onlyOwner public
 	{
-		require(_maxMinimumOrderTokensLength > 0, "The maximum length of the minimumOrderTokens arrays must be greater than 0.");
+		require(_maxMinimumOrderTokensLength > 0, "404-MMOTLI"); // Maximum MinimumOrderTokens Length Invalid
 		maxMinimumOrderTokensLength = _maxMinimumOrderTokensLength;
 	}
 
@@ -254,11 +254,11 @@ contract MarsBaseExchange //is IMarsbaseExchange
 
 		require(tokenBob.length > 0, "400-BE");
 		require(amountBob.length == tokenBob.length, "400-BLMM"); // Bob Length MisMatch
+
 		// for (uint256 i = 0; i < tokenBob.length; i++)
 		// {
 		// 	require(tokenBob[i] != address(0), "NI - tokenBob ETH");
 		// }
-
 		// take tokens from alice
 		if (tokenAlice == address(0))
 			require(amountAlice == msg.value, "402-E");
@@ -338,9 +338,10 @@ contract MarsBaseExchange //is IMarsbaseExchange
 			feePercent = 0;
 		
 		(uint256 amountAfterFee, uint256 fee) = afterFee(amount, feePercent);
-
+		
 		(bool success, ) = to.call{value: amountAfterFee, gas: 30000}("");
 		require(success, "404-C1");
+
 
 		if (fee > 0)
 		{
@@ -464,7 +465,7 @@ contract MarsBaseExchange //is IMarsbaseExchange
 		require(offer.capabilities[1], "400-CE");
 		require(offer.offerer == msg.sender, "403");
 
-		if (isEligibleToPayout(offer))
+		if (isEligibleToPayout(offer) && offer.minimumOrderTokens.length > 0)
 			_swapAllHeldTokens(offer);
 
 		_destroyOffer(offerId, MarsBaseCommon.OfferCloseReason.CancelledBySeller);
@@ -525,8 +526,8 @@ contract MarsBaseExchange //is IMarsbaseExchange
 
 		require(
 			offers[offer.offerId].minimumOrderTokens.length < maxMinimumOrderTokensLength,
-			"Maximum minimumOrderTokens's length exceeded."
-		);
+			"406-MAXMOTLE"
+		); // Maximum minimumOrderTokens's length exceeded.
 
 		offers[offer.offerId].minimumOrderAmountsAlice.push(amountAlice);
 		offers[offer.offerId].minimumOrderAmountsBob.push(amountBob);
@@ -615,32 +616,27 @@ contract MarsBaseExchange //is IMarsbaseExchange
 	function _swapAllHeldTokens(MarsBaseCommon.MBOffer memory offer) private
 	{
 		uint256 offerId = offer.offerId;
-
+		uint256 length = offer.minimumOrderTokens.length;
+			
+		offers[offerId].minimumOrderTokens = new address[](0);
+		offers[offerId].minimumOrderAmountsAlice = new uint256[](0);
 		// trade all remaining tokens
-		for (uint256 i = 0; i < offer.minimumOrderTokens.length; i++)
+		for (uint256 i = 0; i < length; i++)
 		{
 			// address tokenBob = offer.minimumOrderTokens[i];
 			// uint256 amountBob = offer.minimumOrderAmountsBob[i];
-			uint256 amountAlice = offer.minimumOrderAmountsAlice[i];
-
-			require(amountAlice > 0, "500-AAL"); // Amount Alice is too Low
-			
-			// just to future-proof double entry protection in case of refactoring
-			offers[offerId].minimumOrderAmountsAlice[i] = 0;
-
+			// uint256 amountAlice = offer.minimumOrderAmountsAlice[i];
 			_swapHeldTokens(offer, i);
 		}
 		// drop used arrays
-		offers[offerId].minimumOrderAmountsAlice = new uint256[](0);
 		offers[offerId].minimumOrderAmountsBob = new uint256[](0);
 		offers[offerId].minimumOrderAddresses = new address[](0);
-		offers[offerId].minimumOrderTokens = new address[](0);
 	}
 	function _swapHeldTokens(MarsBaseCommon.MBOffer memory offer, uint256 i) private
 	{
 		// send Bob tokens to Alice
 		if (offer.minimumOrderTokens[i] == address(0))
-		{
+		{	
 			_sendEthAfterFee(offer.minimumOrderAmountsBob[i], offer.offerer, offer.feeBob);
 		}
 		else
@@ -661,7 +657,7 @@ contract MarsBaseExchange //is IMarsbaseExchange
 
 		// send Alice tokens to Bob
 		if (offer.tokenAlice == address(0))
-		{
+		{	
 			_sendEthAfterFee(offer.minimumOrderAmountsAlice[i], offer.minimumOrderAddresses[i], offer.feeAlice);
 		}
 		else
@@ -710,7 +706,6 @@ contract MarsBaseExchange //is IMarsbaseExchange
 	{
 		MarsBaseCommon.MBOffer memory offer = offers[offerId];
 		require(offer.active, "404");
-
 		// require offer to be expired
 		require((offer.deadline > 0) && (offer.deadline < block.timestamp), "400-NE"); // Not Expired
 		
@@ -723,7 +718,6 @@ contract MarsBaseExchange //is IMarsbaseExchange
 			_destroyOffer(offerId, MarsBaseCommon.OfferCloseReason.DeadlinePassed);
 			return;
 		}
-
 		// if any tokens are still held in the offer
 		if (offer.minimumOrderTokens.length > 0)
 		{
@@ -747,7 +741,9 @@ contract MarsBaseExchange //is IMarsbaseExchange
 		if (offer.amountRemaining > 0)
 		{
 			if (offer.tokenAlice == address(0))
-				_sendEthAfterFee(offer.amountRemaining, offer.offerer, 0);
+				{
+					_sendEthAfterFee(offer.amountRemaining, offer.offerer, 0);
+				}
 			else
 				IERC20(offer.tokenAlice).safeTransfer(offer.offerer, offer.amountRemaining);
 		}
@@ -822,4 +818,6 @@ contract MarsBaseExchange //is IMarsbaseExchange
 			}
 		}
 	}
+
+	receive() external payable{}
 }

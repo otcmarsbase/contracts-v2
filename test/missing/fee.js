@@ -47,6 +47,7 @@ describe("missing/fee", () =>
 	{
 		let env = await prepareEnvironment()
 		let { dex, mint, alice, bob, charlie, derek, bat, usdt, parseLogs } = env
+		await dex.setMaximumFee(200)
 
 		await approveMany(env, await mintAll(env, {
 			alice: {

@@ -184,6 +184,7 @@ describe("static offers with deadlines", () =>
 {
 	it("should not bid in an expired offer")
 	it("should take out money from a successful expired offer as offermaker")
+
 	it("should take out money from a successful expired offer as a bidder", async () =>
 	{
 		let env = await prepareEnvironment()

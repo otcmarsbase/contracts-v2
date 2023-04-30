@@ -4,7 +4,7 @@ const { expect } = require ("chai")
 const { ethers } = require ("hardhat")
 const { prepareEnvironment } = require("../utils")
 
-describe.only("missing/fees-basic", () => 
+describe("missing/fees-basic", () => 
 {
 	describe("minimum-fee-basic", () => {
 		it("should have 0 minimum fee by default", async () =>

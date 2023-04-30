@@ -22,6 +22,7 @@ require("hardhat-gas-reporter");
 require('hardhat-contract-sizer');
 require('solidity-coverage');
 require('hardhat-abi-exporter');
+require("hardhat-tracer");
 
 const NETWORK = (hre) => console.log(`\n${hre.network.name.toUpperCase()} ${hre.network.name.toUpperCase()} ${hre.network.name.toUpperCase()}\n`)
 

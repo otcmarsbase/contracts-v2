@@ -165,7 +165,7 @@ contract MarsbaseMarketplace is IMarsbaseMarketplace
 
 	function setMaxBidsCount(uint256 _maxBidsCount) onlyOwner public
 	{
-		require(_maxBidsCount > 0, "Maximum bid number must be greater than 0.");
+		require(_maxBidsCount > 0, "400-IMAXBC");
 		maxBidsCount = _maxBidsCount;
 	}
 
@@ -275,7 +275,7 @@ contract MarsbaseMarketplace is IMarsbaseMarketplace
 
 		require(
     		offers[offerId].totalBidsCount < maxBidsCount && offers[offerId].activeBidsCount < maxBidsCount,
-			"Maximum bids count exceeded."
+			"406-MAXBCE"
 		);
 
 		uint256 bidIdx = offers[offerId].totalBidsCount++;

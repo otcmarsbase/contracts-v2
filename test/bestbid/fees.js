@@ -19,12 +19,12 @@ describe("bestbid/fees", () =>
 			let env = await prepareEnvironment()
 			let { bb } = env
             await bb.setMinimumFee(700)
-			await expect(bb.setMaximumFee(500)).to.be.revertedWith("Maximum fee must be greater than minimum fee.")
+			await expect(bb.setMaximumFee(500)).to.be.revertedWith("400-IMAXF")
 		})
 		it("should fail if attempt to set invalid maximum fee", async () => {
 			let env = await prepareEnvironment()
 			let { bb } = env
-			await expect(bb.setMaximumFee(200000)).to.be.revertedWith("Invalid fee.")
+			await expect(bb.setMaximumFee(200000)).to.be.revertedWith("400-IFS")
 		})
 		it("should fail if a non-owner try to call", async () => {
 			let env = await prepareEnvironment()
@@ -44,7 +44,7 @@ describe("bestbid/fees", () =>
 		it("should fail if attempt to set a minimum fee greater than maximum fee", async () => {
 			let env = await prepareEnvironment()
 			let { bb } = env
-			await expect(bb.setMinimumFee(2000)).to.be.revertedWith("Minimum fee must be smaller than maximum fee.")
+			await expect(bb.setMinimumFee(2000)).to.be.revertedWith("400-IMINF")
 		})
 
 		it("should fail if a non-owner try to call", async () => {

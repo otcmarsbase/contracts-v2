@@ -46,8 +46,8 @@ contract("MarsBaseExchange", async function () {
 
   it("should create an offer", async function () {
     // Define Constants
-    const feeAlice = 10;
-    const feeBob = 20;
+    const feeAlice = 5;
+    const feeBob = 5;
     const smallestChunkSize = ethers.utils.parseEther("1");
     const deadline = 0;
 
@@ -75,8 +75,8 @@ contract("MarsBaseExchange", async function () {
 
   it("should not create an offer with a deadline in the past", async function () {
     // Define Constants
-    const feeAlice = 10;
-    const feeBob = 20;
+    const feeAlice = 5;
+    const feeBob = 5;
     const smallestChunkSize = ethers.utils.parseEther("1000");
     const deadline = 100;
 
@@ -87,8 +87,8 @@ contract("MarsBaseExchange", async function () {
   });
 
   it("allows no offer deadline to be set", async function () {
-    const feeAlice = 10;
-    const feeBob = 20;
+    const feeAlice = 5;
+    const feeBob = 5;
     const smallestChunkSize = ethers.utils.parseEther("1");
     const deadline = 0;
 
@@ -106,8 +106,8 @@ contract("MarsBaseExchange", async function () {
 
   it("should not create an offer with smallest chunk size larger than amount alice", async function () {
     // Define Constants
-    const feeAlice = 10;
-    const feeBob = 20;
+    const feeAlice = 5;
+    const feeBob = 5;
     const smallestChunkSize = ethers.utils.parseEther("1000");
     const deadline = 0;
 
@@ -119,8 +119,8 @@ contract("MarsBaseExchange", async function () {
 
   it("should not create an offer with minimum size larger than amount alice", async function () {
     // Define Constants
-    const feeAlice = 10;
-    const feeBob = 20;
+    const feeAlice = 5;
+    const feeBob = 5;
     const smallestChunkSize = ethers.utils.parseEther("1");
     const minimumSizeOver = ethers.utils.parseEther("100000");
     const deadline = 0;
@@ -138,8 +138,8 @@ contract("MarsBaseExchange", async function () {
   });
 
   it("has offer deadlines", async function () {
-    const feeAlice = 10;
-    const feeBob = 20;
+    const feeAlice = 5;
+    const feeBob = 5;
     const smallestChunkSize = ethers.utils.parseEther("1");
     const deadline = await getLastBlockTime() + 10000;
 
@@ -187,8 +187,8 @@ contract("MarsBaseExchange", async function () {
 
   it("can have no offer deadlines", async function () {
 
-    const feeAlice = 10;
-    const feeBob = 20;
+    const feeAlice = 5;
+    const feeBob = 5;
     const smallestChunkSize = ethers.utils.parseEther("1");
     const deadline = 0;
 
@@ -207,8 +207,8 @@ contract("MarsBaseExchange", async function () {
     // Define Constants
     const amountAlice = ethers.utils.parseEther("5")
     const amountBob = ethers.utils.parseEther("1");
-    const feeAlice = 10;
-    const feeBob = 20;
+    const feeAlice = 5;
+    const feeBob = 5;
     const buyAmount = ethers.utils.parseEther("1");
     const expectedAmount = (buyAmount * amountBob) / (amountAlice);
 
@@ -221,8 +221,8 @@ contract("MarsBaseExchange", async function () {
     // Define Constants
     const amountAlice = ethers.utils.parseEther("1");
     const amountBob = ethers.utils.parseEther("5")
-    const feeAlice = 10;
-    const feeBob = 20;
+    const feeAlice = 5;
+    const feeBob = 5;
     const buyAmount = ethers.utils.parseEther("1");
     const expectedAmount = (buyAmount * amountBob) / amountAlice;
 
@@ -232,8 +232,8 @@ contract("MarsBaseExchange", async function () {
   });
 
   it("should cancel an order if it's allowed", async function () {
-    const feeAlice = 10;
-    const feeBob = 20;
+    const feeAlice = 5;
+    const feeBob = 5;
     const smallestChunkSize = ethers.utils.parseEther("1");
     const deadline = 0;
 
@@ -274,8 +274,8 @@ contract("MarsBaseExchange", async function () {
   });
 
   it("should cancel all offers and migrate", async function () {
-    const feeAlice = 10;
-    const feeBob = 20;
+    const feeAlice = 5;
+    const feeBob = 5;
     const smallestChunkSize = ethers.utils.parseEther("1");
     const deadline = 0;
 
@@ -320,8 +320,8 @@ contract("MarsBaseExchange", async function () {
   });
 
   it("should not cancel an order if its disabled", async function () {
-    const feeAlice = 10;
-    const feeBob = 20;
+    const feeAlice = 5;
+    const feeBob = 5;
     const smallestChunkSize = ethers.utils.parseEther("1");
     const deadline = 0;
 
@@ -349,8 +349,8 @@ contract("MarsBaseExchange", async function () {
   });
 
   it("should complete an order", async function () {
-    const feeAlice = 10;
-    const feeBob = 20;
+    const feeAlice = 5;
+    const feeBob = 5;
     const smallestChunkSize = 0;
     const deadline = 0;
     const amountAfterFeeAlice = amountAlice * (1000 - feeAlice) / 1000;
@@ -466,8 +466,8 @@ contract("MarsBaseExchange", async function () {
   });
 
   it("should complete an order for native ether", async function () {
-    const feeAlice = 10;
-    const feeBob = 20;
+    const feeAlice = 5;
+    const feeBob = 5;
     const deadline = 0;
     const smallestChunkSize = 0;
     const amountAfterFeeAlice = amountAlice * (1000 - feeAlice) / 1000;
@@ -515,8 +515,8 @@ contract("MarsBaseExchange", async function () {
   });
 
   it("should get all open orders", async function () {
-    const feeAlice = 10;
-    const feeBob = 20;
+    const feeAlice = 5;
+    const feeBob = 5;
     const smallestChunkSize = 0;
     const deadline = 0;
 
@@ -558,8 +558,8 @@ contract("MarsBaseExchange", async function () {
   });
 
   it("should accept part of an order", async function () {
-    const feeAlice = 10;
-    const feeBob = 20;
+    const feeAlice = 5;
+    const feeBob = 5;
     const smallestChunkSize = ethers.utils.parseEther("1")
     const deadline = 0;
     const conversionnRate = amountAlice / amountBob[1];
@@ -598,8 +598,8 @@ contract("MarsBaseExchange", async function () {
   });
 
   it("should accept part of an order for native ether", async function () {
-    const feeAlice = 10;
-    const feeBob = 20;
+    const feeAlice = 5;
+    const feeBob = 5;
     const smallestChunkSize = ethers.utils.parseEther("1")
     const deadline = 0;
     const conversionnRate = amountAlice / amountBob[1];
@@ -640,8 +640,8 @@ contract("MarsBaseExchange", async function () {
   it.skip("should allow price changes if allowed", async function () {
     const changedAmountsBob = [ethers.utils.parseEther("20")];
     const changedTokensBob = [tokensBob[1]]
-    const feeAlice = 10;
-    const feeBob = 20;
+    const feeAlice = 5;
+    const feeBob = 5;
     const smallestChunkSize = ethers.utils.parseEther("1");
     const deadline = 0;
     const conversionnRate = amountAlice / amountBob[0];
@@ -686,8 +686,8 @@ contract("MarsBaseExchange", async function () {
   });
 
   it.skip("should reject price changes if its disabled", async function () {
-    const feeAlice = 10;
-    const feeBob = 20;
+    const feeAlice = 5;
+    const feeBob = 5;
     const smallestChunkSize = ethers.utils.parseEther("1");
     const deadline = 0;
     const conversionnRate = amountAlice / amountBob[0];
@@ -717,8 +717,8 @@ contract("MarsBaseExchange", async function () {
   });
 
   it.skip("should allow minimum chunk size changes", async function () {
-    const feeAlice = 10;
-    const feeBob = 20;
+    const feeAlice = 5;
+    const feeBob = 5;
     const smallestChunkSize = ethers.utils.parseEther("1");
     const changedSmallestChunkSize = 1;
     const deadline = 0;
@@ -763,8 +763,8 @@ contract("MarsBaseExchange", async function () {
   });
 
   it("should close the order if all of an order is requested for part of an order", async function () {
-    const feeAlice = 10;
-    const feeBob = 20;
+    const feeAlice = 5;
+    const feeBob = 5;
     const smallestChunkSize = ethers.utils.parseEther("1");
     const deadline = 0;
 
@@ -800,8 +800,8 @@ contract("MarsBaseExchange", async function () {
   });
 
   it("should close the order if all of an order is requested for part of an order with native ether", async function () {
-    const feeAlice = 10;
-    const feeBob = 20;
+    const feeAlice = 5;
+    const feeBob = 5;
     const smallestChunkSize = ethers.utils.parseEther("1");
     const deadline = 0;
 
@@ -837,8 +837,8 @@ contract("MarsBaseExchange", async function () {
   });
 
   it("should hold tokens if the order minimum is not reached", async function () {
-    const feeAlice = 10;
-    const feeBob = 20;
+    const feeAlice = 5;
+    const feeBob = 5;
     const smallestChunkSize = ethers.utils.parseEther("1");
     const minimumSale = ethers.utils.parseEther("20");
     const deadline = 0;
@@ -881,8 +881,8 @@ contract("MarsBaseExchange", async function () {
   });
 
   it("should hold native ether if the order minimum is not reached", async function () {
-    const feeAlice = 10;
-    const feeBob = 20;
+    const feeAlice = 5;
+    const feeBob = 5;
     const smallestChunkSize = ethers.utils.parseEther("1");
     const minimumSale = ethers.utils.parseEther("20");
     const deadline = 0;
@@ -925,8 +925,8 @@ contract("MarsBaseExchange", async function () {
   });
 
   it("should fail if maximum minimumOrderTokens's length reached", async function () {
-    const feeAlice = 10;
-    const feeBob = 20;
+    const feeAlice = 5;
+    const feeBob = 5;
     const smallestChunkSize = ethers.utils.parseEther("1");
     const minimumSale = ethers.utils.parseEther("20");
     const deadline = 0;
@@ -947,7 +947,7 @@ contract("MarsBaseExchange", async function () {
 
     // Accept part of the offer without going over the minimum
     await dex.acceptOffer(0, tokensBob[0], smallestChunkSize);
-    expect(dex.acceptOffer(0, tokensBob[1], smallestChunkSize)).to.be.revertedWith("Maximum minimumOrderTokens's length exceeded.")
+    expect(dex.acceptOffer(0, tokensBob[1], smallestChunkSize)).to.be.revertedWith("406-MAXMOTLE")
 
     return;
     
@@ -987,8 +987,8 @@ contract("MarsBaseExchange", async function () {
 
 
   it("should send tokens if the order minimum is reached", async function () {
-    const feeAlice = 10;
-    const feeBob = 20;
+    const feeAlice = 5;
+    const feeBob = 5;
     const smallestChunkSize = ethers.utils.parseEther("1");
     const minimumSale = ethers.utils.parseEther("10");
     const deadline = 0;
@@ -1029,8 +1029,8 @@ contract("MarsBaseExchange", async function () {
   });
 
   it("should send ether if the order minimum is reached", async function () {
-    const feeAlice = 10;
-    const feeBob = 20;
+    const feeAlice = 5;
+    const feeBob = 5;
     const smallestChunkSize = ethers.utils.parseEther("1");
     const minimumSale = ethers.utils.parseEther("10");
     const deadline = 0;
@@ -1071,8 +1071,8 @@ contract("MarsBaseExchange", async function () {
   });
 
   it("should return tokens if the order minimum is not reached and offer is cancelled", async function () {
-    const feeAlice = 10;
-    const feeBob = 20;
+    const feeAlice = 5;
+    const feeBob = 5;
     const smallestChunkSize = ethers.utils.parseEther("1")
     const minimumSale = ethers.utils.parseEther("20");
     const deadline = 0;
@@ -1128,8 +1128,8 @@ contract("MarsBaseExchange", async function () {
   });
 
   it("should return ether if the order minimum is not reached and offer is cancelled", async function () {
-    const feeAlice = 10;
-    const feeBob = 20;
+    const feeAlice = 5;
+    const feeBob = 5;
     const smallestChunkSize = ethers.utils.parseEther("1")
     const minimumSale = ethers.utils.parseEther("5");
     const deadline = 0;
@@ -1170,8 +1170,8 @@ contract("MarsBaseExchange", async function () {
   });
 
   it.skip("should return tokens if the buyer cancels", async function () {
-    const feeAlice = 10;
-    const feeBob = 20;
+    const feeAlice = 5;
+    const feeBob = 5;
     const smallestChunkSize = ethers.utils.parseEther("1");
     const minimumSale = ethers.utils.parseEther("20");
     const deadline = 0;
@@ -1225,8 +1225,8 @@ contract("MarsBaseExchange", async function () {
   });
 
   it.skip("should return ether if the buyer cancels", async function () {
-    const feeAlice = 10;
-    const feeBob = 20;
+    const feeAlice = 5;
+    const feeBob = 5;
     const smallestChunkSize = ethers.utils.parseEther("0.1");
     const minimumSale = amountAlice;
     const deadline = 0;
@@ -1267,7 +1267,7 @@ contract("MarsBaseExchange", async function () {
 			expect(await dex.maxMinimumOrderTokensLength()).equal("100")
 		})
 		it("should fail if attempt to set the value to 0", async () => {
-			await expect(dex.setMaxMinimumOrderTokensLength(0)).to.be.revertedWith("The maximum length of the minimumOrderTokens arrays must be greater than 0.")
+			await expect(dex.setMaxMinimumOrderTokensLength(0)).to.be.revertedWith("404-MMOTLI")
 		})
 		it("should fail if a non-owner try to call", async () => {
 			let env = await prepareEnvironment()

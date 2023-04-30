@@ -49,7 +49,7 @@ contract MarsbaseBestBid is IMarsbaseBestBid
 	}
 
 	modifier validFee(uint256 fee) {
-		require(fee <= SCALE, "Invalid fee.");
+		require(fee <= SCALE, "400-IFS"); // Invalid Fee in Scale
 		_;
 	}
 
@@ -59,13 +59,13 @@ contract MarsbaseBestBid is IMarsbaseBestBid
 	}
 	function setMinimumFee(uint256 _minimumFee) onlyOwner validFee(_minimumFee) public
 	{
-		require(_minimumFee < maximumFee, "Minimum fee must be smaller than maximum fee.");
+		require(_minimumFee < maximumFee, "400-IMINF"); // Invalid Minimum Fee
 		minimumFee = _minimumFee;
 	}
 
 	function setMaximumFee(uint256 _maximumFee) onlyOwner validFee(_maximumFee) public
 	{	
-		require(_maximumFee > minimumFee, "Maximum fee must be greater than minimum fee.");
+		require(_maximumFee > minimumFee, "400-IMAXF");// Invalid Maximum Fee
 		maximumFee = _maximumFee;
 	} 
 	function changeOwner(address newOwner) onlyOwner public
@@ -75,7 +75,7 @@ contract MarsbaseBestBid is IMarsbaseBestBid
 
 	function setMaxBidsCount(uint256 _maxBidsCount) onlyOwner public
 	{
-		require(_maxBidsCount > 0, "Maximum bid number must be greater than 0.");
+		require(_maxBidsCount > 0, "400-IMAXBC"); // Invalid Max Bids Count
 		maxBidsCount = _maxBidsCount;
 	}
 
@@ -185,8 +185,8 @@ contract MarsbaseBestBid is IMarsbaseBestBid
 
 		require(
     		offers[offerId].totalBidsCount < maxBidsCount && offers[offerId].activeBidsCount < maxBidsCount,
-			"Maximum bids count exceeded."
-		);
+			"406-MAXBCE"
+		); // Maximum Bids Count Exceeded.
 
 		uint256 bidIdx = offers[offerId].totalBidsCount++; // set bidIx to be the current totalBidsCount and increase totalBidsCount
 		bytes32 bidId = getBidId(offerId, bidIdx);
@@ -461,4 +461,6 @@ contract MarsbaseBestBid is IMarsbaseBestBid
 			}
 		}
 	}
+
+	receive() external payable{}
 }

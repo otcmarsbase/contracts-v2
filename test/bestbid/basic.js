@@ -602,7 +602,7 @@ describe("bestbid/basic", () =>
 		expect(bid2Id).equal("1")
 
 		let bid3Tx = bb.connect(derek).createBid(offerId, tether.address, "450")
-		expect(bid3Tx).to.be.revertedWith("Maximum bids count exceeded.")
+		expect(bid3Tx).to.be.revertedWith("406-MAXBCE")
 	})
 	it("should fail if use feeAlice and feeBob that are greater than the maximum fee", async () =>
 	{
@@ -664,7 +664,7 @@ describe("bestbid/basic", () =>
 		it("should fail if attempt to set the value to 0", async () => {
 			let env = await prepareEnvironment()
 			let { bb } = env
-			await expect(bb.setMaxBidsCount(0)).to.be.revertedWith("Maximum bid number must be greater than 0.")
+			await expect(bb.setMaxBidsCount(0)).to.be.revertedWith("400-IMAXBC")
 		})
 		it("should fail if a non-owner try to call", async () => {
 			let env = await prepareEnvironment()
