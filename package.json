@@ -21,7 +21,7 @@
 		"@typechain/truffle-v5": "^8.0.1",
 		"@typechain/web3-v1": "^6.0.0",
 		"bignumber.js": "^9.0.2",
-		"chai": "^4.3.6",
+		"chai": "^4.3.7",
 		"dotenv": "^16.0.3",
 		"ethereum-waffle": "^3.4.4",
 		"ethers": "^6.3.0",
