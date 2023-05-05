@@ -72,7 +72,7 @@ const _abi = [
     stateMutability: "nonpayable",
     type: "function",
   },
-];
+] as const;
 
 export class IMarsbaseTreasury__factory {
   static readonly abi = _abi;

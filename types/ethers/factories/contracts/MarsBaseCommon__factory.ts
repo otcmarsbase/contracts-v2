@@ -382,7 +382,7 @@ const _abi = [
     name: "OfferModified",
     type: "event",
   },
-];
+] as const;
 
 export class MarsBaseCommon__factory {
   static readonly abi = _abi;
