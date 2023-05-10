@@ -1179,7 +1179,7 @@ const _abi = [
     stateMutability: "nonpayable",
     type: "function",
   },
-];
+] as const;
 
 export class MarsbaseMarketplace__factory {
   static readonly abi = _abi;

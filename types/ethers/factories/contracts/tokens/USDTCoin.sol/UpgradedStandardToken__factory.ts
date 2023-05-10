@@ -370,7 +370,7 @@ const _abi = [
     stateMutability: "nonpayable",
     type: "function",
   },
-];
+] as const;
 
 export class UpgradedStandardToken__factory {
   static readonly abi = _abi;

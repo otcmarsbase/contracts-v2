@@ -282,7 +282,7 @@ const _abi = [
     stateMutability: "nonpayable",
     type: "function",
   },
-];
+] as const;
 
 export class USDC__factory {
   static readonly abi = _abi;

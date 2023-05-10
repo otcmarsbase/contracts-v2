@@ -1077,7 +1077,7 @@ const _abi = [
     stateMutability: "nonpayable",
     type: "function",
   },
-];
+] as const;
 
 export class MarsBaseExchange__factory {
   static readonly abi = _abi;
