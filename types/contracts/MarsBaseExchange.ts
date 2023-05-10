@@ -29,6 +29,8 @@ export interface MarsBaseExchange extends BaseContract {
   ): MarsBaseExchange;
   clone(): MarsBaseExchange;
   methods: {
+    SCALE(): NonPayableTransactionObject<string>;
+
     _afterFee(
       amountBeforeFee: number | string | BN,
       feePercent: number | string | BN,
@@ -191,6 +193,10 @@ export interface MarsBaseExchange extends BaseContract {
       b: number | string | BN
     ): NonPayableTransactionObject<string>;
 
+    maxMinimumOrderTokensLength(): NonPayableTransactionObject<string>;
+
+    maximumFee(): NonPayableTransactionObject<string>;
+
     migrateContract(): PayableTransactionObject<void>;
 
     min(
@@ -265,6 +271,14 @@ export interface MarsBaseExchange extends BaseContract {
 
     setExchangerAddress(
       exchangeContract: string
+    ): NonPayableTransactionObject<void>;
+
+    setMaxMinimumOrderTokensLength(
+      _maxMinimumOrderTokensLength: number | string | BN
+    ): NonPayableTransactionObject<void>;
+
+    setMaximumFee(
+      _maximumFee: number | string | BN
     ): NonPayableTransactionObject<void>;
 
     setMinimumFee(

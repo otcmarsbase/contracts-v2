@@ -22,6 +22,7 @@ require("hardhat-gas-reporter");
 require('hardhat-contract-sizer');
 require('solidity-coverage');
 require('hardhat-abi-exporter');
+require("hardhat-tracer");
 
 const NETWORK = (hre) => console.log(`\n${hre.network.name.toUpperCase()} ${hre.network.name.toUpperCase()} ${hre.network.name.toUpperCase()}\n`)
 
@@ -365,7 +366,7 @@ task("deploy-marketplace", "Deploys Marsbase Marketplace contract")
 
 module.exports = {
   solidity: {
-    version: "0.8.13",
+    version: "0.8.19",
     settings: {
       optimizer: {
         enabled: true,

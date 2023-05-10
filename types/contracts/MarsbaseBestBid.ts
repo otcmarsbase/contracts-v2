@@ -126,6 +126,8 @@ export interface MarsbaseBestBid extends BaseContract {
   ): MarsbaseBestBid;
   clone(): MarsbaseBestBid;
   methods: {
+    SCALE(): NonPayableTransactionObject<string>;
+
     _afterFee(
       amountBeforeFee: number | string | BN,
       feePercent: number | string | BN,
@@ -232,6 +234,10 @@ export interface MarsbaseBestBid extends BaseContract {
 
     locked(): NonPayableTransactionObject<boolean>;
 
+    maxBidsCount(): NonPayableTransactionObject<string>;
+
+    maximumFee(): NonPayableTransactionObject<string>;
+
     minimumFee(): NonPayableTransactionObject<string>;
 
     nextOfferId(): NonPayableTransactionObject<string>;
@@ -267,6 +273,14 @@ export interface MarsbaseBestBid extends BaseContract {
     owner(): NonPayableTransactionObject<string>;
 
     setCommissionAddress(wallet: string): NonPayableTransactionObject<void>;
+
+    setMaxBidsCount(
+      _maxBidsCount: number | string | BN
+    ): NonPayableTransactionObject<void>;
+
+    setMaximumFee(
+      _maximumFee: number | string | BN
+    ): NonPayableTransactionObject<void>;
 
     setMinimumFee(
       _minimumFee: number | string | BN

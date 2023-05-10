@@ -226,6 +226,8 @@ export interface MarsbaseMarketplace extends BaseContract {
 
     locked(): NonPayableTransactionObject<boolean>;
 
+    maxBidsCount(): NonPayableTransactionObject<string>;
+
     minimumFee(): NonPayableTransactionObject<string>;
 
     nextOfferId(): NonPayableTransactionObject<string>;
@@ -263,6 +265,10 @@ export interface MarsbaseMarketplace extends BaseContract {
     owner(): NonPayableTransactionObject<string>;
 
     setCommissionAddress(wallet: string): NonPayableTransactionObject<void>;
+
+    setMaxBidsCount(
+      _maxBidsCount: number | string | BN
+    ): NonPayableTransactionObject<void>;
 
     setMinimumFee(
       _minimumFee: number | string | BN
